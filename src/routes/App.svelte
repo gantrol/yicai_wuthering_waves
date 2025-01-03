@@ -14,7 +14,7 @@
   let solution = undefined;
   let solvingSteps = [];
   let currentStep = 0;
-
+  let stepGrids = []; // 新增中间变量
 
   // 示例矩阵
   const exampleGrid = [
@@ -36,6 +36,7 @@
     grid = exampleGrid.map(row => [...row]);
     solution = undefined;
     solvingSteps = [];
+    stepGrids = []; // 清空中间变量
     currentStep = 0;
     grid = [...grid];
   }
@@ -45,6 +46,7 @@
     moveHistory = [];
     solution = undefined;
     solvingSteps = [];
+    stepGrids = []; // 清空中间变量
     currentStep = 0;
     grid = [...grid];
   }
@@ -56,6 +58,7 @@
     moveHistory = [];
     solution = undefined;
     solvingSteps = [];
+    stepGrids = []; // 清空中间变量
     currentStep = 0;
     grid = [...grid];
   }
@@ -284,29 +287,38 @@
     return { type: 'failure', message: "在4步内无法将所有数字变成目标颜色。" };
   }
 
-  // 执行解题步骤
-  function executeStep() {
-    if (currentStep < solvingSteps.length) {
-      const { A, B, position } = solvingSteps[currentStep];
-      const [row, col] = position;
-      grid = floodFill(cloneMatrix(grid), A, row, col);
-      currentStep++;
-    }
-  }
-
-  // 显示解题步骤
-  function showSolution() {
-    if (solution && solution.steps && solution.steps.length > 0) {
-      solvingSteps = solution.steps;
-      currentStep = 0;
-      grid = cloneMatrix(exampleGrid); // 重置棋盘状态
-    }
-  }
-
-  // 广度优先搜索解题
   function solvePuzzle() {
-    const result = bfs(cloneMatrix(grid), targetColor);
-    solution = result;
+      const result = bfs(cloneMatrix(grid), targetColor);
+      solution = result;
+
+      if (result.type === 'success') {
+          // 生成每一步的棋盘状态
+          stepGrids = [cloneMatrix(grid)]; // 初始状态
+          let tempGrid = cloneMatrix(grid);
+          for (let step of result.steps) {
+              const { A, B, position } = step;
+              const [row, col] = position;
+              tempGrid = floodFill(cloneMatrix(tempGrid), A, row, col);
+              stepGrids.push(cloneMatrix(tempGrid));
+          }
+      }
+  }
+
+  // 修改 showSolution
+  function showSolution() {
+      if (solution && solution.type === 'success' && solution.steps.length > 0) {
+          solvingSteps = solution.steps;
+          currentStep = 0;
+          grid = cloneMatrix(stepGrids[0]); // 设置为初始状态
+      }
+  }
+
+  // 修改 executeStep
+  function executeStep() {
+      if (currentStep < solvingSteps.length) {
+          grid = cloneMatrix(stepGrids[currentStep + 1]); // 更新到下一步的状态
+          currentStep++;
+      }
   }
 
 
@@ -514,7 +526,7 @@
           <ol>
             {#each solution.steps as step,index}
               <li class="solution-step">
-                选择颜色{colorsName[step.A]}({step.A})，点击位置 ({step.position[0]}, {step.position[1]})
+                选择{colorsName[step.A]}色({step.A})，点击位置 ({step.position[0]}, {step.position[1]})
               </li>
             {/each}
           </ol>
