@@ -15,6 +15,7 @@
   let solvingSteps = [];
   let currentStep = 0;
   let stepGrids = []; // 新增中间变量
+  let isAutoSolved = false; // 新增状态变量
 
   // 示例矩阵
   const exampleGrid = [
@@ -38,6 +39,7 @@
     solvingSteps = [];
     stepGrids = []; // 清空中间变量
     currentStep = 0;
+    isAutoSolved = false; // 重置状态变量
     grid = [...grid];
   }
 
@@ -48,6 +50,7 @@
     solvingSteps = [];
     stepGrids = []; // 清空中间变量
     currentStep = 0;
+    isAutoSolved = false; // 重置状态变量
     grid = [...grid];
   }
 
@@ -60,6 +63,7 @@
     solvingSteps = [];
     stepGrids = []; // 清空中间变量
     currentStep = 0;
+    isAutoSolved = false; // 重置状态变量
     grid = [...grid];
   }
 
@@ -202,7 +206,6 @@
     return true;
   }
 
-
   // 应用操作：将点击的B及其上下左右相邻的B替换为A
   function applyOperation(matrix, A, x, y) {
     const rows = matrix.length;
@@ -242,7 +245,6 @@
 
     return newMatrix;
   }
-
 
   // 广度优先搜索，最多4步
   function bfs(initialMatrix, targetColor) {
@@ -287,41 +289,55 @@
     return { type: 'failure', message: "在4步内无法将所有数字变成目标颜色。" };
   }
 
-  function solvePuzzle() {
-      const result = bfs(cloneMatrix(grid), targetColor);
-      solution = result;
-
-      if (result.type === 'success') {
-          // 生成每一步的棋盘状态
-          stepGrids = [cloneMatrix(grid)]; // 初始状态
-          let tempGrid = cloneMatrix(grid);
-          for (let step of result.steps) {
-              const { A, B, position } = step;
-              const [row, col] = position;
-              tempGrid = floodFill(cloneMatrix(tempGrid), A, row, col);
-              stepGrids.push(cloneMatrix(tempGrid));
-          }
-      }
-  }
-
-  // 修改 showSolution
-  function showSolution() {
-      if (solution && solution.type === 'success' && solution.steps.length > 0) {
-          solvingSteps = solution.steps;
-          currentStep = 0;
-          grid = cloneMatrix(stepGrids[0]); // 设置为初始状态
-      }
-  }
-
-  // 修改 executeStep
+  // 执行解题步骤
   function executeStep() {
-      if (currentStep < solvingSteps.length) {
-          grid = cloneMatrix(stepGrids[currentStep + 1]); // 更新到下一步的状态
-          currentStep++;
-      }
+    if (currentStep < solvingSteps.length) {
+      const { A, B, position } = solvingSteps[currentStep];
+      const [row, col] = position;
+      grid = floodFill(cloneMatrix(grid), A, row, col);
+      currentStep++;
+    }
   }
 
+  // 显示解题步骤
+  function showSolution() {
+    if (solution && solution.steps && solution.steps.length > 0) {
+      solvingSteps = solution.steps;
+      currentStep = 0;
+      grid = cloneMatrix(stepGrids[0]); // 设置为初始状态
+    }
+  }
 
+  // 广度优先搜索解题
+  function solvePuzzle() {
+    const result = bfs(cloneMatrix(grid), targetColor);
+    solution = result;
+
+    if (result.type === 'success') {
+      // 生成每一步的棋盘状态
+      stepGrids = [cloneMatrix(grid)]; // 初始状态
+      let tempGrid = cloneMatrix(grid);
+      for (let step of result.steps) {
+        const { A, B, position } = step;
+        const [row, col] = position;
+        tempGrid = floodFill(cloneMatrix(tempGrid), A, row, col);
+        stepGrids.push(cloneMatrix(tempGrid));
+      }
+      isAutoSolved = true; // 设置为自动解题状态
+    }
+  }
+
+  // 新增还原题目的函数
+  function restorePuzzle() {
+    if (stepGrids.length > 0) {
+      grid = cloneMatrix(stepGrids[0]); // 恢复到自动解题前的状态
+      solvingSteps = [];
+      stepGrids = [];
+      solution = undefined;
+      currentStep = 0;
+      isAutoSolved = false; // 重置自动解题状态
+    }
+  }
 </script>
 
 <style>
@@ -487,14 +503,16 @@
     <button class="button" on:click={clearGrid}>清空画板</button>
     <button class="button" on:click={generatePuzzle}>新建题目</button>
     <button class="button" on:click={fillEmpty}>填充空白</button>
-    <button class="button" on:click={solvePuzzle}>自动解题</button>
+    <!-- 修改自动解题按钮，根据 isAutoSolved 显示不同的标签和功能 -->
+    <button class="button" on:click={isAutoSolved ? restorePuzzle : solvePuzzle}>
+      {isAutoSolved ? '还原题目' : '自动解题'}
+    </button>
     {#if !editMode}
       <button class="button" on:click={resetMoves}>重新开始</button>
     {/if}
     {#if solution && solution.type === 'success'}
       <button class="button" on:click={showSolution}>查看解题步骤</button>
     {/if}
-
   </div>
 
   {#if !editMode}
