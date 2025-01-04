@@ -1,18 +1,36 @@
-<script>
+<!-- /src/routes/+layout.svelte -->
+<script lang="ts">
     import "../app.css";
     import Nav from '$lib/components/Nav.svelte'
+    import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+    import AppSidebar from '$lib/components/app-sidebar.svelte';
+
+    // SvelteKit 会将下级页面的内容作为 children 或 <slot /> 呈现
+    let { children } = $props();
 </script>
 
-<!-- 视图部分 -->
+<!-- 外层布局：顶部导航 + sidebar + 内容 -->
 <div class="min-h-screen flex flex-col bg-background text-foreground">
     <!-- 顶部导航 -->
-    <Nav />
 
-    <!-- 页面主体，留个插槽给下级路由页面 -->
-    <main class="flex-1 container mx-auto p-4">
-        <slot />
-    </main>
+    <!-- 在此处使用 sidebar 提供器 -->
+    <Sidebar.Provider collapsible="icon">
+        <!-- Sidebar组件（左侧） -->
+        <AppSidebar />
+
+        <!-- 主体内容区域 -->
+        <main class="flex-1 container mx-auto p-4">
+            <Nav>
+                <Sidebar.Trigger class="mb-4" />
+            </Nav>
+
+            <!-- 可选的触发按钮，用于折叠/展开 sidebar -->
+            {@render children?.()}
+        </main>
+    </Sidebar.Provider>
 </div>
+
+
 
 <svelte:head>
     <title>溢彩画高手|鸣潮|解题工具</title>
