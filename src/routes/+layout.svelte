@@ -21,7 +21,7 @@
         <!-- 主体内容区域 -->
         <main class="flex-1 container mx-auto p-4">
             <Nav>
-                <Sidebar.Trigger class="mb-4" />
+                <Sidebar.Trigger />
             </Nav>
 
             <!-- 可选的触发按钮，用于折叠/展开 sidebar -->

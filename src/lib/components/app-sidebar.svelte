@@ -28,10 +28,8 @@
             const response = await fetch('/puzzles_json/list.json');
             if (!response.ok) throw new Error('无法加载题目列表');
             puzzles = await response.json();
-            isLoading = false;
         } catch (error) {
             console.error('加载题目列表失败:', error);
-            isLoading = false;
         }
     }
 

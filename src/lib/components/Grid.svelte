@@ -1,3 +1,4 @@
+<!-- src/lib/components/Grid.svelte -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
 
@@ -8,88 +9,119 @@
 
     const dispatch = createEventDispatcher();
 
-    function handleMouseDown(row: number, col: number) {
+    // Handle both mouse and touch events
+    function handleStart(row: number, col: number, event: MouseEvent | TouchEvent) {
+        event.preventDefault(); // Prevent scrolling on touch
         dispatch('mousedown', { row, col });
     }
 
-    function handleMouseEnter(row: number, col: number) {
+    function handleMove(row: number, col: number, event: MouseEvent | TouchEvent) {
+        event.preventDefault(); // Prevent scrolling on touch
         dispatch('mouseenter', { row, col });
     }
+
+    // Calculate cell size based on screen width
+    let containerWidth: number;
+    $: cellSize = containerWidth ? Math.min(40, (containerWidth - 40) / cols) : 40; // 40px is the max size
 </script>
 
 <style>
     .grid-container {
         display: flex;
         flex-direction: column;
-    }
-
-    .grid-header, .grid-row {
-        display: flex;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
 
     .grid-header {
+        display: flex;
         margin-left: 30px;
     }
 
+    .grid-row {
+        display: flex;
+        align-items: center;
+    }
+
     .grid-header div, .row-label {
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        border: 1px solid rgba(204, 204, 204, 0);
         text-align: center;
         font-weight: bold;
+        font-size: 0.875rem; /* Smaller font on mobile */
     }
 
     .grid {
-        display: grid;
-        grid-template-columns: repeat(var(--cols), 40px);
-        grid-gap: 2px;
-        user-select: none;
+        display: flex;
+        flex-direction: column;
+        touch-action: none; /* Disable browser touch actions */
     }
 
     .cell {
-        width: 40px;
-        height: 40px;
         border: 1px solid #ccc;
         cursor: pointer;
         border-radius: 4px;
         position: relative;
+        touch-action: none;
     }
 
     .cell-id {
         position: absolute;
         bottom: 2px;
         right: 2px;
-        font-size: 12px;
+        font-size: 10px; /* Smaller font on mobile */
         color: rgba(0, 0, 0, 0.7);
     }
 
     .row-label {
         width: 30px;
-        height: 40px;
-        border: 1px solid rgba(204, 204, 204, 0);
-        line-height: 40px;
-        text-align: center;
-        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 640px) {
+        .grid-container {
+            font-size: 0.875rem;
+        }
+
+        .cell-id {
+            font-size: 8px;
+        }
     }
 </style>
 
-<div class="grid-container">
+<div
+        class="grid-container"
+        bind:clientWidth={containerWidth}
+>
     <div class="grid-header">
         {#each Array(cols).fill(0).map((_, i) => i + 1) as colLabel}
-            <div>{colLabel}</div>
+            <div style="width: {cellSize}px; height: {cellSize}px; line-height: {cellSize}px;">
+                {colLabel}
+            </div>
         {/each}
     </div>
     <div class="grid">
         {#each grid as row, rowIndex}
-            <div class="grid-row" style="display: flex;">
-                <div class="row-label">{rowIndex + 1}</div>
+            <div class="grid-row">
+                <div
+                        class="row-label"
+                        style="height: {cellSize}px; line-height: {cellSize}px;"
+                >
+                    {rowIndex + 1}
+                </div>
                 {#each row as cell, colIndex}
                     <div
                             class="cell"
-                            style="background-color: {colors[cell]};"
-                            on:mousedown={() => handleMouseDown(rowIndex, colIndex)}
-                            on:mouseenter={() => handleMouseEnter(rowIndex, colIndex)}
+                            style="
+                            width: {cellSize}px;
+                            height: {cellSize}px;
+                            background-color: {colors[cell]};
+                        "
+                            on:mousedown={(e) => handleStart(rowIndex, colIndex, e)}
+                            on:touchstart={(e) => handleStart(rowIndex, colIndex, e)}
+                            on:mousemove={(e) => handleMove(rowIndex, colIndex, e)}
+                            on:touchmove={(e) => handleMove(rowIndex, colIndex, e)}
                     >
                         <span class="cell-id">{cell}</span>
                     </div>
