@@ -2,24 +2,26 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+    import * as ScrollArea from "$lib/components/ui/scroll-area";
+    import { Separator } from "$lib/components/ui/separator";
+    import { Button } from "$lib/components/ui/button";
 
     import House from "lucide-svelte/icons/house";
     import Inbox from "lucide-svelte/icons/inbox";
-    import Circle from "lucide-svelte/icons/circle";
+    import Github from "lucide-svelte/icons/github";
     import PuzzleIcon from "lucide-svelte/icons/puzzle";
+    import ChevronRight from "lucide-svelte/icons/chevron-right";
 
     interface PuzzleItem {
         id: number;
     }
 
-    // 定义一些内置菜单示例
     const commonItems = [
-        { title: "首页",    url: "/",        icon: House },
-        { title: "列表页",  url: "/puzzles",   icon: Inbox },
+        { title: "首页", url: "/", icon: House },
+        { title: "题库", url: "/puzzles", icon: Inbox },
         // { title: "其它示例", url: "#random", icon: Circle },
     ];
 
-    // 这里加载 /puzzles/list.json 里的题目 ID，动态加入菜单
     let puzzles: PuzzleItem[] = [];
 
     async function loadPuzzles() {
@@ -27,107 +29,87 @@
             const response = await fetch('/puzzles_json/list.json');
             if (!response.ok) throw new Error('无法加载题目列表');
             puzzles = await response.json();
+            isLoading = false;
         } catch (error) {
             console.error('加载题目列表失败:', error);
+            isLoading = false;
         }
     }
 
-    onMount(() => {
-        loadPuzzles();
+    onMount(async () => {
+        await loadPuzzles();
     });
 </script>
 
-<!-- Sidebar 根 -->
-<Sidebar.Root side="left" variant="sidebar" collapsible="offcanvas">
-    <!-- 这里可以加 Sidebar.Header, Footer, Content 等组件 -->
-
-    <Sidebar.Header>
-        <Sidebar.Menu>
-            <Sidebar.MenuItem>
-                <Sidebar.MenuButton isActive>
-                    {#snippet child({ props })}
-                    <!-- 这里仅做个简单标题，点击无跳转 -->
-                    <div {...props} class="flex items-center gap-2">
-                        <PuzzleIcon />
-                    </div>
-                    {/snippet}
-                </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-        </Sidebar.Menu>
+<Sidebar.Root side="left" variant="sidebar" collapsible="offcanvas" class="border-r">
+    <Sidebar.Header class="px-4 py-3">
+        <div class="flex items-center gap-2">
+            <PuzzleIcon class="h-6 w-6" />
+            <span class="font-semibold text-xl">溢彩画工具</span>
+        </div>
     </Sidebar.Header>
 
-    <!-- 2. 中间可滚动内容 -->
-    <Sidebar.Content>
-        <!-- 第一组：示例内置菜单 -->
-        <Sidebar.Group>
-            <Sidebar.GroupLabel>主页面</Sidebar.GroupLabel>
-            <Sidebar.GroupContent>
-                <Sidebar.Menu>
-                    {#each commonItems as item (item.title)}
-                        <Sidebar.MenuItem>
-                            <Sidebar.MenuButton>
-                                {#snippet child({ props })}
-                                <a href={item.url} {...props} class="flex items-center gap-2">
-                                    <item.icon />
-                                    <span>{item.title}</span>
-                                </a>
-                                {/snippet}
-                            </Sidebar.MenuButton>
-                        </Sidebar.MenuItem>
-                    {/each}
-                </Sidebar.Menu>
-            </Sidebar.GroupContent>
-        </Sidebar.Group>
-
-        <!-- 分隔线 -->
-        <Sidebar.Separator />
-
-        <!-- 第二组：题目列表 -->
-        <Sidebar.Group>
-            <Sidebar.GroupLabel>题目列表</Sidebar.GroupLabel>
-            <Sidebar.GroupContent>
-                <Sidebar.Menu>
-                    {#if puzzles.length === 0}
-                        <!-- 如果还没加载到题目，可以显示一个 Skeleton 或“暂无数据” -->
-                        <Sidebar.MenuItem>
-                            <Sidebar.MenuSkeleton />
-                        </Sidebar.MenuItem>
-                    {:else}
-                        {#each puzzles as puzzle (puzzle.id)}
+        <Sidebar.Content class="p-2">
+            <Sidebar.Group>
+                <Sidebar.GroupContent>
+                    <Sidebar.Menu>
+                        {#each commonItems as item (item.title)}
                             <Sidebar.MenuItem>
                                 <Sidebar.MenuButton>
                                     {#snippet child({ props })}
-                                    <!-- 点击跳转至 /solver?id=xxx -->
-                                    <a
-                                            href={`/puzzles/${puzzle.id}`}
-                                            {...props}
-                                            class="flex items-center gap-2"
-                                    >
-                                        <PuzzleIcon />
-                                        <span>{puzzle.id}</span>
+                                    <a href={item.url} {...props}
+                                       class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent">
+                                        <item.icon class="h-4 w-4" />
+                                        <span>{item.title}</span>
                                     </a>
                                     {/snippet}
                                 </Sidebar.MenuButton>
                             </Sidebar.MenuItem>
                         {/each}
-                    {/if}
-                </Sidebar.Menu>
-            </Sidebar.GroupContent>
-        </Sidebar.Group>
-    </Sidebar.Content>
+                    </Sidebar.Menu>
+                </Sidebar.GroupContent>
+            </Sidebar.Group>
 
-    <!-- 3. (可选) Footer 区域，比如放账号信息等 -->
-    <Sidebar.Footer>
-        <Sidebar.Menu>
-            <Sidebar.MenuItem>
-                <Sidebar.MenuButton>
-                    {#snippet child({ props })}
-                    <a href="https://github.com/gantrol/yicai_wuthering_waves" {...props} target="_blank">
-                        <span>GitHub仓库</span>
-                    </a>
-                    {/snippet}
-                </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
-        </Sidebar.Menu>
+            <Separator class="my-4" />
+
+            <Sidebar.Group>
+                <Sidebar.GroupLabel class="px-3 text-sm font-semibold">
+                    题目列表
+                </Sidebar.GroupLabel>
+                <Sidebar.GroupContent>
+                    <Sidebar.Menu>
+                        {#each puzzles as puzzle (puzzle.id)}
+                            <Sidebar.MenuItem>
+                                <Sidebar.MenuButton>
+                                    {#snippet child({ props })}
+                                    <a
+                                            href={`/puzzles/${puzzle.id}`}
+                                           {...props}
+                                           class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-accent">
+                                        <div class="flex items-center gap-3">
+                                            <PuzzleIcon class="h-4 w-4" />
+                                            <span>题目 {puzzle.id}</span>
+                                        </div>
+<!--                                        <ChevronRight class="h-4 w-4" />-->
+                                    </a>
+                                    {/snippet}
+                                </Sidebar.MenuButton>
+                            </Sidebar.MenuItem>
+                        {/each}
+                    </Sidebar.Menu>
+                </Sidebar.GroupContent>
+            </Sidebar.Group>
+        </Sidebar.Content>
+
+    <Sidebar.Footer class="border-t p-4">
+        <Button
+                variant="outline"
+                class="w-full justify-start gap-2"
+                href="https://github.com/gantrol/yicai_wuthering_waves"
+                target="_blank"
+        >
+            <Github class="h-4 w-4" />
+            <span>GitHub 仓库</span>
+        </Button>
     </Sidebar.Footer>
 </Sidebar.Root>
