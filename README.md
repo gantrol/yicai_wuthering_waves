@@ -51,8 +51,15 @@
 
 如果您发现任何问题或有改进建议，请在 [Issues](https://github.com/yourusername/溢彩画高手/issues) 中提交。
 
+## 新增题目
+
+在`static/puzzles_json`下新增`.json`文件，该文件可由编辑区隐藏的“导出题目”按钮导出，可含解决步骤。添加合适格式的文件后，假设为`A.json`，访问`/puzzles/A`即可加载对应题目。
+
+然后在`static/list.json`新增一行记录，侧边栏题目列表、题库都会出现相应记录
 
 ## 开发
+
+### 环境依赖
 
 确保您已经安装了 [Node.js](https://nodejs.org/) 和 [npm](https://www.npmjs.com/)。
 
@@ -70,7 +77,7 @@
    # 或者使用 pnpm/yarn
    ```
 
-## 开发
+### 开发服务器
 
 启动开发服务器：
 
@@ -86,7 +93,7 @@ npm run dev -- --open
 
 开发过程中，代码的修改将会实时热更新。
 
-## 构建
+### 构建
 
 构建生产版本：
 
@@ -100,7 +107,7 @@ npm run build
 npm run preview
 ```
 
-## 部署
+### 部署
 
 为了部署您的应用，您可能需要为目标环境安装一个 [adapter](https://kit.svelte.dev/docs/adapters)。部署到vercel则无需更改
 
