@@ -11,10 +11,10 @@
     import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
     import * as Collapsible from "$lib/components/ui/collapsible/index.js";
     import { buttonVariants } from "$lib/components/ui/button/index.js";
-    let puzzleId: number;
+    export let puzzleId: string | null;
 
     // 获取编号对应的 JSON 数据
-    async function loadPuzzleById(id: number) {
+    async function loadPuzzleById(id: string) {
         try {
             const response = await fetch(`/puzzles/${id}.json`); // 根据实际 API 更新 URL
             if (!response.ok) throw new Error('无法加载题目数据');
@@ -58,11 +58,11 @@
 
     // 自动加载编号对应数据
     onMount(() => {
-        const params = new URLSearchParams(window.location.search);
-        puzzleId = Number(params.get('id'));
-
+        console.log(puzzleId)
         if (puzzleId) {
             loadPuzzleById(puzzleId);
+        } else {
+            loadExample();
         }
     });
 
@@ -111,10 +111,6 @@
     ];
 
     let grid: number[][] = [];
-
-    onMount(() => {
-        loadExample();
-    });
 
     function resetMoves() {
         moveHistory = [];
@@ -376,11 +372,6 @@
             currentStep = 0;
             isAutoSolved = false;
         }
-    }
-
-    // 处理 Controls 组件触发的 requestShowSolution 事件
-    function handleRequestShowSolution() {
-        showSolution();
     }
 </script>
 <input

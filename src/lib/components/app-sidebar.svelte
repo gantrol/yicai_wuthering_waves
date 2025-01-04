@@ -3,7 +3,6 @@
     import { onMount } from 'svelte';
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 
-    // 你也可以根据需要导入一些图标，如 lucide-svelte/icons
     import House from "lucide-svelte/icons/house";
     import Inbox from "lucide-svelte/icons/inbox";
     import Circle from "lucide-svelte/icons/circle";
@@ -16,7 +15,7 @@
     // 定义一些内置菜单示例
     const commonItems = [
         { title: "首页",    url: "/",        icon: House },
-        { title: "列表页",  url: "/list",   icon: Inbox },
+        { title: "列表页",  url: "/puzzles",   icon: Inbox },
         // { title: "其它示例", url: "#random", icon: Circle },
     ];
 
@@ -100,12 +99,12 @@
                                     {#snippet child({ props })}
                                     <!-- 点击跳转至 /solver?id=xxx -->
                                     <a
-                                            href={`/solver?id=${puzzle.id}`}
+                                            href={`/puzzles/${puzzle.id}`}
                                             {...props}
                                             class="flex items-center gap-2"
                                     >
                                         <PuzzleIcon />
-                                        <span>题目 {puzzle.id}</span>
+                                        <span>{puzzle.id}</span>
                                     </a>
                                     {/snippet}
                                 </Sidebar.MenuButton>
