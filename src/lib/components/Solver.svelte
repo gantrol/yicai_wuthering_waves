@@ -10,7 +10,6 @@
 
     let rows = 8;
     let cols = 10;
-    let colorsName = ['空', '蓝', '红', '黄', '绿'];
     let colorsValue = ['#ffffff', '#4980b9', '#d2463e', '#f5db82', '#59a68d'];
     let selectedColor = 1;
     let targetColor = 1;

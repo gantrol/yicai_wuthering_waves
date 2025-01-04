@@ -1,14 +1,12 @@
-<!-- /src/lib/components/Solution.svelte -->
 <script lang="ts">
     export let solution: any;
     export let steps: any[];
     export let currentStep: number;
-    // 新增：上一、下一步的方法由外部传进来
     export let prevStep: () => void;
     export let nextStep: () => void;
 
-    // 保留原有的逻辑
-    export let showSolution: () => void;
+    // 添加颜色名称数组
+    let colorsName = ['空', '蓝', '红', '黄', '绿'];
 </script>
 
 <style>
@@ -55,7 +53,7 @@
             <ol>
                 {#each solution.steps as step, index}
                     <li class="solution-step">
-                        选择 {step.A} 色，点击位置 ({step.position[0] + 1}, {step.position[1] + 1})
+                        选择{colorsName[step.A]}色({step.A})，点击位置 ({step.position[0] + 1}, {step.position[1] + 1})
                     </li>
                 {/each}
             </ol>
