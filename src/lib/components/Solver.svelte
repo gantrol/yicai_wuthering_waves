@@ -8,6 +8,61 @@
     import { cloneMatrix, floodFill, isGoalState, matrixToString, isAllTargetColor } from '$lib/utils/gridUtils';
     import { bfs } from '$lib/utils/solver';
 
+    let puzzleId: number;
+
+    // 获取编号对应的 JSON 数据
+    async function loadPuzzleById(id: number) {
+        try {
+            const response = await fetch(`/puzzles/${id}.json`); // 根据实际 API 更新 URL
+            if (!response.ok) throw new Error('无法加载题目数据');
+            const puzzle = await response.json();
+
+            // 更新棋盘状态
+            if (puzzle.grid) grid = puzzle.grid;
+            if (puzzle.targetColor) targetColor = puzzle.targetColor;
+            if (puzzle.maxSteps) maxSteps = puzzle.maxSteps;
+            if (puzzle.solutionSteps && puzzle.solutionSteps.length > 0) {
+                // 重置 solution 为 "success"，并存入 steps
+                solution = {
+                    type: 'success',
+                    steps: puzzle.solutionSteps
+                };
+                solvingSteps = puzzle.solutionSteps;
+
+                // 3. 重新构建 stepGrids：第 0 步是导入后的当前网格
+                stepGrids = [cloneMatrix(grid)];
+                let tempGrid = cloneMatrix(grid);
+                for (let step of puzzle.solutionSteps) {
+                    const { A, position } = step;
+                    tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
+                    stepGrids.push(cloneMatrix(tempGrid));
+                }
+                currentStep = 0;
+                isAutoSolved = true; // 说明此时已经有解法
+            } else {
+                // 如果导入的 puzzle 没有解法步骤，则不设置 solution/stepGrids
+                solution = undefined;
+                solvingSteps = [];
+                stepGrids = [];
+                currentStep = 0;
+                isAutoSolved = false;
+            }
+        } catch (error) {
+            console.error('加载题目失败:', error);
+            alert('加载题目失败，请检查编号或网络连接');
+        }
+    }
+
+    // 自动加载编号对应数据
+    onMount(() => {
+        const params = new URLSearchParams(window.location.search);
+        puzzleId = Number(params.get('id'));
+
+        if (puzzleId) {
+            loadPuzzleById(puzzleId);
+        }
+    });
+
     let rows = 8;
     let cols = 10;
     let colorsValue = ['#ffffff', '#4980b9', '#d2463e', '#f5db82', '#59a68d'];
@@ -93,6 +148,7 @@
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
         const dlAnchorElem = document.createElement('a');
         dlAnchorElem.setAttribute("href", dataStr);
+        // TODO: change name
         dlAnchorElem.setAttribute("download", "溢彩画示例.json");
         dlAnchorElem.click();
     }
