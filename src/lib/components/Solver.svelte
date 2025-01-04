@@ -16,7 +16,14 @@
     let targetColor = 1;
     let maxSteps = 4;
     let editMode = true;
-    let solution = undefined;
+    interface BFSResult {
+        type: 'success' | 'failure';
+        steps?: Step[];
+        message?: string;
+    }
+
+    let solution: BFSResult | undefined = undefined;
+
     let solvingSteps: Step[] = [];
     let currentStep = 0;
     let stepGrids: number[][] = [];
