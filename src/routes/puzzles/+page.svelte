@@ -45,7 +45,7 @@
         {#each puzzles as puzzle}
             <div
                     class="puzzle-item"
-                    on:click={() => (window.location.href = `../../../static/puzzles_json/${puzzle.id}`)}
+                    on:click={() => (window.location.href = `/puzzles/${puzzle.id}`)}
             >
                 题目编号: {puzzle.id}
             </div>
