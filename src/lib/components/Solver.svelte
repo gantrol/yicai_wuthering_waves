@@ -388,7 +388,7 @@
         on:change={handleFileChange}
 />
 <div
-        class="flex flex-col md:flex-row gap-4"
+        class="flex flex-col md:flex-row gap-4 mt-5"
         on:mouseup={handleMouseUp}
         on:mouseleave={handleMouseUp}
 >
@@ -398,7 +398,7 @@
         <Card>
             <CardContent class="space-y-4">
                 <Collapsible.Root class="space-y-2">
-                    <div class="flex items-center justify-between space-x-4 px-4">
+                    <div class="flex items-center justify-between space-x-4">
                         <h2 class="text-lg font-semibold">编辑区</h2>
                         <Collapsible.Trigger
                                 class={buttonVariants({ variant: "ghost", size: "sm", class: "w-9 p-0" })}
@@ -456,9 +456,6 @@
 
         <!-- Card 2: 棋盘区域 -->
         <Card>
-            <CardHeader>
-                <CardTitle>棋盘</CardTitle>
-            </CardHeader>
             <CardContent>
                 {#if !editMode}
                     <div class="font-semibold">
@@ -473,7 +470,7 @@
                             on:select={(e) => (selectedColor = e.detail)}
                     />
                     {#if isAutoSolved}
-                        <Button onclick={restorePuzzle}>
+                        <Button variant="outline" onclick={restorePuzzle}>
                             还原题目
                         </Button>
                     {:else}
@@ -502,9 +499,6 @@
     {#if solution}
         <div class="w-full md:w-[320px] flex-shrink-0">
             <Card>
-                <CardHeader>
-                    <CardTitle>解题方案</CardTitle>
-                </CardHeader>
                 <CardContent>
                     <Solution
                             solution={solution}

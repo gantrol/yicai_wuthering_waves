@@ -39,64 +39,64 @@
 </script>
 
 <Sidebar.Root side="left" variant="sidebar" collapsible="offcanvas" class="border-r">
-    <Sidebar.Header class="px-4 py-3">
-        <div class="flex items-center gap-2">
+    <Sidebar.Header class="px-4 py-2">
+        <div class="flex items-center gap-2 mt-6">
             <PuzzleIcon class="h-6 w-6" />
             <span class="font-semibold text-xl">溢彩画工具</span>
         </div>
     </Sidebar.Header>
 
-        <Sidebar.Content class="p-2">
-            <Sidebar.Group>
-                <Sidebar.GroupContent>
-                    <Sidebar.Menu>
-                        {#each commonItems as item (item.title)}
-                            <Sidebar.MenuItem>
-                                <Sidebar.MenuButton>
-                                    {#snippet child({ props })}
-                                    <a href={item.url} {...props}
-                                       class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent">
-                                        <item.icon class="h-4 w-4" />
-                                        <span>{item.title}</span>
-                                    </a>
-                                    {/snippet}
-                                </Sidebar.MenuButton>
-                            </Sidebar.MenuItem>
-                        {/each}
-                    </Sidebar.Menu>
-                </Sidebar.GroupContent>
-            </Sidebar.Group>
+    <Sidebar.Content class="p-1">
+        <Sidebar.Group>
+            <Sidebar.GroupContent>
+                <Sidebar.Menu>
+                    {#each commonItems as item (item.title)}
+                        <Sidebar.MenuItem>
+                            <Sidebar.MenuButton>
+                                {#snippet child({ props })}
+                                <a href={item.url} {...props}
+                                   class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent">
+                                    <item.icon class="h-4 w-4" />
+                                    <span>{item.title}</span>
+                                </a>
+                                {/snippet}
+                            </Sidebar.MenuButton>
+                        </Sidebar.MenuItem>
+                    {/each}
+                </Sidebar.Menu>
+            </Sidebar.GroupContent>
+        </Sidebar.Group>
 
-            <Separator class="my-4" />
+        <Separator class="my-4" />
 
-            <Sidebar.Group>
-                <Sidebar.GroupLabel class="px-3 text-sm font-semibold">
-                    题目列表
-                </Sidebar.GroupLabel>
-                <Sidebar.GroupContent>
-                    <Sidebar.Menu>
-                        {#each puzzles as puzzle (puzzle.id)}
-                            <Sidebar.MenuItem>
-                                <Sidebar.MenuButton>
-                                    {#snippet child({ props })}
-                                    <a
-                                            href={`/puzzles/${puzzle.id}`}
-                                           {...props}
-                                           class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-accent">
-                                        <div class="flex items-center gap-3">
-                                            <PuzzleIcon class="h-4 w-4" />
-                                            <span>题目 {puzzle.id}</span>
-                                        </div>
+        <Sidebar.Group>
+            <Sidebar.GroupLabel class="px-3 text-sm font-semibold">
+                题目列表
+            </Sidebar.GroupLabel>
+            <Sidebar.GroupContent>
+                <Sidebar.Menu>
+                    {#each puzzles as puzzle (puzzle.id)}
+                        <Sidebar.MenuItem>
+                            <Sidebar.MenuButton>
+                                {#snippet child({ props })}
+                                <a
+                                        href={`/puzzles/${puzzle.id}`}
+                                       {...props}
+                                       class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-accent">
+                                    <div class="flex items-center gap-3">
+                                        <PuzzleIcon class="h-4 w-4" />
+                                        <span>题目 {puzzle.id}</span>
+                                    </div>
 <!--                                        <ChevronRight class="h-4 w-4" />-->
-                                    </a>
-                                    {/snippet}
-                                </Sidebar.MenuButton>
-                            </Sidebar.MenuItem>
-                        {/each}
-                    </Sidebar.Menu>
-                </Sidebar.GroupContent>
-            </Sidebar.Group>
-        </Sidebar.Content>
+                                </a>
+                                {/snippet}
+                            </Sidebar.MenuButton>
+                        </Sidebar.MenuItem>
+                    {/each}
+                </Sidebar.Menu>
+            </Sidebar.GroupContent>
+        </Sidebar.Group>
+</Sidebar.Content>
 
     <Sidebar.Footer class="border-t p-4">
         <Button

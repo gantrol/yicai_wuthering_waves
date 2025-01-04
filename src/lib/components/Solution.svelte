@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { Button } from './ui/button'
+
     export let solution: any;
     export let steps: any[];
     export let currentStep: number;
@@ -60,17 +62,16 @@
 
             <!-- 上一步、下一步 按钮组 -->
             <div class="step-buttons">
-                <button
-                        class="button"
-                        on:click={prevStep}
+                <Button
+                        onclick={prevStep}
                         disabled={currentStep <= 0}
-                >上一步</button>
+                >上一步</Button>
 
-                <button
+                <Button
                         class="button"
-                        on:click={nextStep}
+                        onclick={nextStep}
                         disabled={currentStep >= steps.length}
-                >下一步</button>
+                >下一步</Button>
             </div>
 
             <p>当前步骤: {currentStep} / {steps.length}</p>

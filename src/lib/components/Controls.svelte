@@ -1,5 +1,6 @@
 <!-- /src/lib/components/Controls.svelte -->
 <script lang="ts">
+    import { Button } from './ui/Button'
     export let maxSteps: number;
     export let isAutoSolved: boolean;
     export let editMode: boolean;
@@ -18,13 +19,13 @@
 </script>
 
 <style>
-    .button-group {
+    .Button-group {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
         margin-bottom: 10px;
     }
-    .button {
+    .Button {
         padding: 10px 20px;
         background-color: #007bff;
         border: none;
@@ -32,7 +33,7 @@
         cursor: pointer;
         border-radius: 4px;
     }
-    .button:hover {
+    .Button:hover {
         background-color: #0056b3;
     }
     .settings {
@@ -54,19 +55,19 @@
 <!--    />-->
 <!--</div>-->
 
-<div class="button-group">
-    <button class="button" on:click={() => handleClick('loadExample')}>加载示例</button>
-    <button class="button" on:click={() => handleClick('clearGrid')}>清空画板</button>
-<!--    <button class="button" on:click={() => handleClick('generatePuzzle')}>新建题目</button>-->
-    <button class="button" on:click={() => handleClick('fillEmpty')}>填充空白</button>
-<!--    <button class="button" on:click={() => handleClick(isAutoSolved ? 'restorePuzzle' : 'solvePuzzle')}>-->
+<div class="Button-group">
+<!--    <Button class="Button" onclick={() => handleClick('loadExample')}>加载示例</Button>-->
+    <Button class="Button" onclick={() => handleClick('clearGrid')}>清空画板</Button>
+<!--    <Button class="Button" onclick={() => handleClick('generatePuzzle')}>新建题目</Button>-->
+    <Button class="Button" onclick={() => handleClick('fillEmpty')}>填充空白</Button>
+<!--    <Button class="Button" onclick={() => handleClick(isAutoSolved ? 'restorePuzzle' : 'solvePuzzle')}>-->
 <!--        {isAutoSolved ? '还原题目' : '自动解题'}-->
-<!--    </button>-->
+<!--    </Button>-->
 <!--    {#if !editMode}-->
-<!--        <button class="button" on:click={() => handleClick('resetMoves')}>重新开始</button>-->
+<!--        <Button class="Button" onclick={() => handleClick('resetMoves')}>重新开始</Button>-->
 <!--    {/if}-->
 
     <!-- TODO:导入要有解决方案 -->
-    <button class="button" on:click={() => handleClick('exportPuzzle')}>导出题目</button>
-    <button class="button" on:click={() => handleClick('importPuzzle')}>导入题目</button>
+    <Button class="Button" onclick={() => handleClick('exportPuzzle')}>导出题目</Button>
+    <Button class="Button" onclick={() => handleClick('importPuzzle')}>导入题目</Button>
 </div>
