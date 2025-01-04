@@ -4,8 +4,8 @@
     import Controls from './Controls.svelte';
     import Grid from './Grid.svelte';
     import Solution from './Solution.svelte';
-    import { cloneMatrix, floodFill, isGoalState, matrixToString, isAllTargetColor } from '../utils/gridUtils';
-    import { bfs } from '../utils/solver';
+    import { cloneMatrix, floodFill, isGoalState, matrixToString, isAllTargetColor } from '$lib/utils/gridUtils';
+    import { bfs } from '$lib/utils/solver';
 
     let rows = 8;
     let cols = 10;
