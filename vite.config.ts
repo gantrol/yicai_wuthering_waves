@@ -1,11 +1,11 @@
 // vite.config.ts
 import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
-	plugins: [svelte()],
+	plugins: [sveltekit()],
 	test: {
-		globals: true, // 启用全局变量
+		globals: true,
 		include: ['src/**/*.{test,spec}.{js,ts,svelte}'], // 测试文件匹配模式
 		coverage: {
 			provider: 'istanbul', // 或 'c8'
