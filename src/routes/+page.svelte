@@ -1,9 +1,9 @@
 <script>
 	import '../app.css';
-	import App from '$lib/components/App.svelte';
+	import Solver from '$lib/components/Solver.svelte';
 </script>
 
-<App />
+<Solver />
 
 <svelte:head>
     <title>溢彩画高手|鸣潮|解题工具</title>

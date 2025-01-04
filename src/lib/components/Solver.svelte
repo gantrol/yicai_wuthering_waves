@@ -202,7 +202,6 @@
 </script>
 
 <style>
-    /* 样式保持不变 */
     .container {
         display: flex;
         flex-direction: column;
