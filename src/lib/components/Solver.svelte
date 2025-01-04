@@ -55,7 +55,6 @@
             }
         } catch (error) {
             console.error('加载题目失败:', error);
-            alert('加载题目失败，请检查编号或网络连接');
         }
     }
 
