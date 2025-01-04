@@ -476,7 +476,6 @@
                             currentStep={currentStep}
                             prevStep={prevStep}
                             nextStep={nextStep}
-                            showSolution={showSolution}
                     />
                 </CardContent>
             </Card>
