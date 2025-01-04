@@ -84,7 +84,7 @@
                         <CardTitle class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <PuzzleIcon class="w-5 h-5" />
-                                <span>题目 {puzzle.id}</span>
+                                <span>{puzzle.id}</span>
                             </div>
                             {#if puzzle.difficulty}
                                 <div class="text-yellow-500">

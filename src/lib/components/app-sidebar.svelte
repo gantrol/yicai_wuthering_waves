@@ -85,7 +85,7 @@
                                        class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-accent">
                                     <div class="flex items-center gap-3">
                                         <PuzzleIcon class="h-4 w-4" />
-                                        <span>题目 {puzzle.id}</span>
+                                        <span>{puzzle.id}</span>
                                     </div>
 <!--                                        <ChevronRight class="h-4 w-4" />-->
                                 </a>
