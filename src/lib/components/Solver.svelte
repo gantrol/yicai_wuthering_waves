@@ -13,7 +13,6 @@
     import { buttonVariants } from "$lib/components/ui/button/index.js";
     export let puzzleId: string | null;
     let prevPuzzleId: string | null = null;
-    console.log(puzzleId)
 
     // 获取编号对应的 JSON 数据
     async function loadPuzzleById(id: string) {
@@ -22,7 +21,6 @@
             if (!response.ok) throw new Error('无法加载题目数据');
             const puzzle = await response.json();
 
-            debugger
             // 更新棋盘状态
             if (puzzle.grid) grid = puzzle.grid;
             if (puzzle.targetColor) targetColor = puzzle.targetColor;
@@ -60,7 +58,6 @@
 
     // 自动加载编号对应数据
     onMount(() => {
-        console.log(puzzleId)
         if (puzzleId) {
         } else {
             puzzleId = "1"

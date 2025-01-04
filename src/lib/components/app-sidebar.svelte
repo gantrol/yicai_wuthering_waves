@@ -2,7 +2,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-    import * as ScrollArea from "$lib/components/ui/scroll-area";
     import { Separator } from "$lib/components/ui/separator";
     import { Button } from "$lib/components/ui/button";
 
