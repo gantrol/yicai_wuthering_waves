@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { Button } from './ui/button'
-
+    import { Button } from "$lib/components/ui/button";
     export let solution: any;
     export let steps: any[];
     export let currentStep: number;

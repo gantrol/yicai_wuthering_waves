@@ -1,6 +1,6 @@
 <script lang="ts">
     import {onMount} from 'svelte'
-    import { Button } from './ui/button'
+    import { Button } from "$lib/components/ui/button";
     import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card'
     import ColorPicker from './ColorPicker.svelte'
     import Controls from './Controls.svelte'

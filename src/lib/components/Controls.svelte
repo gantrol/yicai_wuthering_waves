@@ -1,6 +1,6 @@
 <!-- /src/lib/components/Controls.svelte -->
 <script lang="ts">
-    import { Button } from './ui/Button'
+    import { Button } from "$lib/components/ui/button";
     export let maxSteps: number;
     export let isAutoSolved: boolean;
     export let editMode: boolean;
