@@ -58,7 +58,7 @@
 <div class="button-group">
     <button class="button" on:click={() => handleClick('loadExample')}>加载示例</button>
     <button class="button" on:click={() => handleClick('clearGrid')}>清空画板</button>
-    <button class="button" on:click={() => handleClick('generatePuzzle')}>新建题目</button>
+<!--    <button class="button" on:click={() => handleClick('generatePuzzle')}>新建题目</button>-->
     <button class="button" on:click={() => handleClick('fillEmpty')}>填充空白</button>
     <button class="button" on:click={() => handleClick(isAutoSolved ? 'restorePuzzle' : 'solvePuzzle')}>
         {isAutoSolved ? '还原题目' : '自动解题'}
