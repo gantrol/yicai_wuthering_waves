@@ -16,12 +16,24 @@
     let targetColor = 1;
     let maxSteps = 4;
     let editMode = true;
-    let moveHistory = [];
     let solution = undefined;
-    let solvingSteps = [];
+    let solvingSteps: Step[] = [];
     let currentStep = 0;
-    let stepGrids = [];
+    let stepGrids: number[][] = [];
     let isAutoSolved = false;
+
+    interface Move {
+        position: [number, number];
+        color: number;
+        oldColor: number;
+    }
+
+    interface Step {
+        A: number;
+        B?: number;
+        position: [number, number];
+    }
+    let moveHistory: Move[] = [];
 
     const exampleGrid = [
         [1, 1, 2, 1, 2, 1, 1, 2, 1, 1],
@@ -34,7 +46,7 @@
         [1, 1, 2, 1, 2, 1, 1, 2, 1, 1],
     ];
 
-    let grid = [];
+    let grid: number[][] = [];
 
     onMount(() => {
         loadExample();
@@ -59,6 +71,88 @@
         currentStep = 0;
         isAutoSolved = false;
     }
+
+    function handleExportPuzzle() {
+        const puzzleData = {
+            grid,
+            targetColor,
+            maxSteps,
+            solutionSteps: solution?.steps ?? [],
+        };
+
+        // 转成 JSON 字符串
+        const jsonStr = JSON.stringify(puzzleData, null, 2);
+
+        // 创建下载链接并触发下载
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
+        const dlAnchorElem = document.createElement('a');
+        dlAnchorElem.setAttribute("href", dataStr);
+        dlAnchorElem.setAttribute("download", "溢彩画示例.json");
+        dlAnchorElem.click();
+    }
+
+    let fileInput: HTMLInputElement;
+
+    function handleImportPuzzle() {
+        fileInput.click();  // 触发选择文件对话框
+    }
+
+    function handleFileChange(e: Event) {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const content = (ev.target as FileReader).result as string;
+                const puzzle = JSON.parse(content);
+
+                // 1. 根据 puzzle 更新当前画板
+                if (puzzle.grid)        grid = puzzle.grid;
+                if (puzzle.targetColor) targetColor = puzzle.targetColor;
+                if (puzzle.maxSteps)    maxSteps = puzzle.maxSteps;
+
+                // 2. 若 puzzle 带有解法步骤，则恢复解题状态
+                if (puzzle.solutionSteps && puzzle.solutionSteps.length > 0) {
+                    // 重置 solution 为 "success"，并存入 steps
+                    solution = {
+                        type: 'success',
+                        steps: puzzle.solutionSteps
+                    };
+                    solvingSteps = puzzle.solutionSteps;
+
+                    // 3. 重新构建 stepGrids：第 0 步是导入后的当前网格
+                    stepGrids = [cloneMatrix(grid)];
+                    let tempGrid = cloneMatrix(grid);
+                    for (let step of puzzle.solutionSteps) {
+                        const { A, position } = step;
+                        tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
+                        stepGrids.push(cloneMatrix(tempGrid));
+                    }
+                    currentStep = 0;
+                    isAutoSolved = true; // 说明此时已经有解法
+                } else {
+                    // 如果导入的 puzzle 没有解法步骤，则不设置 solution/stepGrids
+                    solution = undefined;
+                    solvingSteps = [];
+                    stepGrids = [];
+                    currentStep = 0;
+                    isAutoSolved = false;
+                }
+
+                // 4. 其他操作：清空 moveHistory 等
+                moveHistory = [];
+
+                alert('题目已成功导入！');
+
+            } catch (error) {
+                console.error('导入的 JSON 文件格式不正确:', error);
+                alert('导入失败，文件格式不正确！');
+            }
+        };
+        reader.readAsText(file);
+    }
+
 
     function clearGrid() {
         grid = Array.from({ length: rows }, () =>
@@ -224,7 +318,13 @@
         showSolution();
     }
 </script>
-
+<input
+        bind:this={fileInput}
+        type="file"
+        accept="application/json"
+        style="display: none;"
+        on:change={handleFileChange}
+/>
 <div
         class="flex flex-col md:flex-row gap-4"
         on:mouseup={handleMouseUp}
@@ -261,6 +361,8 @@
                         on:resetMoves={resetMoves}
                         isAutoSolved={isAutoSolved}
                         editMode={editMode}
+                        on:exportPuzzle={handleExportPuzzle}
+                        on:importPuzzle={handleImportPuzzle}
                 />
             </CardContent>
             <CardFooter>

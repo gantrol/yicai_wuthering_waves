@@ -1,3 +1,4 @@
+<!-- /src/lib/components/Controls.svelte -->
 <script lang="ts">
     export let maxSteps: number;
     export let isAutoSolved: boolean;
@@ -19,10 +20,10 @@
 <style>
     .button-group {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         margin-bottom: 10px;
     }
-
     .button {
         padding: 10px 20px;
         background-color: #007bff;
@@ -31,11 +32,9 @@
         cursor: pointer;
         border-radius: 4px;
     }
-
     .button:hover {
         background-color: #0056b3;
     }
-
     .settings {
         display: flex;
         gap: 10px;
@@ -66,4 +65,8 @@
     {#if !editMode}
         <button class="button" on:click={() => handleClick('resetMoves')}>重新开始</button>
     {/if}
+
+    <!-- TODO:导入要有解决方案 -->
+    <button class="button" on:click={() => handleClick('exportPuzzle')}>导出题目</button>
+    <button class="button" on:click={() => handleClick('importPuzzle')}>导入题目</button>
 </div>
