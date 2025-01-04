@@ -1,9 +1,10 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import ColorPicker from './ColorPicker.svelte';
-    import Controls from './Controls.svelte';
-    import Grid from './Grid.svelte';
-    import Solution from './Solution.svelte';
+    import { onMount } from 'svelte'
+    import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card'
+    import ColorPicker from './ColorPicker.svelte'
+    import Controls from './Controls.svelte'
+    import Grid from './Grid.svelte'
+    import Solution from './Solution.svelte'
     import { cloneMatrix, floodFill, isGoalState, matrixToString, isAllTargetColor } from '$lib/utils/gridUtils';
     import { bfs } from '$lib/utils/solver';
 
@@ -249,35 +250,41 @@
 </style>
 
 <div
-        class="container"
-        on:mouseup={handleMouseUp}
-        on:mouseleave={handleMouseUp}
->
-    <h1>溢彩画高手|鸣潮|解题工具</h1>
+    class="space-y-6"
+    on:mouseup={handleMouseUp}
+    on:mouseleave={handleMouseUp}
+    >
+<!-- Card 1: 控制台区域（编辑模式开关、颜色选择、控件面板等） -->
+<Card>
+    <CardHeader>
+        <CardTitle>编辑与控件</CardTitle>
+    </CardHeader>
+    <CardContent class="space-y-4">
+        <div class="mode-switch flex items-center gap-2">
+            <label class="flex items-center space-x-2">
+                <input type="checkbox" bind:checked={editMode} />
+                <span>编辑题目</span>
+            </label>
+        </div>
 
-    <div class="mode-switch">
-        <label>
-            <input type="checkbox" bind:checked={editMode} />
-            编辑题目
-        </label>
-    </div>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <ColorPicker
+                    label="选择颜色:"
+                    colors={colorsValue.slice(1)}
+                    selectedColor={selectedColor}
+                    on:select={(e) => (selectedColor = e.detail)}
+            />
+            <ColorPicker
+                    label="目标颜色:"
+                    colors={colorsValue.slice(1)}
+                    selectedColor={targetColor}
+                    on:select={(e) => (targetColor = e.detail)}
+            />
+        </div>
 
-    <div class="controls">
-        <ColorPicker
-                label="选择颜色:"
-                colors={colorsValue.slice(1)}
-                selectedColor={selectedColor}
-                on:select={(e) => selectedColor = e.detail}
-        />
-        <ColorPicker
-                label="目标颜色:"
-                colors={colorsValue.slice(1)}
-                selectedColor={targetColor}
-                on:select={(e) => targetColor = e.detail}
-        />
         <Controls
                 maxSteps={maxSteps}
-                on:updateSteps={(e) => maxSteps = e.detail}
+                on:updateSteps={(e) => (maxSteps = e.detail)}
                 on:loadExample={loadExample}
                 on:clearGrid={clearGrid}
                 on:generatePuzzle={generatePuzzle}
@@ -290,30 +297,50 @@
                 canShowSolution={solution && solution.type === 'success'}
                 on:requestShowSolution={handleRequestShowSolution}
         />
-    </div>
+    </CardContent>
+    <!-- 如果需要在卡片底部加一些状态或按钮，可以用 CardFooter -->
+    <CardFooter>
+        <!-- 在非编辑模式下，显示当前步数 -->
+        {#if !editMode}
+            <div class="font-semibold">
+                当前步数: {moveHistory.length} / {maxSteps}
+            </div>
+        {/if}
+    </CardFooter>
+</Card>
 
-    {#if !editMode}
-        <div class="moves-counter">
-            当前步数: {moveHistory.length} / {maxSteps}
-        </div>
-    {/if}
-
-    <Grid
-            grid={grid}
-            colors={colorsValue}
-            rows={rows}
-            cols={cols}
-            on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
-            on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
-    />
-
-    {#if solution}
-        <Solution
-                solution={solution}
-                steps={solvingSteps}
-                currentStep={currentStep}
-                executeStep={executeStep}
-                showSolution={showSolution}
+<!-- Card 2: 棋盘区域 -->
+<Card>
+    <CardHeader>
+        <CardTitle>棋盘</CardTitle>
+    </CardHeader>
+    <CardContent>
+        <Grid
+                grid={grid}
+                colors={colorsValue}
+                rows={rows}
+                cols={cols}
+                on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
+                on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
         />
-    {/if}
+    </CardContent>
+</Card>
+
+<!-- Card 3: 解题结果 -->
+{#if solution}
+    <Card>
+        <CardHeader>
+            <CardTitle>解题方案</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <Solution
+                    solution={solution}
+                    steps={solvingSteps}
+                    currentStep={currentStep}
+                    executeStep={executeStep}
+                    showSolution={showSolution}
+            />
+        </CardContent>
+    </Card>
+{/if}
 </div>
