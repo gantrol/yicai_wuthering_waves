@@ -1,6 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
-
   // 默认设置
   let rows = 8;
   let cols = 10;
@@ -363,6 +361,28 @@
     justify-content: center;
   }
 
+  .grid-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .grid-header, .grid-row {
+    display: flex;
+  }
+
+  .grid-header {
+    margin-left: 30px; /* 为了对齐纵轴标签 */
+  }
+
+  .grid-header div {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border: 1px solid rgba(204, 204, 204, 0);
+    text-align: center;
+    font-weight: bold;
+  }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(var(--cols), 40px);
@@ -455,6 +475,15 @@
   .solution-step {
     margin-bottom: 5px;
   }
+
+  .row-label {
+    width: 30px;
+    height: 40px;
+    border: 1px solid rgba(204, 204, 204, 0);
+    line-height: 40px;
+    text-align: center;
+    font-weight: bold;
+  }
 </style>
 
 <div
@@ -527,19 +556,31 @@
     </div>
   {/if}
 
-  <div class="grid" style="--cols: {cols};">
-    {#each grid as row, rowIndex}
-      {#each row as cell, colIndex}
-        <div
-                class="cell"
-                style="background-color: {colorsValue[cell]};"
-                on:mousedown={() => handleMouseDown(rowIndex, colIndex)}
-                on:mouseenter={() => handleMouseEnter(rowIndex, colIndex)}
-        >
-          <span class="cell-id">{cell}</span>
+  <div class="grid-container">
+    <div class="grid-header">
+      <!-- 横轴标号 -->
+      {#each Array(cols).fill(0).map((_, i) => i + 1) as colLabel}
+        <div>{colLabel}</div>
+      {/each}
+    </div>
+    <div class="grid">
+      {#each grid as row, rowIndex}
+        <div class="grid-row" style="display: flex;">
+          <!-- 纵轴标号 -->
+          <div class="row-label">{rowIndex + 1}</div>
+          {#each row as cell, colIndex}
+            <div
+                    class="cell"
+                    style="background-color: {colorsValue[cell]};"
+                    on:mousedown={() => handleMouseDown(rowIndex, colIndex)}
+                    on:mouseenter={() => handleMouseEnter(rowIndex, colIndex)}
+            >
+              <span class="cell-id">{cell}</span>
+            </div>
+          {/each}
         </div>
       {/each}
-    {/each}
+    </div>
   </div>
 
   {#if solution}
@@ -548,13 +589,13 @@
         {#if solution.steps.length > 0}
           <h2>找到解决方案，共 {solution.steps.length} 步：</h2>
           <ol>
-            {#each solution.steps as step,index}
+            {#each solution.steps as step, index}
               <li class="solution-step">
-                选择{colorsName[step.A]}色({step.A})，点击位置 ({step.position[0]}, {step.position[1]})
+                选择{colorsName[step.A]}色({step.A})，点击位置 ({step.position[0] + 1}, {step.position[1] + 1})
               </li>
             {/each}
           </ol>
-          {#if  solvingSteps.length > 0}
+          {#if solvingSteps.length > 0}
             <button class="button" on:click={executeStep} disabled={currentStep >= solvingSteps.length}>执行下一步</button>
             <p>当前步骤: {currentStep} / {solvingSteps.length}</p>
           {/if}
