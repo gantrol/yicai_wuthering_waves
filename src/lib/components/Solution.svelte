@@ -1,8 +1,13 @@
+<!-- /src/lib/components/Solution.svelte -->
 <script lang="ts">
     export let solution: any;
     export let steps: any[];
     export let currentStep: number;
-    export let executeStep: () => void;
+    // 新增：上一、下一步的方法由外部传进来
+    export let prevStep: () => void;
+    export let nextStep: () => void;
+
+    // 保留原有的逻辑
     export let showSolution: () => void;
 </script>
 
@@ -35,6 +40,12 @@
         color: #dc3545;
         margin-top: 10px;
     }
+
+    .step-buttons {
+        display: flex;
+        gap: 8px;
+        margin: 10px 0;
+    }
 </style>
 
 <div class="solution">
@@ -44,14 +55,27 @@
             <ol>
                 {#each solution.steps as step, index}
                     <li class="solution-step">
-                        选择{step.A}色({step.A})，点击位置 ({step.position[0] + 1}, {step.position[1] + 1})
+                        选择 {step.A} 色，点击位置 ({step.position[0] + 1}, {step.position[1] + 1})
                     </li>
                 {/each}
             </ol>
-            {#if steps.length > 0}
-                <button class="button" on:click={executeStep} disabled={currentStep >= steps.length}>执行下一步</button>
-                <p>当前步骤: {currentStep} / {steps.length}</p>
-            {/if}
+
+            <!-- 上一步、下一步 按钮组 -->
+            <div class="step-buttons">
+                <button
+                        class="button"
+                        on:click={prevStep}
+                        disabled={currentStep <= 0}
+                >上一步</button>
+
+                <button
+                        class="button"
+                        on:click={nextStep}
+                        disabled={currentStep >= steps.length}
+                >下一步</button>
+            </div>
+
+            <p>当前步骤: {currentStep} / {steps.length}</p>
         {:else}
             <h2>当前方格已经全部为目标颜色，无需操作。</h2>
         {/if}

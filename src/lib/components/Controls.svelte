@@ -2,7 +2,6 @@
     export let maxSteps: number;
     export let isAutoSolved: boolean;
     export let editMode: boolean;
-    export let canShowSolution: boolean; // 重命名为 canShowSolution 以避免混淆
 
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
@@ -14,10 +13,6 @@
 
     function handleClick(action: string) {
         dispatch(action);
-    }
-
-    function requestShowSolution() {
-        dispatch('requestShowSolution');
     }
 </script>
 
@@ -70,8 +65,5 @@
     </button>
     {#if !editMode}
         <button class="button" on:click={() => handleClick('resetMoves')}>重新开始</button>
-    {/if}
-    {#if canShowSolution}
-        <button class="button" on:click={requestShowSolution}>查看解题步骤</button>
     {/if}
 </div>

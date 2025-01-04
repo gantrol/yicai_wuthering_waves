@@ -156,16 +156,19 @@
         solution = result;
 
         if (result.type === 'success') {
+            // 第 0 张快照是当前网格
             stepGrids = [cloneMatrix(grid)];
             let tempGrid = cloneMatrix(grid);
             for (let step of result.steps) {
-                const { A, B, position } = step;
-                const [row, col] = position;
-                tempGrid = floodFill(cloneMatrix(tempGrid), A, row, col);
+                const { A, position } = step;
+                tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
                 stepGrids.push(cloneMatrix(tempGrid));
             }
             isAutoSolved = true;
         }
+
+        solvingSteps = result.steps;
+        currentStep = 0;
     }
 
     function executeStep() {
@@ -177,11 +180,31 @@
         }
     }
 
+    // 新增「下一步」「上一步」逻辑
+    function nextStep() {
+        // 若还没到最后一步，则切换到下一步
+        if (currentStep < stepGrids.length - 1) {
+            currentStep += 1;
+            grid = cloneMatrix(stepGrids[currentStep]);
+        }
+    }
+    function prevStep() {
+        // 若不是第一步，则回退一步
+        if (currentStep > 0) {
+            currentStep -= 1;
+            grid = cloneMatrix(stepGrids[currentStep]);
+        }
+    }
+
+    // 「查看解题步骤」时，将 BFS 求得的 steps 存入 solvingSteps
     function showSolution() {
         if (solution && solution.steps && solution.steps.length > 0) {
             solvingSteps = solution.steps;
             currentStep = 0;
-            grid = cloneMatrix(stepGrids[0]);
+            // 回到初始网格
+            if (stepGrids.length > 0) {
+                grid = cloneMatrix(stepGrids[0]);
+            }
         }
     }
 
@@ -202,145 +225,97 @@
     }
 </script>
 
-<style>
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-family: Arial, sans-serif;
-        padding: 20px;
-    }
-
-    .controls {
-        margin-bottom: 20px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: center;
-    }
-
-    .button-group {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-
-    .button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        border: none;
-        color: white;
-        cursor: pointer;
-        border-radius: 4px;
-    }
-
-    .button:hover {
-        background-color: #0056b3;
-    }
-
-    .mode-switch {
-        margin: 10px 0;
-    }
-
-    .moves-counter {
-        margin-top: 10px;
-        font-size: 1.1em;
-        font-weight: bold;
-    }
-</style>
-
 <div
-    class="space-y-6"
-    on:mouseup={handleMouseUp}
-    on:mouseleave={handleMouseUp}
-    >
-<!-- Card 1: 控制台区域（编辑模式开关、颜色选择、控件面板等） -->
-<Card>
-    <CardHeader>
-        <CardTitle>编辑与控件</CardTitle>
-    </CardHeader>
-    <CardContent class="space-y-4">
-        <div class="mode-switch flex items-center gap-2">
-            <label class="flex items-center space-x-2">
-                <input type="checkbox" bind:checked={editMode} />
-                <span>编辑题目</span>
-            </label>
+        class="flex flex-col md:flex-row gap-4"
+        on:mouseup={handleMouseUp}
+        on:mouseleave={handleMouseUp}
+>
+    <!-- 左边区域：编辑控件 + 棋盘 -->
+    <div class="flex-1 flex flex-col gap-4">
+        <!-- Card 1: 控制台区域（编辑模式开关、颜色选择等） -->
+        <Card>
+            <CardContent class="space-y-4">
+                <div class="mode-switch flex items-center gap-2">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" bind:checked={editMode} />
+                        <span>编辑题目</span>
+                    </label>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <ColorPicker
+                            label="最终颜色:"
+                            colors={colorsValue.slice(1)}
+                            selectedColor={targetColor}
+                            on:select={(e) => (targetColor = e.detail)}
+                    />
+                </div>
+                <Controls
+                        maxSteps={maxSteps}
+                        on:updateSteps={(e) => (maxSteps = e.detail)}
+                        on:loadExample={loadExample}
+                        on:clearGrid={clearGrid}
+                        on:generatePuzzle={generatePuzzle}
+                        on:fillEmpty={fillEmpty}
+                        on:solvePuzzle={solvePuzzle}
+                        on:restorePuzzle={restorePuzzle}
+                        on:resetMoves={resetMoves}
+                        isAutoSolved={isAutoSolved}
+                        editMode={editMode}
+                />
+            </CardContent>
+            <CardFooter>
+                {#if !editMode}
+                    <div class="font-semibold">
+                        当前步数: {moveHistory.length} / {maxSteps}
+                    </div>
+                {/if}
+            </CardFooter>
+        </Card>
+
+        <!-- Card 2: 棋盘区域 -->
+        <Card>
+            <CardHeader>
+                <CardTitle>棋盘</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <ColorPicker
+                            label="当前颜色:"
+                            colors={colorsValue.slice(1)}
+                            selectedColor={selectedColor}
+                            on:select={(e) => (selectedColor = e.detail)}
+                    />
+                </div>
+                <Grid
+                        grid={grid}
+                        colors={colorsValue}
+                        rows={rows}
+                        cols={cols}
+                        on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
+                        on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
+                />
+            </CardContent>
+        </Card>
+    </div>
+
+    <!-- 右边区域：解题方案 (仅在 solution 存在时显示) -->
+    {#if solution}
+        <div class="w-full md:w-[320px] flex-shrink-0">
+            <Card>
+                <CardHeader>
+                    <CardTitle>解题方案</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Solution
+                            solution={solution}
+                            steps={solvingSteps}
+                            currentStep={currentStep}
+                            prevStep={prevStep}
+                            nextStep={nextStep}
+                            showSolution={showSolution}
+                    />
+                </CardContent>
+            </Card>
         </div>
-
-        <div class="flex flex-col sm:flex-row gap-4">
-            <ColorPicker
-                    label="选择颜色:"
-                    colors={colorsValue.slice(1)}
-                    selectedColor={selectedColor}
-                    on:select={(e) => (selectedColor = e.detail)}
-            />
-            <ColorPicker
-                    label="目标颜色:"
-                    colors={colorsValue.slice(1)}
-                    selectedColor={targetColor}
-                    on:select={(e) => (targetColor = e.detail)}
-            />
-        </div>
-
-        <Controls
-                maxSteps={maxSteps}
-                on:updateSteps={(e) => (maxSteps = e.detail)}
-                on:loadExample={loadExample}
-                on:clearGrid={clearGrid}
-                on:generatePuzzle={generatePuzzle}
-                on:fillEmpty={fillEmpty}
-                on:solvePuzzle={solvePuzzle}
-                on:restorePuzzle={restorePuzzle}
-                on:resetMoves={resetMoves}
-                isAutoSolved={isAutoSolved}
-                editMode={editMode}
-                canShowSolution={solution && solution.type === 'success'}
-                on:requestShowSolution={handleRequestShowSolution}
-        />
-    </CardContent>
-    <!-- 如果需要在卡片底部加一些状态或按钮，可以用 CardFooter -->
-    <CardFooter>
-        <!-- 在非编辑模式下，显示当前步数 -->
-        {#if !editMode}
-            <div class="font-semibold">
-                当前步数: {moveHistory.length} / {maxSteps}
-            </div>
-        {/if}
-    </CardFooter>
-</Card>
-
-<!-- Card 2: 棋盘区域 -->
-<Card>
-    <CardHeader>
-        <CardTitle>棋盘</CardTitle>
-    </CardHeader>
-    <CardContent>
-        <Grid
-                grid={grid}
-                colors={colorsValue}
-                rows={rows}
-                cols={cols}
-                on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
-                on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
-        />
-    </CardContent>
-</Card>
-
-<!-- Card 3: 解题结果 -->
-{#if solution}
-    <Card>
-        <CardHeader>
-            <CardTitle>解题方案</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <Solution
-                    solution={solution}
-                    steps={solvingSteps}
-                    currentStep={currentStep}
-                    executeStep={executeStep}
-                    showSolution={showSolution}
-            />
-        </CardContent>
-    </Card>
-{/if}
+    {/if}
 </div>

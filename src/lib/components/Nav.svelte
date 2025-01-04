@@ -11,8 +11,8 @@
         </div>
         <div class="flex items-center gap-2">
             <!-- 这里可以放一些按钮、菜单之类 -->
-            <Button variant="default">
-                关于
+            <Button variant="default" target="_blank" href="https://github.com/gantrol/yicai_wuthering_waves">
+                开源仓库
             </Button>
         </div>
     </div>
