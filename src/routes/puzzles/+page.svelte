@@ -6,7 +6,7 @@
     // 假设服务器提供一个题目列表 API
     async function loadPuzzles() {
         try {
-            const response = await fetch('/puzzles/list.json'); // 更新为实际的 API
+            const response = await fetch('/puzzles_json/list.json'); // 更新为实际的 API
             if (!response.ok) throw new Error('无法加载题目列表');
             puzzles = await response.json();
         } catch (error) {
@@ -45,7 +45,7 @@
         {#each puzzles as puzzle}
             <div
                     class="puzzle-item"
-                    on:click={() => (window.location.href = `/puzzles/${puzzle.id}`)}
+                    on:click={() => (window.location.href = `../../../static/puzzles_json/${puzzle.id}`)}
             >
                 题目编号: {puzzle.id}
             </div>

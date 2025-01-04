@@ -24,7 +24,7 @@
 
     async function loadPuzzles() {
         try {
-            const response = await fetch('/puzzles/list.json');
+            const response = await fetch('/puzzles_json/list.json');
             if (!response.ok) throw new Error('无法加载题目列表');
             puzzles = await response.json();
         } catch (error) {

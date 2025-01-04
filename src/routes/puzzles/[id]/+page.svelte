@@ -2,7 +2,7 @@
 <script>
     import Solver from '$lib/components/Solver.svelte';
     let {data} = $props();
-    console.log(data)
+    // console.log(data)
 </script>
 
 <Solver

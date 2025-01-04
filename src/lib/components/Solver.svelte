@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte'
+    import {onMount} from 'svelte'
     import { Button } from './ui/button'
     import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card'
     import ColorPicker from './ColorPicker.svelte'
@@ -12,14 +12,17 @@
     import * as Collapsible from "$lib/components/ui/collapsible/index.js";
     import { buttonVariants } from "$lib/components/ui/button/index.js";
     export let puzzleId: string | null;
+    let prevPuzzleId: string | null = null;
+    console.log(puzzleId)
 
     // 获取编号对应的 JSON 数据
     async function loadPuzzleById(id: string) {
         try {
-            const response = await fetch(`/puzzles/${id}.json`); // 根据实际 API 更新 URL
+            const response = await fetch(`/puzzles_json/${id}.json`); // 根据实际 API 更新 URL
             if (!response.ok) throw new Error('无法加载题目数据');
             const puzzle = await response.json();
 
+            debugger
             // 更新棋盘状态
             if (puzzle.grid) grid = puzzle.grid;
             if (puzzle.targetColor) targetColor = puzzle.targetColor;
@@ -60,11 +63,18 @@
     onMount(() => {
         console.log(puzzleId)
         if (puzzleId) {
-            loadPuzzleById(puzzleId);
         } else {
-            loadExample();
+            puzzleId = "1"
         }
+        loadPuzzleById(puzzleId);
+
     });
+
+
+    $: if (puzzleId && puzzleId !== prevPuzzleId) {
+        prevPuzzleId = puzzleId;
+        loadPuzzleById(puzzleId);
+    }
 
     let rows = 8;
     let cols = 10;
