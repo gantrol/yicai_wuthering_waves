@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte'
+    import { Button } from './ui/button'
     import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card'
     import ColorPicker from './ColorPicker.svelte'
     import Controls from './Controls.svelte'
@@ -7,7 +8,9 @@
     import Solution from './Solution.svelte'
     import { cloneMatrix, floodFill, isGoalState, matrixToString, isAllTargetColor } from '$lib/utils/gridUtils';
     import { bfs } from '$lib/utils/solver';
-
+    import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
+    import * as Collapsible from "$lib/components/ui/collapsible/index.js";
+    import { buttonVariants } from "$lib/components/ui/button/index.js";
     let puzzleId: number;
 
     // 获取编号对应的 JSON 数据
@@ -397,43 +400,61 @@
         <!-- Card 1: 控制台区域（编辑模式开关、颜色选择等） -->
         <Card>
             <CardContent class="space-y-4">
-                <div class="mode-switch flex items-center gap-2">
-                    <label class="flex items-center space-x-2">
-                        <input type="checkbox" bind:checked={editMode} />
-                        <span>编辑题目</span>
-                    </label>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <ColorPicker
-                            label="最终颜色:"
-                            colors={colorsValue.slice(1)}
-                            selectedColor={targetColor}
-                            on:select={(e) => (targetColor = e.detail)}
-                    />
-                </div>
-                <Controls
-                        maxSteps={maxSteps}
-                        on:updateSteps={(e) => (maxSteps = e.detail)}
-                        on:loadExample={loadExample}
-                        on:clearGrid={clearGrid}
-                        on:generatePuzzle={generatePuzzle}
-                        on:fillEmpty={fillEmpty}
-                        on:solvePuzzle={solvePuzzle}
-                        on:restorePuzzle={restorePuzzle}
-                        on:resetMoves={resetMoves}
-                        isAutoSolved={isAutoSolved}
-                        editMode={editMode}
-                        on:exportPuzzle={handleExportPuzzle}
-                        on:importPuzzle={handleImportPuzzle}
-                />
-            </CardContent>
-            <CardFooter>
-                {#if !editMode}
-                    <div class="font-semibold">
-                        当前步数: {moveHistory.length} / {maxSteps}
+                <Collapsible.Root class="space-y-2">
+                    <div class="flex items-center justify-between space-x-4 px-4">
+                        <h2 class="text-lg font-semibold">编辑区</h2>
+                        <Collapsible.Trigger
+                                class={buttonVariants({ variant: "ghost", size: "sm", class: "w-9 p-0" })}
+                        >
+                            <ChevronsUpDown />
+                            <span class="sr-only">Toggle</span>
+                        </Collapsible.Trigger>
                     </div>
-                {/if}
-            </CardFooter>
+                    <div class="flex flex-col gap-4">
+                        <ColorPicker
+                                label="最终颜色"
+                                colors={colorsValue.slice(1)}
+                                selectedColor={targetColor}
+                                on:select={(e) => (targetColor = e.detail)}
+                        />
+                        <div class="settings">
+                            <label for="steps">最大步骤:</label>
+                            <input
+                                    id="steps"
+                                    type="number"
+                                    min="1"
+                                    max="10"
+                                    bind:value={maxSteps}
+                                    on:input={(e) => (maxSteps = e.target?.value)}
+                            />
+                        </div>
+                        <div class="mode-switch flex items-center gap-2">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" bind:checked={editMode} />
+                                <span>编辑模式</span>
+                            </label>
+                        </div>
+                    </div>
+                    <Collapsible.Content class="space-y-2">
+                        <Controls
+                                maxSteps={maxSteps}
+                                on:loadExample={loadExample}
+                                on:clearGrid={clearGrid}
+                                on:generatePuzzle={generatePuzzle}
+                                on:fillEmpty={fillEmpty}
+                                on:solvePuzzle={solvePuzzle}
+                                on:restorePuzzle={restorePuzzle}
+                                on:resetMoves={resetMoves}
+                                isAutoSolved={isAutoSolved}
+                                editMode={editMode}
+                                on:exportPuzzle={handleExportPuzzle}
+                                on:importPuzzle={handleImportPuzzle}
+                        />
+                    </Collapsible.Content>
+                </Collapsible.Root>
+
+
+            </CardContent>
         </Card>
 
         <!-- Card 2: 棋盘区域 -->
@@ -442,6 +463,11 @@
                 <CardTitle>棋盘</CardTitle>
             </CardHeader>
             <CardContent>
+                {#if !editMode}
+                    <div class="font-semibold">
+                        当前步数: {moveHistory.length} / {maxSteps}
+                    </div>
+                {/if}
                 <div class="flex flex-col sm:flex-row gap-4">
                     <ColorPicker
                             label="当前颜色:"
@@ -449,7 +475,20 @@
                             selectedColor={selectedColor}
                             on:select={(e) => (selectedColor = e.detail)}
                     />
+                    {#if isAutoSolved}
+                        <Button onclick={restorePuzzle}>
+                            还原题目
+                        </Button>
+                    {:else}
+                        <Button variant="default" onclick={solvePuzzle}>
+                            自动解题
+                        </Button>
+                    {/if}
+                    {#if !editMode}
+                        <Button class="button" onclick={resetMoves}>重新开始</Button>
+                    {/if}
                 </div>
+
                 <Grid
                         grid={grid}
                         colors={colorsValue}

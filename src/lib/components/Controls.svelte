@@ -42,29 +42,29 @@
     }
 </style>
 
-<div class="settings">
-    <label for="steps">最大步骤:</label>
-    <input
-            id="steps"
-            type="number"
-            min="1"
-            max="10"
-            bind:value={maxSteps}
-            on:input={updateSteps}
-    />
-</div>
+<!--<div class="settings">-->
+<!--    <label for="steps">最大步骤:</label>-->
+<!--    <input-->
+<!--            id="steps"-->
+<!--            type="number"-->
+<!--            min="1"-->
+<!--            max="10"-->
+<!--            bind:value={maxSteps}-->
+<!--            on:input={updateSteps}-->
+<!--    />-->
+<!--</div>-->
 
 <div class="button-group">
     <button class="button" on:click={() => handleClick('loadExample')}>加载示例</button>
     <button class="button" on:click={() => handleClick('clearGrid')}>清空画板</button>
 <!--    <button class="button" on:click={() => handleClick('generatePuzzle')}>新建题目</button>-->
     <button class="button" on:click={() => handleClick('fillEmpty')}>填充空白</button>
-    <button class="button" on:click={() => handleClick(isAutoSolved ? 'restorePuzzle' : 'solvePuzzle')}>
-        {isAutoSolved ? '还原题目' : '自动解题'}
-    </button>
-    {#if !editMode}
-        <button class="button" on:click={() => handleClick('resetMoves')}>重新开始</button>
-    {/if}
+<!--    <button class="button" on:click={() => handleClick(isAutoSolved ? 'restorePuzzle' : 'solvePuzzle')}>-->
+<!--        {isAutoSolved ? '还原题目' : '自动解题'}-->
+<!--    </button>-->
+<!--    {#if !editMode}-->
+<!--        <button class="button" on:click={() => handleClick('resetMoves')}>重新开始</button>-->
+<!--    {/if}-->
 
     <!-- TODO:导入要有解决方案 -->
     <button class="button" on:click={() => handleClick('exportPuzzle')}>导出题目</button>
