@@ -478,8 +478,10 @@
                             selectedColor={selectedColor}
                     />
                     {#if isAutoSolved}
-                        <Button variant="outline" onclick={restorePuzzle}>
-                            还原题目
+                        <Button variant="outline"
+                                class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500"
+                                onclick={restorePuzzle}>
+                            移除答案
                         </Button>
                     {:else}
                         <Button variant="default" onclick={solvePuzzle}>
