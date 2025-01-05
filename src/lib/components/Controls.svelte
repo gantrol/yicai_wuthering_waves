@@ -69,5 +69,5 @@
     <!-- TODO:导入要有解决方案 -->
     <Button variant="secondary" onclick={() => handleClick('exportPuzzle')}>导出题目</Button>
     <Button variant="secondary" onclick={() => handleClick('importPuzzle')}>导入题目</Button>
-    <Button variant="secondary" onclick={() => handleClick('loadExample')}>加载示例</Button>
+    <Button variant="secondary" onclick={() => handleClick('loadExample')}>加载示例1</Button>
 </div>
