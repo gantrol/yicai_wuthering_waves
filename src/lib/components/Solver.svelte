@@ -25,15 +25,21 @@
     import { bfs } from '$lib/utils/solver';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 
+    // puzzleId 用于路由传参（可选）
     export let puzzleId: string | null;
 
     let prevPuzzleId: string | null = null;
     let originalGrid: number[][] = [];
+
+    /**
+     * 当 puzzleId 改变时，载入对应的 puzzle
+     */
     async function loadPuzzleById(id: string) {
         try {
             const response = await fetch(`/puzzles_json/${id}.json`);
             if (!response.ok) throw new Error('无法加载题目数据');
             const puzzle = await response.json();
+
             if (puzzle.grid) {
                 grid = puzzle.grid;
                 originalGrid = cloneMatrix(puzzle.grid);
@@ -69,27 +75,28 @@
     }
 
     onMount(() => {
+        // 如果 puzzleId 不存在，就默认加载 puzzle #1
         if (!puzzleId) {
             puzzleId = "1";
         }
         loadPuzzleById(puzzleId);
     });
 
+    // 监听 puzzleId 变化（用于在路由切换时重新加载）
     $: if (puzzleId && puzzleId !== prevPuzzleId) {
         prevPuzzleId = puzzleId;
         loadPuzzleById(puzzleId);
     }
 
-    // 画板维度与颜色
+    // 画板大小与颜色列表
     let rows = 8;
     let cols = 10;
     let colorsValue = ['#ffffff', '#4980b9', '#d2463e', '#f5db82', '#59a68d'];
-    // 注意：索引0对应'#ffffff'(空)，1->蓝,2->红,3->黄,4->绿
 
-    // 当前选择刷子的颜色
+    // 当前选的刷子颜色（1表示蓝色，对应 colorsValue[1]）
     let selectedColor = 1;
 
-    // 要把所有格子最终染成的目标颜色
+    // 要把所有格子最终变成的目标颜色（1表示蓝色）
     let targetColor = 1;
 
     // 最大步数
@@ -98,19 +105,19 @@
     // 是否处于编辑模式
     let editMode = true;
 
-    // BFS 搜索结果
+    // BFS 的搜索结果
     let solution: BFSResult | undefined = undefined;
-    // 解题步骤
+    // BFS 的每一步
     let solvingSteps: Step[] = [];
     let currentStep = 0;
-    // 记录 BFS 求解时每一步的 grid，用于前后步骤演示
+    // BFS 每一步对应的 grid（用于旧版的无动画 next/prevStep）
     let stepGrids: number[][] = [];
-    // 是否已经自动求解出答案
+    // 是否已经自动求解
     let isAutoSolved = false;
-    // 手动下的着色记录
+    // 手动操作记录
     let moveHistory: Move[] = [];
 
-    // 示例（仅做演示）
+    // 一个示例
     const exampleGrid = [
         [1, 1, 2, 1, 2, 1, 1, 2, 1, 1],
         [1, 3, 3, 3, 2, 3, 3, 3, 3, 1],
@@ -125,6 +132,7 @@
     // 当前画板
     let grid: number[][] = [];
 
+    // 重置到 puzzle 原始状态
     function resetMoves() {
         moveHistory = [];
         grid = cloneMatrix(originalGrid);
@@ -135,6 +143,7 @@
         isAutoSolved = false;
     }
 
+    // 加载示例
     function loadExample() {
         grid = cloneMatrix(exampleGrid);
         originalGrid = cloneMatrix(exampleGrid);
@@ -146,6 +155,7 @@
         isAutoSolved = false;
     }
 
+    // 导出
     function handleExportPuzzle() {
         const puzzleData = {
             grid,
@@ -161,6 +171,7 @@
         dlAnchorElem.click();
     }
 
+    // 导入
     let fileInput: HTMLInputElement;
     function handleImportPuzzle() {
         fileInput.click();
@@ -211,6 +222,7 @@
         reader.readAsText(file);
     }
 
+    // 清空画板
     function clearGrid() {
         grid = Array.from({ length: rows }, () =>
             Array.from({ length: cols }, () => 0)
@@ -243,38 +255,39 @@
         grid = grid.map(row => row.map(cell => cell === 0 ? selectedColor : cell));
     }
 
+    // 拖拽相关
     let isDragging = false;
     function handleMouseDown(row, col) {
         isDragging = true;
         tryMove(row, col);
     }
-
     function handleMouseEnter(row, col) {
+        // 只有编辑模式才允许拖拽连续涂色
         if (isDragging && editMode) {
             changeColor(row, col);
         }
     }
-
     function handleMouseUp() {
         isDragging = false;
     }
 
-    // 新增或修改：编辑模式直接改色，游戏模式带动画
+    // 根据模式区别对待：编辑模式=>直接涂色；游戏模式=>带动画扩散
     function tryMove(row, col) {
         if (editMode) {
-            // 编辑模式下仍然使用原先的一步到位改色
             changeColor(row, col);
         } else {
-            // 游戏模式下使用带动画的分层扩散
             animateWaveFill(row, col, selectedColor);
         }
     }
 
+    // 直接涂色（编辑模式使用）
     function changeColor(row, col) {
         grid[row][col] = selectedColor;
+        // 手动触发 svelte 更新
         grid = cloneMatrix(grid);
     }
 
+    // 检查是否完成
     function checkWinCondition() {
         if (isGoalState(grid, targetColor)) {
             setTimeout(() => {
@@ -287,13 +300,15 @@
         }
     }
 
-    // 新增或修改：分层 BFS，用于动画“从点击处向外扩散”
+    /**
+     * 分层 BFS，返回 waveLayers[i] 为“距离点击点为 i”的所有坐标
+     */
     function floodFillWave(currentGrid: number[][], row: number, col: number, oldColor: number) {
-        const rows = currentGrid.length;
-        const cols = currentGrid[0].length;
+        const rowCount = currentGrid.length;
+        const colCount = currentGrid[0].length;
 
-        const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
-        const queue: [number, number, number][] = []; // [r, c, dist]
+        const visited = Array.from({ length: rowCount }, () => Array(colCount).fill(false));
+        const queue: [number, number, number][] = [];
         const waveLayers: Array<Array<[number, number]>> = [];
 
         visited[row][col] = true;
@@ -301,19 +316,20 @@
 
         while (queue.length > 0) {
             const [r, c, dist] = queue.shift()!;
-            // 第 dist 圈还没数组就创建
+            // 记录到 waveLayers
             if (!waveLayers[dist]) {
                 waveLayers[dist] = [];
             }
             waveLayers[dist].push([r, c]);
 
-            // 向四周扩散
+            // 四方向拓展
             const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
             for (const [dr, dc] of dirs) {
-                const nr = r + dr, nc = c + dc;
+                const nr = r + dr;
+                const nc = c + dc;
                 if (
-                    nr >= 0 && nr < rows &&
-                    nc >= 0 && nc < cols &&
+                    nr >= 0 && nr < rowCount &&
+                    nc >= 0 && nc < colCount &&
                     !visited[nr][nc] &&
                     currentGrid[nr][nc] === oldColor
                 ) {
@@ -326,45 +342,45 @@
         return waveLayers;
     }
 
-    // 新增或修改：基于 waveLayers，分圈依次染色并刷新
+    /**
+     * 游戏模式下，单次点击的扩散动画
+     */
     function animateWaveFill(row: number, col: number, newColor: number) {
         if (moveHistory.length >= maxSteps) return;
         const oldColor = grid[row][col];
         if (oldColor === newColor) return;
 
-        // 将这一步操作记录下来
-        moveHistory = [
-            ...moveHistory,
-            {
-                position: [row, col],
-                color: newColor,
-                oldColor
-            }
-        ];
+        // 记录到 moveHistory
+        moveHistory.push({
+            position: [row, col],
+            color: newColor,
+            oldColor
+        });
 
-        // 先备份一份
+        // 分层 BFS
         const tempGrid = cloneMatrix(grid);
-        // 获取每一圈要染色的坐标
         const waveLayers = floodFillWave(tempGrid, row, col, oldColor);
 
-        // 分圈动画
+        // 分圈染色
         waveLayers.forEach((layer, layerIndex) => {
             setTimeout(() => {
-                // 本圈逐个染色
-                layer.forEach(([r, c]) => {
+                for (const [r, c] of layer) {
                     grid[r][c] = newColor;
-                });
-                // 让 svelte 检测到变化
+                }
+                // 触发 svelte 更新
                 grid = cloneMatrix(grid);
 
-                // 最后一圈完成后，检查是否成功
+                // 最后一圈染完后检查
                 if (layerIndex === waveLayers.length - 1) {
                     checkWinCondition();
                 }
-            }, layerIndex * 80); // 每圈延迟 80ms，可自行调节
+            }, layerIndex * 80);
         });
     }
 
+    /**
+     * 自动解题入口
+     */
     function solvePuzzle() {
         const result = bfs(cloneMatrix(grid), targetColor, maxSteps);
         solution = result;
@@ -382,29 +398,56 @@
         currentStep = 0;
     }
 
-    function executeStep() {
-        if (currentStep < solvingSteps.length) {
-            const { A, B, position } = solvingSteps[currentStep];
-            const [row, col] = position;
-            grid = floodFill(cloneMatrix(grid), A, row, col);
-            currentStep++;
-        }
-    }
-
+    /**
+     * 原先的“下一步”是直接一口气切换到 stepGrids[currentStep+1]。
+     * 现在改为带动画，让每一步也触发“点击式”波次染色。
+     *
+     * 如果您仍然想保留“无动画版本”，可以保留一个函数 nextStepNoAnimation() 使用旧逻辑。
+     */
+    let isAnimatingStep = false;
     function nextStep() {
-        if (currentStep < stepGrids.length - 1) {
-            currentStep += 1;
-            grid = cloneMatrix(stepGrids[currentStep]);
-        }
+        if (!solution || !solvingSteps || isAnimatingStep) return;
+        if (currentStep >= solvingSteps.length) return;
+
+        // 取本步
+        const step = solvingSteps[currentStep];
+        isAnimatingStep = true;
+
+        // 在 BFS 解法中，step = { A, B, position }
+        // oldColor = step.B (可能已记录), 也可以从当前 grid[row][col] 取
+        const [row, col] = step.position;
+        const oldColor = grid[row][col]; // 也可以用 step.B
+
+        // 做和 animateWaveFill 类似的事，但这里不往 moveHistory 里加了
+        const waveLayers = floodFillWave(cloneMatrix(grid), row, col, oldColor);
+
+        waveLayers.forEach((layer, layerIndex) => {
+            setTimeout(() => {
+                for (const [r, c] of layer) {
+                    grid[r][c] = step.A;
+                }
+                grid = cloneMatrix(grid);
+
+                // 最后一圈
+                if (layerIndex === waveLayers.length - 1) {
+                    // 动画结束后，才算这一步完成
+                    currentStep++;
+                    isAnimatingStep = false;
+                }
+            }, layerIndex * 80);
+        });
     }
 
+    // 上一步：如果要动画回退，需要自己实现。本文示例不做回退动画。
     function prevStep() {
         if (currentStep > 0) {
-            currentStep -= 1;
+            currentStep--;
+            // 直接一口气切回，不做动画
             grid = cloneMatrix(stepGrids[currentStep]);
         }
     }
 
+    // 如果需要从头演示所有 step，可在这里把 currentStep=0，然后依次 nextStep()。
     function showSolution() {
         if (solution && solution.steps && solution.steps.length > 0) {
             solvingSteps = solution.steps;
@@ -415,6 +458,7 @@
         }
     }
 
+    // 移除答案
     function restorePuzzle() {
         if (stepGrids.length > 0) {
             grid = cloneMatrix(stepGrids[0]);
@@ -427,7 +471,7 @@
     }
 </script>
 
-<!-- 隐藏的文件选择器，用于导入 JSON -->
+<!-- 隐藏的文件选择器，用于导入题目 JSON -->
 <input
         accept="application/json"
         bind:this={fileInput}
@@ -522,17 +566,17 @@
                         <Button
                                 variant="outline"
                                 class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500"
-                                on:click={restorePuzzle}
+                                onclick={restorePuzzle}
                         >
                             移除答案
                         </Button>
                     {:else}
-                        <Button variant="default" on:click={solvePuzzle}>
+                        <Button variant="default" onclick={solvePuzzle}>
                             自动解题
                         </Button>
                     {/if}
                     {#if !editMode}
-                        <Button class="button" on:click={resetMoves}>重新开始</Button>
+                        <Button class="button" onclick={resetMoves}>重新开始</Button>
                     {/if}
                 </div>
                 <Grid
