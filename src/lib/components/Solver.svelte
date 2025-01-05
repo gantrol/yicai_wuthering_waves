@@ -257,6 +257,13 @@
         grid = grid.map(row => row.map(cell => cell === 0 ? selectedColor : cell));
     }
 
+    // 编辑模式 => 退出编辑模式时，把当前 grid 保存为新的 originalGrid
+    $: if (!editMode) {
+        // 如果刚刚从编辑模式切换到游戏模式，那么把此刻的 grid 记为 originalGrid
+        // （这样“重新开始”就能回到修改后的版本）
+        originalGrid = cloneMatrix(grid);
+    }
+
     // 拖拽相关
     let isDragging = false;
     function handleMouseDown(row, col) {
@@ -463,7 +470,12 @@
     // 移除答案
     function restorePuzzle() {
         if (stepGrids.length > 0) {
-            grid = cloneMatrix(stepGrids[0]);
+            if (originalGrid) {
+                grid = cloneMatrix(originalGrid);
+            } else {
+                grid = cloneMatrix(stepGrids[0]);
+            }
+
             solvingSteps = [];
             stepGrids = [];
             solution = undefined;
