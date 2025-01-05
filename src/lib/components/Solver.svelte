@@ -409,7 +409,7 @@
                     </div>
                     <div class="flex flex-col gap-4">
                         <ColorPicker
-                                label="最终颜色"
+                                label="要把色块全部染成"
                                 colors={colorsValue.slice(1)}
                                 selectedColor={targetColor}
                                 on:select={(e) => (targetColor = e.detail)}
@@ -464,7 +464,7 @@
                 {/if}
                 <div class="flex flex-col sm:flex-row gap-4">
                     <ColorPicker
-                            label="当前颜色:"
+                            label="染色刷"
                             colors={colorsValue.slice(1)}
                             selectedColor={selectedColor}
                             on:select={(e) => (selectedColor = e.detail)}
