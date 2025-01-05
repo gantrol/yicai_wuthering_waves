@@ -56,18 +56,18 @@
 <!--</div>-->
 
 <div class="Button-group">
-<!--    <Button class="Button" onclick={() => handleClick('loadExample')}>加载示例</Button>-->
-    <Button class="Button" onclick={() => handleClick('clearGrid')}>清空画板</Button>
-<!--    <Button class="Button" onclick={() => handleClick('generatePuzzle')}>新建题目</Button>-->
-    <Button class="Button" onclick={() => handleClick('fillEmpty')}>填充空白</Button>
-<!--    <Button class="Button" onclick={() => handleClick(isAutoSolved ? 'restorePuzzle' : 'solvePuzzle')}>-->
+    <Button variant="outline" onclick={() => handleClick('clearGrid')}>清空画板</Button>
+<!--    <Button variant="secondary" onclick={() => handleClick('generatePuzzle')}>新建题目</Button>-->
+    <Button variant="outline" onclick={() => handleClick('fillEmpty')}>填充空白</Button>
+<!--    <Button variant="secondary" onclick={() => handleClick(isAutoSolved ? 'restorePuzzle' : 'solvePuzzle')}>-->
 <!--        {isAutoSolved ? '还原题目' : '自动解题'}-->
 <!--    </Button>-->
 <!--    {#if !editMode}-->
-<!--        <Button class="Button" onclick={() => handleClick('resetMoves')}>重新开始</Button>-->
+<!--        <Button variant="secondary" onclick={() => handleClick('resetMoves')}>重新开始</Button>-->
 <!--    {/if}-->
 
     <!-- TODO:导入要有解决方案 -->
-    <Button class="Button" onclick={() => handleClick('exportPuzzle')}>导出题目</Button>
-    <Button class="Button" onclick={() => handleClick('importPuzzle')}>导入题目</Button>
+    <Button variant="secondary" onclick={() => handleClick('exportPuzzle')}>导出题目</Button>
+    <Button variant="secondary" onclick={() => handleClick('importPuzzle')}>导入题目</Button>
+    <Button variant="secondary" onclick={() => handleClick('loadExample')}>加载示例</Button>
 </div>

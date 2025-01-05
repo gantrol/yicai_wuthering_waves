@@ -8,6 +8,9 @@
         CardContent,
         CardFooter
     } from '$lib/components/ui/card';
+    import { Label } from "$lib/components/ui/label";
+    import { Input } from "$lib/components/ui/input";
+    import { Switch } from "$lib/components/ui/switch";
     import ColorPicker from './ColorPicker.svelte';
     import Controls from './Controls.svelte';
     import Grid from './Grid.svelte';
@@ -404,42 +407,53 @@
     <div class="flex-1 flex flex-col gap-4">
         <!-- Card 1: 控制台区域（编辑模式开关、颜色选择等） -->
         <Card>
-            <CardContent class="space-y-4">
-                <Collapsible.Root class="space-y-2">
-                    <div class="flex items-center justify-between space-x-4">
-                        <h2 class="text-lg font-semibold">编辑区</h2>
+            <CardContent class="space-y-4 p-6">
+                <Collapsible.Root class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold tracking-tight">编辑区</h2>
                         <Collapsible.Trigger
-                                class={buttonVariants({ variant: "ghost", size: "sm", class: "w-9 p-0" })}
+                                class={buttonVariants({ variant: "outline", size: "sm", class: "w-9 p-0" })}
                         >
-                            <ChevronsUpDown/>
+                            <ChevronsUpDown class="h-4 w-4" />
                             <span class="sr-only">Toggle</span>
                         </Collapsible.Trigger>
                     </div>
-                    <div class="flex flex-col gap-4">
-                        <ColorPicker
-                                colors={colorsValue.slice(1)}
-                                label="要把色块全部染成"
-                                on:select={(e) => (targetColor = e.detail)}
-                                selectedColor={targetColor}
-                        />
-                        <div class="settings">
-                            <label for="steps">最大步骤:</label>
-                            <input
-                                    bind:value={maxSteps}
-                                    id="steps"
-                                    max="10"
-                                    min="1"
-                                    on:input={(e) => (maxSteps = e.target?.value)}
-                                    type="number"
+
+                    <div class="flex flex-row items-center justify-between">
+                        <div class="space-y-2">
+                            <Label>要把色块全部染成</Label>
+                            <ColorPicker
+                                    colors={colorsValue.slice(1)}
+                                    selectedColor={targetColor}
+                                    on:select={(e) => (targetColor = e.detail)}
                             />
                         </div>
-                        <div class="mode-switch flex items-center gap-2">
-                            <label class="flex items-center space-x-2">
-                                <input bind:checked={editMode} type="checkbox"/>
-                                <span>编辑模式</span>
-                            </label>
+
+                        <!-- 最大步数设置 -->
+                        <div class="space-y-2">
+                            <Label for="steps">最大步数</Label>
+                            <Input
+                                    id="steps"
+                                    type="number"
+                                    min="1"
+                                    max="10"
+                                    bind:value={maxSteps}
+                                    class="w-24"
+                            />
+                        </div>
+
+                        <!-- 编辑模式开关 -->
+                        <div class="space-y-2">
+                            <Label class="flex items-center space-x-2">
+                                编辑模式
+                            </Label>
+                            <Switch
+                                    id="edit-mode"
+                                    bind:checked={editMode}
+                            />
                         </div>
                     </div>
+
                     <Collapsible.Content class="space-y-2">
                         <Controls
                                 editMode={editMode}
@@ -457,8 +471,6 @@
                         />
                     </Collapsible.Content>
                 </Collapsible.Root>
-
-
             </CardContent>
         </Card>
 
