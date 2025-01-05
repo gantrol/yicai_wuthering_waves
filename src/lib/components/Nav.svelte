@@ -74,17 +74,17 @@
                 <Sheet.Content side="right" class="w-[300px]">
                     <Sheet.Header>
                         <Sheet.Title>菜单</Sheet.Title>
-                        <Sheet.Description>在这里快速访问常用功能。</Sheet.Description>
+<!--                        <Sheet.Description>在这里快速访问常用功能。</Sheet.Description>-->
                     </Sheet.Header>
                     <div class="flex flex-col gap-4 py-4">
-                        <a href="/help" class="flex items-center gap-2 px-4 py-2 text-sm">
-                            <HelpCircle class="h-5 w-5" />
-                            帮助文档
-                        </a>
-                        <a href="/settings" class="flex items-center gap-2 px-4 py-2 text-sm">
-                            <Settings class="h-5 w-5" />
-                            设置
-                        </a>
+<!--                        <a href="/help" class="flex items-center gap-2 px-4 py-2 text-sm">-->
+<!--                            <HelpCircle class="h-5 w-5" />-->
+<!--                            帮助文档-->
+<!--                        </a>-->
+<!--                        <a href="/settings" class="flex items-center gap-2 px-4 py-2 text-sm">-->
+<!--                            <Settings class="h-5 w-5" />-->
+<!--                            设置-->
+<!--                        </a>-->
                         <a
                                 href="https://github.com/gantrol/yicai_wuthering_waves"
                                 target="_blank"
