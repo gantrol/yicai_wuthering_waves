@@ -62,6 +62,7 @@
         border-radius: 4px;
         position: relative;
         touch-action: none;
+        transition: background-color 0.3s ease;
     }
 
     .cell-id {
