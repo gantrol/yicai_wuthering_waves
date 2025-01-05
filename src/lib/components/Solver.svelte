@@ -28,7 +28,7 @@
 
     export let puzzleId: string | null;
     let prevPuzzleId: string | null = null;
-
+    let originalGrid: number[][] = [];
     // 获取编号对应的 JSON 数据
     async function loadPuzzleById(id: string) {
         try {
@@ -37,7 +37,10 @@
             const puzzle = await response.json();
 
             // 更新棋盘状态
-            if (puzzle.grid) grid = puzzle.grid;
+            if (puzzle.grid) {
+                grid = puzzle.grid;
+                originalGrid = cloneMatrix(puzzle.grid);
+            }
             if (puzzle.targetColor) targetColor = puzzle.targetColor;
             if (puzzle.maxSteps) maxSteps = puzzle.maxSteps;
             if (puzzle.solutionSteps && puzzle.solutionSteps.length > 0) {
@@ -120,7 +123,7 @@
 
     function resetMoves() {
         moveHistory = [];
-        grid = cloneMatrix(exampleGrid);
+        grid = cloneMatrix(originalGrid);
         solution = undefined;
         solvingSteps = [];
         stepGrids = [];
@@ -130,6 +133,7 @@
 
     function loadExample() {
         grid = cloneMatrix(exampleGrid);
+        originalGrid = cloneMatrix(exampleGrid);
         moveHistory = [];
         solution = undefined;
         solvingSteps = [];
@@ -175,7 +179,10 @@
                 const puzzle = JSON.parse(content);
 
                 // 1. 根据 puzzle 更新当前画板
-                if (puzzle.grid) grid = puzzle.grid;
+                if (puzzle.grid) {
+                    grid = puzzle.grid;
+                    originalGrid = cloneMatrix(grid);
+                }
                 if (puzzle.targetColor) targetColor = puzzle.targetColor;
                 if (puzzle.maxSteps) maxSteps = puzzle.maxSteps;
 
