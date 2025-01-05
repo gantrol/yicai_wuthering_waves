@@ -16,7 +16,7 @@
             <ol class="space-y-2 list-decimal list-inside mb-4">
                 {#each solution.steps as step, index}
                     <li class="text-base">
-                        选择{colorsName[step.A]}色({step.A})，点击位置 ({step.position[0] + 1}, {step.position[1] + 1})
+                        选择{colorsName[step.A]}色({step.A})，点击位置 ({step.position[0] + 1}, {step.position[1] + 1})（{colorsName[step.B]}色）
                     </li>
                 {/each}
             </ol>
