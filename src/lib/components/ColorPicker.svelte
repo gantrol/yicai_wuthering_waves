@@ -1,4 +1,7 @@
 <script lang="ts">
+    import { Button } from "$lib/components/ui/button";
+    import { cn } from "$lib/utils";
+
     export let label: string;
     export let colors: string[];
     export let selectedColor: number;
@@ -11,36 +14,23 @@
     }
 </script>
 
-<style>
-    .color-picker {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-
-    .color-option {
-        width: 30px;
-        height: 30px;
-        border: 2px solid #000;
-        cursor: pointer;
-        border-radius: 4px;
-        position: relative;
-    }
-
-    .color-option.selected {
-        border: 4px solid #000;
-    }
-</style>
-
-<div class="color-picker">
-    <span>{label}</span>
+<div class="flex items-center gap-4">
+    <span class="text-sm font-medium leading-none">{label}</span>
     {#each colors as color, i}
-        <div
-                class="color-option {selectedColor === (i + 1) ? 'selected' : ''}"
+        <Button
+                variant="outline"
+                size="icon"
+                class={cn(
+                "w-8 h-8 rounded-md relative transition-all",
+                selectedColor === (i + 1) ? "ring-2 ring-offset-2 ring-primary" : ""
+            )}
                 style="background-color: {color};"
-                on:click={() => selectColor(i)}
+                onclick={() => selectColor(i)}
         >
-            <span class="cell-id">{i + 1}</span>
-        </div>
+            <span class="absolute inset-0 flex items-center justify-center text-xs font-medium
+                {color === '#FFFFFF' ? 'text-black' : 'text-white'}">
+                {i + 1}
+            </span>
+        </Button>
     {/each}
 </div>
