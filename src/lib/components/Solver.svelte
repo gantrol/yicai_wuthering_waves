@@ -27,6 +27,8 @@
 
     // puzzleId 用于路由传参（可选）
     export let puzzleId: string | null;
+    // 是否处于编辑模式
+    export let editMode = true;
 
     let prevPuzzleId: string | null = null;
     let originalGrid: number[][] = [];
@@ -102,8 +104,6 @@
     // 最大步数
     let maxSteps = 4;
 
-    // 是否处于编辑模式
-    let editMode = true;
 
     // BFS 的搜索结果
     let solution: BFSResult | undefined = undefined;
@@ -146,13 +146,15 @@
     // 加载示例
     function loadExample() {
         grid = cloneMatrix(exampleGrid);
-        originalGrid = cloneMatrix(exampleGrid);
+        originalGrid = cloneMatrix(grid);
         moveHistory = [];
         solution = undefined;
         solvingSteps = [];
         stepGrids = [];
         currentStep = 0;
         isAutoSolved = false;
+        maxSteps = 4;
+        targetColor = 1
     }
 
     // 导出

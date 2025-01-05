@@ -7,5 +7,6 @@
 
 <Solver
         puzzleId={data.puzzleId}
+        editMode={false}
 />
 
