@@ -1,16 +1,31 @@
 <script lang="ts">
-    import {onMount} from 'svelte'
-    import { Button } from "$lib/components/ui/button";
-    import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card'
-    import ColorPicker from './ColorPicker.svelte'
-    import Controls from './Controls.svelte'
-    import Grid from './Grid.svelte'
-    import Solution from './Solution.svelte'
-    import { cloneMatrix, floodFill, isGoalState, matrixToString, isAllTargetColor } from '$lib/utils/gridUtils';
+    import { onMount } from 'svelte';
+    import { Button, buttonVariants } from '$lib/components/ui/button';
+    import {
+        Card,
+        CardHeader,
+        CardTitle,
+        CardContent,
+        CardFooter
+    } from '$lib/components/ui/card';
+    import ColorPicker from './ColorPicker.svelte';
+    import Controls from './Controls.svelte';
+    import Grid from './Grid.svelte';
+    import Solution from './Solution.svelte';
+    import * as Collapsible from '$lib/components/ui/collapsible/index.js';
+    import type { BFSResult, Move, Step } from '$lib/types';
+
+    // 工具函数 & BFS 逻辑
+    import {
+        cloneMatrix,
+        floodFill,
+        isGoalState
+    } from '$lib/utils/gridUtils';
     import { bfs } from '$lib/utils/solver';
-    import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-    import * as Collapsible from "$lib/components/ui/collapsible/index.js";
-    import { buttonVariants } from "$lib/components/ui/button/index.js";
+
+    // 图标
+    import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
+
     export let puzzleId: string | null;
     let prevPuzzleId: string | null = null;
 
@@ -37,7 +52,7 @@
                 stepGrids = [cloneMatrix(grid)];
                 let tempGrid = cloneMatrix(grid);
                 for (let step of puzzle.solutionSteps) {
-                    const { A, position } = step;
+                    const {A, position} = step;
                     tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
                     stepGrids.push(cloneMatrix(tempGrid));
                 }
@@ -79,11 +94,7 @@
     let targetColor = 1;
     let maxSteps = 4;
     let editMode = true;
-    interface BFSResult {
-        type: 'success' | 'failure';
-        steps?: Step[];
-        message?: string;
-    }
+
 
     let solution: BFSResult | undefined = undefined;
 
@@ -92,17 +103,6 @@
     let stepGrids: number[][] = [];
     let isAutoSolved = false;
 
-    interface Move {
-        position: [number, number];
-        color: number;
-        oldColor: number;
-    }
-
-    interface Step {
-        A: number;
-        B?: number;
-        position: [number, number];
-    }
     let moveHistory: Move[] = [];
 
     const exampleGrid = [
@@ -175,9 +175,9 @@
                 const puzzle = JSON.parse(content);
 
                 // 1. 根据 puzzle 更新当前画板
-                if (puzzle.grid)        grid = puzzle.grid;
+                if (puzzle.grid) grid = puzzle.grid;
                 if (puzzle.targetColor) targetColor = puzzle.targetColor;
-                if (puzzle.maxSteps)    maxSteps = puzzle.maxSteps;
+                if (puzzle.maxSteps) maxSteps = puzzle.maxSteps;
 
                 // 2. 若 puzzle 带有解法步骤，则恢复解题状态
                 if (puzzle.solutionSteps && puzzle.solutionSteps.length > 0) {
@@ -192,7 +192,7 @@
                     stepGrids = [cloneMatrix(grid)];
                     let tempGrid = cloneMatrix(grid);
                     for (let step of puzzle.solutionSteps) {
-                        const { A, position } = step;
+                        const {A, position} = step;
                         tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
                         stepGrids.push(cloneMatrix(tempGrid));
                     }
@@ -222,8 +222,8 @@
 
 
     function clearGrid() {
-        grid = Array.from({ length: rows }, () =>
-            Array.from({ length: cols }, () => 0)
+        grid = Array.from({length: rows}, () =>
+            Array.from({length: cols}, () => 0)
         );
         moveHistory = [];
         solution = undefined;
@@ -321,7 +321,7 @@
             stepGrids = [cloneMatrix(grid)];
             let tempGrid = cloneMatrix(grid);
             for (let step of result.steps) {
-                const { A, position } = step;
+                const {A, position} = step;
                 tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
                 stepGrids.push(cloneMatrix(tempGrid));
             }
@@ -334,7 +334,7 @@
 
     function executeStep() {
         if (currentStep < solvingSteps.length) {
-            const { A, B, position } = solvingSteps[currentStep];
+            const {A, B, position} = solvingSteps[currentStep];
             const [row, col] = position;
             grid = floodFill(cloneMatrix(grid), A, row, col);
             currentStep++;
@@ -349,6 +349,7 @@
             grid = cloneMatrix(stepGrids[currentStep]);
         }
     }
+
     function prevStep() {
         // 若不是第一步，则回退一步
         if (currentStep > 0) {
@@ -381,16 +382,16 @@
     }
 </script>
 <input
-        bind:this={fileInput}
-        type="file"
         accept="application/json"
-        style="display: none;"
+        bind:this={fileInput}
         on:change={handleFileChange}
+        style="display: none;"
+        type="file"
 />
 <div
         class="flex flex-col md:flex-row gap-4 mt-5"
-        on:mouseup={handleMouseUp}
         on:mouseleave={handleMouseUp}
+        on:mouseup={handleMouseUp}
 >
     <!-- 左边区域：编辑控件 + 棋盘 -->
     <div class="flex-1 flex flex-col gap-4">
@@ -403,49 +404,49 @@
                         <Collapsible.Trigger
                                 class={buttonVariants({ variant: "ghost", size: "sm", class: "w-9 p-0" })}
                         >
-                            <ChevronsUpDown />
+                            <ChevronsUpDown/>
                             <span class="sr-only">Toggle</span>
                         </Collapsible.Trigger>
                     </div>
                     <div class="flex flex-col gap-4">
                         <ColorPicker
-                                label="要把色块全部染成"
                                 colors={colorsValue.slice(1)}
-                                selectedColor={targetColor}
+                                label="要把色块全部染成"
                                 on:select={(e) => (targetColor = e.detail)}
+                                selectedColor={targetColor}
                         />
                         <div class="settings">
                             <label for="steps">最大步骤:</label>
                             <input
-                                    id="steps"
-                                    type="number"
-                                    min="1"
-                                    max="10"
                                     bind:value={maxSteps}
+                                    id="steps"
+                                    max="10"
+                                    min="1"
                                     on:input={(e) => (maxSteps = e.target?.value)}
+                                    type="number"
                             />
                         </div>
                         <div class="mode-switch flex items-center gap-2">
                             <label class="flex items-center space-x-2">
-                                <input type="checkbox" bind:checked={editMode} />
+                                <input bind:checked={editMode} type="checkbox"/>
                                 <span>编辑模式</span>
                             </label>
                         </div>
                     </div>
                     <Collapsible.Content class="space-y-2">
                         <Controls
-                                maxSteps={maxSteps}
-                                on:loadExample={loadExample}
-                                on:clearGrid={clearGrid}
-                                on:generatePuzzle={generatePuzzle}
-                                on:fillEmpty={fillEmpty}
-                                on:solvePuzzle={solvePuzzle}
-                                on:restorePuzzle={restorePuzzle}
-                                on:resetMoves={resetMoves}
-                                isAutoSolved={isAutoSolved}
                                 editMode={editMode}
+                                isAutoSolved={isAutoSolved}
+                                maxSteps={maxSteps}
+                                on:clearGrid={clearGrid}
                                 on:exportPuzzle={handleExportPuzzle}
+                                on:fillEmpty={fillEmpty}
+                                on:generatePuzzle={generatePuzzle}
                                 on:importPuzzle={handleImportPuzzle}
+                                on:loadExample={loadExample}
+                                on:resetMoves={resetMoves}
+                                on:restorePuzzle={restorePuzzle}
+                                on:solvePuzzle={solvePuzzle}
                         />
                     </Collapsible.Content>
                 </Collapsible.Root>
@@ -464,10 +465,10 @@
                 {/if}
                 <div class="flex flex-col sm:flex-row gap-4">
                     <ColorPicker
-                            label="染色刷"
                             colors={colorsValue.slice(1)}
-                            selectedColor={selectedColor}
+                            label="染色刷"
                             on:select={(e) => (selectedColor = e.detail)}
+                            selectedColor={selectedColor}
                     />
                     {#if isAutoSolved}
                         <Button variant="outline" onclick={restorePuzzle}>
@@ -484,12 +485,12 @@
                 </div>
 
                 <Grid
-                        grid={grid}
                         colors={colorsValue}
-                        rows={rows}
                         cols={cols}
+                        grid={grid}
                         on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
                         on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
+                        rows={rows}
                 />
             </CardContent>
         </Card>
