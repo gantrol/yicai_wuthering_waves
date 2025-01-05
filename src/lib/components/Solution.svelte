@@ -41,7 +41,7 @@
             </div>
 
             <p class="text-xl text-gray-600">当前步骤: {currentStep} / {steps.length}</p>
-            <p class="text-sm text-gray-500 font-light pt-1">注：先数行，再数列，（1, 5）第一行第五列</p>
+            <p class="text-sm text-gray-500 font-light pt-1">注：先数行，再数列，比方说（1, 5）第一行第五列</p>
         {:else}
             <h2 class="text-xl font-semibold text-green-600">当前方格已经全部为目标颜色，无需操作。</h2>
         {/if}
