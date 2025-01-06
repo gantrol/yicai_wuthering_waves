@@ -1,25 +1,25 @@
 // 自定义 64 字符表：0..9(10) + a..z(26) + A..Z(26) + - _ (2) = 64
 const CHARSET_64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_";
+
 /**
  * 编码:
- *  targetColor(1~4) -> 2 bits
- *  grid(8x10=80cells, each 1~4) -> 80*2=160 bits
- *  maxSteps(1~4) -> 2 bits
- *  => 共 164 bits => 28 个 6-bit 分组(最后几位补0)
+ *   targetColor(1~4) -> 2 bits
+ *   grid(8x10=80cells, each 1~4) -> 80*2=160 bits
+ *   maxSteps(1~64) -> 6 bits (0~63)
+ *   => 共 168 bits => 28 个 6-bit 分组
  */
 export function encodePuzzle(
-    targetColor: number,
-    maxSteps: number,
-    grid: number[][]
+    targetColor: number,    // 1~4
+    maxSteps: number,       // 1~64
+    grid: number[][]        // 8x10, 值范围 1~4
 ): string {
-    // 1) 构建一个 bit-array（boolean[] 或 number[]），容量至少 164 位
+    // 1) 构建一个 bit-array（boolean[] 或 number[]），容量至少 168 位
     const bits: number[] = [];
 
     // 小工具函数：往 bits 数组后面塞 n 位
     function pushBits(value: number, bitCount: number) {
         // 从高位到低位依次写入
         for (let i = bitCount - 1; i >= 0; i--) {
-            // 取第 i 位(0 or 1)
             const bit = (value >> i) & 1;
             bits.push(bit);
         }
@@ -35,12 +35,11 @@ export function encodePuzzle(
         }
     }
 
-    // 4) maxSteps (1~4)->(0~3)
-    pushBits(maxSteps - 1, 2);
+    // 4) maxSteps (1~64)->(0~63) => 6 bits
+    pushBits(maxSteps - 1, 6);
 
-    // bits.length 应该是 164
-    // 5) 每 6 bits 一个字符 => 28 个字符
-    //    多余的 bits 不足 6 位时补 0
+    // bits.length 应该是 168
+    // 5) 每 6 bits 一个字符 => 28 个字符（无剩余，此时正好 168 bits）
     const totalGroups = Math.ceil(bits.length / 6); //= 28
     let result = "";
     let idx = 0;
@@ -62,11 +61,11 @@ export function encodePuzzle(
 
 /**
  * 解码:
- *  28字符 -> 28*6=168 bits，最后的 4 bits 可能是 padding
+ *  28 字符 -> 28*6=168 bits
  *  依次读取:
- *   2 bits => targetColor(0~3)
- *   160 bits => grid(80 cells * 2 bits)
- *   2 bits => maxSteps(0~3)
+ *    2 bits => targetColor(0~3)
+ *    160 bits => grid(80 cells * 2 bits)
+ *    6 bits => maxSteps(0~63)
  */
 export function decodePuzzle(code: string): {
     targetColor: number;
@@ -91,7 +90,7 @@ export function decodePuzzle(code: string): {
             bits.push(bit);
         }
     }
-    // bits.length = 168 (最后 4 位是补的 0 或真实信息)
+    // bits.length = 168
 
     // 2) 先取 2 bits => targetColor(0~3)
     let readIndex = 0;
@@ -105,22 +104,24 @@ export function decodePuzzle(code: string): {
     }
 
     const tc = readBits(2); // 0~3
+
     // 3) 读 80 * 2 = 160 bits => grid
     const g: number[][] = [];
     for (let r = 0; r < 8; r++) {
         const row: number[] = [];
         for (let c = 0; c < 10; c++) {
             const cellVal = readBits(2); // 0~3
-            row.push(cellVal + 1);
+            row.push(cellVal + 1);       // 转回 1~4
         }
         g.push(row);
     }
-    // 4) 读 2 bits => maxSteps(0~3)
-    const ms = readBits(2);
+
+    // 4) 读 6 bits => maxSteps(0~63)
+    const ms = readBits(6);
 
     return {
-        targetColor: tc + 1,
-        maxSteps: ms + 1,
+        targetColor: tc + 1,      // 转回 1~4
+        maxSteps: ms + 1,         // 转回 1~64
         grid: g,
     };
 }
