@@ -2,5 +2,7 @@
 	import Solver from '$lib/components/Solver.svelte';
 </script>
 
-<Solver />
+<Solver
+    editMode={true}
+/>
 
