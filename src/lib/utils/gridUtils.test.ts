@@ -51,7 +51,8 @@ describe('gridUtils', () => {
                 [1, 1]
             ];
             const result = floodFill(grid, 1, 0, 0);
-            expect(result).toBe(grid); // Should return the same reference
+            expect(result).toEqual(grid); // Should return a same matrix
+            expect(result).not.toBe(grid); // But not the same reference
         });
     });
 });

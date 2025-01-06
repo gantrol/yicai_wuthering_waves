@@ -48,13 +48,14 @@ export function getConnectedComponent(matrix: number[][], row: number, col: numb
 }
 
 export function floodFill(currentGrid: number[][], newColor: number, row: number, col: number): number[][] {
-    const oldColor = currentGrid[row][col];
-    if (oldColor === newColor) return currentGrid;
+    const newGrid = cloneMatrix(currentGrid);
+    const oldColor = newGrid[row][col];
+    if (oldColor === newColor) return newGrid;
 
-    const connectedComponent = getConnectedComponent(currentGrid, row, col);
+    const connectedComponent = getConnectedComponent(newGrid, row, col);
     for (const [r, c] of connectedComponent) {
-        currentGrid[r][c] = newColor;
+        newGrid[r][c] = newColor;
     }
 
-    return currentGrid;
+    return newGrid;
 }
