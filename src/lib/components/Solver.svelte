@@ -24,7 +24,7 @@
     } from '$lib/utils/gridUtils';
     import { bfs } from '$lib/utils/solver';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
-
+    import Footprints from 'lucide-svelte/icons/footprints';
     // puzzleId 用于路由传参（可选）
     export let puzzleId: string | null;
     // 是否处于编辑模式
@@ -557,8 +557,16 @@
         <Card>
             <CardContent>
                 {#if !editMode}
-                    <div class="font-semibold">
-                        当前步数: {moveHistory.length} / {maxSteps}
+                    <div class="flex items-center justify-between p-3 mb-4 rounded-md bg-secondary">
+                        <div class="flex items-center gap-2">
+                            <Footprints class="h-4 w-4 text-primary" />
+                            <span class="text-sm font-medium">当前步数</span>
+                        </div>
+                        <div class="px-2 py-1 rounded-md bg-primary/10">
+                            <span class="font-bold text-primary">{moveHistory.length}</span>
+                            <span class="text-muted-foreground">/</span>
+                            <span class="font-medium text-muted-foreground">{maxSteps}</span>
+                        </div>
                     </div>
                 {/if}
                 <div class="flex flex-col sm:flex-row gap-4">
