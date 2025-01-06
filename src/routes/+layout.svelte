@@ -4,6 +4,7 @@
     import Nav from '$lib/components/Nav.svelte'
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
     import AppSidebar from '$lib/components/app-sidebar.svelte';
+    import ToastContainer from "$lib/components/ToastContainer.svelte";
 
     // SvelteKit 会将下级页面的内容作为 children 或 <slot /> 呈现
     let { children } = $props();
@@ -30,7 +31,7 @@
     </Sidebar.Provider>
 </div>
 
-
+<ToastContainer position="bottom-right" />
 
 <svelte:head>
     <title>溢彩画高手|鸣潮|解题工具</title>

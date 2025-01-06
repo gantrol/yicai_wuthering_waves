@@ -11,6 +11,7 @@
     import Controls from './Controls.svelte';
     import Grid from './Grid.svelte';
     import Solution from './Solution.svelte';
+    import { toast } from "$lib/stores/toast";
     import * as Collapsible from '$lib/components/ui/collapsible/index.js';
     import type {BFSResult, Move, Step, PuzzleDataType} from '$lib/types';
     import {
@@ -122,9 +123,9 @@
         const shareUrl = `${baseUrl}/share/${code}`;
         try {
             await navigator.clipboard.writeText(shareUrl);
-            alert("分享链接已复制到剪贴板！");
+            toast("分享链接已复制到剪贴板！", "success");
         } catch (e) {
-            alert("复制失败，请手动复制链接：" + shareUrl);
+            toast("复制失败，请手动复制链接：" + shareUrl, "error");
         }
     }
 
@@ -184,10 +185,10 @@
                     isAutoSolved = false;
                 }
                 moveHistory = [];
-                alert('题目已成功导入！');
+                toast('题目已成功导入！', "success");
             } catch (error) {
                 console.error('导入的 JSON 文件格式不正确:', error);
-                alert('导入失败，文件格式不正确！');
+                toast('导入失败，文件格式不正确！', "error");
             }
         };
         reader.readAsText(file);
@@ -260,11 +261,11 @@
     function checkWinCondition() {
         if (isGoalState(grid, targetColor)) {
             setTimeout(() => {
-                alert(`恭喜！您用了 ${moveHistory.length} 步完成了游戏！`);
+                toast(`恭喜！您用了 ${moveHistory.length} 步完成了游戏！`, "success");
             }, 100);
         } else if (moveHistory.length >= maxSteps) {
             setTimeout(() => {
-                alert('已达到最大步数限制，请重试！');
+                toast('已达到最大步数限制，请重试！', "error");
             }, 100);
         }
     }

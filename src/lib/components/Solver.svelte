@@ -28,7 +28,6 @@
             puzzleData = null;
             errorMsg = '';
             const response = await fetch(`/puzzles_json/${id}.json`);
-            console.log(response)
             if (!response.ok) {
                 throw new Error('无法加载题目数据');
             }
