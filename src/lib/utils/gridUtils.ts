@@ -47,15 +47,18 @@ export function getConnectedComponent(matrix: number[][], row: number, col: numb
     return connectedComponent;
 }
 
-export function floodFill(currentGrid: number[][], newColor: number, row: number, col: number): number[][] {
-    const newGrid = cloneMatrix(currentGrid);
-    const oldColor = newGrid[row][col];
-    if (oldColor === newColor) return newGrid;
-
-    const connectedComponent = getConnectedComponent(newGrid, row, col);
+export function colorConnectedComponent(matrix: number[][], connectedComponent: [number, number][], newColor: number): number[][] {
+    const newMatrix = cloneMatrix(matrix);
     for (const [r, c] of connectedComponent) {
-        newGrid[r][c] = newColor;
+        newMatrix[r][c] = newColor;
     }
+    return newMatrix;
+}
 
-    return newGrid;
+export function floodFill(currentGrid: number[][], newColor: number, row: number, col: number): number[][] {
+    const oldColor = currentGrid[row][col];
+    if (oldColor === newColor) return cloneMatrix(currentGrid);
+
+    const connectedComponent = getConnectedComponent(currentGrid, row, col);
+    return colorConnectedComponent(currentGrid, connectedComponent, newColor);
 }
