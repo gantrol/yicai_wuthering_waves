@@ -117,5 +117,23 @@
                 </div>
             {/each}
         </div>
+        <div class="flex" style="margin-left: {labelWidth}px">
+            {#each Array(cols).fill(0).map((_, i) => i + 1) as colLabel}
+                <div
+                        class={cn(
+                            "text-center font-semibold",
+                            "dark:text-gray-300"
+                        )}
+                        style="
+                            width: {cellSize}px;
+                            height: {labelWidth}px;
+                            line-height: {labelWidth}px;
+                            font-size: {labelFontSize}px;
+                        "
+                >
+                    {colLabel}
+                </div>
+            {/each}
+        </div>
     </div>
 </div>
