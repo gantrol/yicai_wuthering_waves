@@ -1,5 +1,5 @@
 export async function load({ params }) {
     return {
-        shareCode: params.code
+        code: params.code
     };
 }

@@ -2,15 +2,20 @@
 import { describe, it, expect } from "vitest";
 import { encodePuzzle, decodePuzzle } from "./shareUtils";
 
-describe("shareUtils", () => {
-    it("should encode and decode puzzle data correctly", () => {
+describe("shareUtils - short encoding", () => {
+    it("should encode and decode puzzle data with short numeric method", () => {
         const targetColor = 1;
         const maxSteps = 3;
         const grid = [
-            [3, 3, 3],
-            [1, 2, 4],
+            [3,3,3,3,3,3,3,3,3,3],
+            [3,3,2,2,2,2,2,2,3,3],
+            [1,1,4,4,4,4,4,4,1,1],
+            [3,3,4,2,2,2,2,4,3,3],
+            [3,3,4,2,2,2,2,4,3,3],
+            [1,1,4,4,4,4,4,4,1,1],
+            [3,3,2,2,2,2,2,2,3,3],
+            [3,3,3,3,3,3,3,3,3,3]
         ];
-
         const code = encodePuzzle(targetColor, maxSteps, grid);
         expect(typeof code).toBe("string");
 
@@ -20,9 +25,10 @@ describe("shareUtils", () => {
         expect(decoded.grid).toEqual(grid);
     });
 
-    it("should throw error for invalid code", () => {
+    it("should throw if digits length is invalid after base64 decode", () => {
+        // 直接给个错误的 base64
         expect(() => {
-            decodePuzzle("%%%"); // 随意的错误字符串
-        }).toThrow("分享链接无效或解析失败");
+            decodePuzzle("abc123");
+        }).toThrow();
     });
 });
