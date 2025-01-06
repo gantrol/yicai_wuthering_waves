@@ -15,3 +15,10 @@ export interface Step {
     B?: number;
     position: [number, number];
 }
+
+export interface PuzzleDataType {
+    grid: number[][];
+    targetColor: number;
+    maxSteps: number | string;
+    solutionSteps?: Step[];
+}

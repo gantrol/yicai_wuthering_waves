@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import { Button, buttonVariants } from '$lib/components/ui/button';
     import {
         Card,
@@ -22,6 +21,7 @@
     import { bfs } from '$lib/utils/solver';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
     import Footprints from 'lucide-svelte/icons/footprints';
+    import {encodePuzzle} from "$lib/utils/shareUtils";
 
     export let puzzleData: PuzzleDataType;
 
@@ -110,6 +110,24 @@
     }
 
     // 可选：导出、导入功能
+    let baseUrl = "";
+    if (typeof window !== "undefined") {
+        baseUrl = window.location.origin;
+    }
+
+    async function handleShare() {
+        // puzzleData 里可能还有 solutionSteps，但不需要了
+        const { grid, targetColor, maxSteps } = puzzleData;
+        const code = encodePuzzle(targetColor, maxSteps, grid);
+        const shareUrl = `${baseUrl}/share/${code}`;
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            alert("分享链接已复制到剪贴板！");
+        } catch (e) {
+            alert("复制失败，请手动复制链接：" + shareUrl);
+        }
+    }
+
     function handleExportPuzzle() {
         const puzzleData = {
             grid,
@@ -502,7 +520,7 @@
                                 <div
                                         class="h-full bg-primary transition-all duration-300 ease-out rounded-full"
                                         style="width: {(moveHistory.length / maxSteps * 100)}%"
-                                />
+                                ></div>
                             </div>
                             <p class="mt-2 text-sm text-muted-foreground">
                                 {#if moveHistory.length === maxSteps}
@@ -537,6 +555,9 @@
                                 自动解题
                             </Button>
                         {/if}
+                        <Button onclick={handleShare} variant="secondary">
+                            分享链接
+                        </Button>
                         {#if !editMode}
                             <Button class="button" onclick={resetMoves}
                                     disabled={moveHistory.length === 0}>
