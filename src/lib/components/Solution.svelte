@@ -39,9 +39,25 @@
                     下一步
                 </Button>
             </div>
-
-            <p class="text-xl text-gray-600">当前步骤: {currentStep} / {steps.length}</p>
-            <p class="text-sm text-gray-500 font-light pt-1">注：先数行，再数列，比方说（1, 5）第一行第五列</p>
+            <div class="flex items-center gap-4 my-4">
+                <div class="flex-1 bg-secondary rounded-full h-2">
+                    <div
+                            class="bg-primary rounded-full h-2 transition-all duration-300"
+                            style="width: {(currentStep / steps.length) * 100}%"
+                    />
+                </div>
+                <span class="text-sm font-medium whitespace-nowrap">
+                      {currentStep} / {steps.length}
+                  </span>
+            </div>
+            <div class="bg-muted p-4 rounded-lg mt-4">
+                <p class="text-sm text-muted-foreground flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                    先数行，再数列，比方说（1, 5）表示第一行第五列
+                </p>
+            </div>
         {:else}
             <h2 class="text-xl font-semibold text-green-600">当前方格已经全部为目标颜色，无需操作。</h2>
         {/if}

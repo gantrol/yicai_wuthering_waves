@@ -473,6 +473,12 @@
             isAutoSolved = false;
         }
     }
+
+    let gridWidth: number;
+
+    function handleGridWidthChange(event: CustomEvent) {
+        gridWidth = event.detail;
+    }
 </script>
 
 <!-- 隐藏的文件选择器，用于导入题目 JSON -->
@@ -556,20 +562,7 @@
 
         <Card>
             <CardContent>
-                {#if !editMode}
-                    <div class="flex items-center justify-between p-3 mb-4 rounded-md bg-secondary">
-                        <div class="flex items-center gap-2">
-                            <Footprints class="h-4 w-4 text-primary" />
-                            <span class="text-sm font-medium">当前步数</span>
-                        </div>
-                        <div class="px-2 py-1 rounded-md bg-primary/10">
-                            <span class="font-bold text-primary">{moveHistory.length}</span>
-                            <span class="text-muted-foreground">/</span>
-                            <span class="font-medium text-muted-foreground">{maxSteps}</span>
-                        </div>
-                    </div>
-                {/if}
-                <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex flex-col max-w-[640px] sm:flex-row gap-4">
                     <ColorPicker
                             colors={colorsValue.slice(1)}
                             label="染色刷"
@@ -599,8 +592,46 @@
                         grid={grid}
                         on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
                         on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
+                        on:widthChange={handleGridWidthChange}
                         rows={rows}
                 />
+                {#if !editMode}
+                    <div class="mt-6 max-w-[{gridWidth}px]"  style="max-width: {gridWidth}px">
+                        <!-- 使用卡片式设计 -->
+                        <div class="p-4 rounded-lg bg-secondary/50 border">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <Footprints class="h-5 w-5 text-primary" />
+                                    <span class="text-base font-medium">步数</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl font-bold text-primary">{moveHistory.length}</span>
+                                    <span class="text-muted-foreground">/</span>
+                                    <span class="text-lg font-medium text-muted-foreground">{maxSteps}</span>
+                                </div>
+                            </div>
+
+                            <!-- 添加进度条 -->
+                            <div class="mt-3 h-2 bg-secondary rounded-full overflow-hidden">
+                                <div
+                                        class="h-full bg-primary transition-all duration-300 ease-out rounded-full"
+                                        style="width: {(moveHistory.length / maxSteps * 100)}%"
+                                />
+                            </div>
+
+                            <!-- 可选：添加提示文本 -->
+                            <p class="mt-2 text-sm text-muted-foreground">
+                                {#if moveHistory.length === maxSteps}
+                                    已达到最大步数
+                                {:else if moveHistory.length === 0}
+                                    开始你的游戏吧
+                                {:else}
+                                    还剩 {maxSteps - moveHistory.length} 步
+                                {/if}
+                            </p>
+                        </div>
+                    </div>
+                {/if}
             </CardContent>
         </Card>
     </div>
