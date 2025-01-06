@@ -23,7 +23,9 @@
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
     import Footprints from 'lucide-svelte/icons/footprints';
     import {encodePuzzle} from "$lib/utils/shareUtils";
-
+    import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
+    import Share from 'lucide-svelte/icons/share';
+    import XCircle from 'lucide-svelte/icons/x-circle';
     export let puzzleData: PuzzleDataType;
 
     // 是否处于编辑模式（外部也可传入，以控制组件的“编辑”与“游戏”状态）
@@ -545,23 +547,41 @@
                         {#if isAutoSolved}
                             <Button
                                     variant="outline"
-                                    class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500"
+                                    class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500 group"
                                     onclick={restorePuzzle}
                             >
-                                移除答案
+                                <XCircle class="h-4 w-4" />
+                                <span class="hidden group-hover:inline">移除答案</span>
                             </Button>
                         {:else}
-                            <Button variant="default" onclick={solvePuzzle}>
-                                自动解题
+                            <Button variant="default" onclick={solvePuzzle} class="group">
+                                <div class="h-4 w-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2v4"/>
+                                        <path d="M12 18v4"/>
+                                        <path d="m4.93 4.93 2.83 2.83"/>
+                                        <path d="m16.24 16.24 2.83 2.83"/>
+                                        <path d="M2 12h4"/>
+                                        <path d="M18 12h4"/>
+                                        <path d="m4.93 19.07 2.83-2.83"/>
+                                        <path d="m16.24 7.76 2.83-2.83"/>
+                                    </svg>
+                                </div>
+                                <span class="hidden group-hover:inline">自动解题</span>
                             </Button>
                         {/if}
-                        <Button onclick={handleShare} variant="secondary">
-                            分享链接
+                        <Button onclick={handleShare} variant="secondary" class="group">
+                            <Share class="h-4 w-4" />
+                            <span class="hidden group-hover:inline">分享当前</span>
                         </Button>
                         {#if !editMode}
-                            <Button class="button" onclick={resetMoves}
-                                    disabled={moveHistory.length === 0}>
-                                重新开始
+                            <Button
+                                    class="group"
+                                    onclick={resetMoves}
+                                    disabled={moveHistory.length === 0}
+                            >
+                                <RotateCcw class="h-4 w-4" />
+                                <span class="hidden group-hover:inline">重新开始</span>
                             </Button>
                         {/if}
                     </div>
