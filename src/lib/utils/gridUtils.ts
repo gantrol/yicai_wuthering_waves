@@ -47,6 +47,23 @@ export function getConnectedComponent(matrix: number[][], row: number, col: numb
     return connectedComponent;
 }
 
+export function getAllConnectedComponents(matrix: number[][]): [number, number][][] {
+    const visited = Array(matrix.length).fill(0).map(() => Array(matrix[0].length).fill(false));
+    const components: [number, number][][] = [];
+
+    for (let x = 0; x < matrix.length; x++) {
+        for (let y = 0; y < matrix[0].length; y++) {
+            if (!visited[x][y]) {
+                const component = getConnectedComponent(matrix, x, y);
+                component.forEach(([r, c]) => visited[r][c] = true);
+                components.push(component);
+            }
+        }
+    }
+
+    return components;
+}
+
 export function colorConnectedComponent(matrix: number[][], connectedComponent: [number, number][], newColor: number): number[][] {
     const newMatrix = cloneMatrix(matrix);
     for (const [r, c] of connectedComponent) {
