@@ -508,7 +508,7 @@
                             <span class="sr-only">Toggle</span>
                         </Collapsible.Trigger>
                     </div>
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"  style="max-width: {gridWidth}px">
                         <div class="space-y-2 w-full sm:w-auto">
                             <Label>要把色块全部染成</Label>
                             <ColorPicker
@@ -596,7 +596,7 @@
                         rows={rows}
                 />
                 {#if !editMode}
-                    <div class="mt-6 max-w-[{gridWidth}px]"  style="max-width: {gridWidth}px">
+                    <div class="mt-6" style="max-width: {gridWidth}px">
                         <!-- 使用卡片式设计 -->
                         <div class="p-4 rounded-lg bg-secondary/50 border">
                             <div class="flex items-center justify-between">
