@@ -500,8 +500,8 @@
                             <span class="sr-only">Toggle</span>
                         </Collapsible.Trigger>
                     </div>
-                    <div class="flex flex-row items-center justify-between">
-                        <div class="space-y-2">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="space-y-2 w-full sm:w-auto">
                             <Label>要把色块全部染成</Label>
                             <ColorPicker
                                     colors={colorsValue.slice(1)}
@@ -509,25 +509,27 @@
                                     on:select={(e) => (targetColor = e.detail)}
                             />
                         </div>
-                        <div class="space-y-2">
-                            <Label for="steps">最大步数</Label>
-                            <Input
-                                    id="steps"
-                                    type="number"
-                                    min="1"
-                                    max="10"
-                                    bind:value={maxSteps}
-                                    class="w-24"
-                            />
-                        </div>
-                        <div class="space-y-2">
-                            <Label class="flex items-center space-x-2">
-                                编辑模式
-                            </Label>
-                            <Switch
-                                    id="edit-mode"
-                                    bind:checked={editMode}
-                            />
+                        <div class="flex items-center space-x-8"> <!-- 增加了 space-x-8 来控制两个控件之间的间距 -->
+                            <div class="space-y-2">
+                                <Label for="steps">最大步数</Label>
+                                <Input
+                                        id="steps"
+                                        type="number"
+                                        min="1"
+                                        max="10"
+                                        bind:value={maxSteps}
+                                        class="w-24"
+                                />
+                            </div>
+                            <div class="space-y-2">
+                                <Label class="flex items-center space-x-2">
+                                    编辑模式
+                                </Label>
+                                <Switch
+                                        id="edit-mode"
+                                        bind:checked={editMode}
+                                />
+                            </div>
                         </div>
                     </div>
                     <Collapsible.Content class="space-y-2">
