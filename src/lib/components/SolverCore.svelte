@@ -484,41 +484,8 @@
 
         <Card>
             <CardContent>
-                <div class="flex flex-col max-w-[640px] sm:flex-row gap-4">
-                    <ColorPicker
-                            colors={colorsValue.slice(1)}
-                            label="染色刷"
-                            on:select={(e) => (selectedColor = e.detail)}
-                            selectedColor={selectedColor}
-                    />
-                    {#if isAutoSolved}
-                        <Button
-                                variant="outline"
-                                class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500"
-                                onclick={restorePuzzle}
-                        >
-                            移除答案
-                        </Button>
-                    {:else}
-                        <Button variant="default" onclick={solvePuzzle}>
-                            自动解题
-                        </Button>
-                    {/if}
-                    {#if !editMode}
-                        <Button class="button" onclick={resetMoves}>重新开始</Button>
-                    {/if}
-                </div>
-                <Grid
-                        colors={colorsValue}
-                        cols={cols}
-                        grid={grid}
-                        on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
-                        on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
-                        on:widthChange={handleGridWidthChange}
-                        rows={rows}
-                />
                 {#if !editMode}
-                    <div class="mt-6" style="max-width: {gridWidth}px">
+                    <div class="mb-6" style="max-width: {gridWidth}px">
                         <div class="p-4 rounded-lg bg-secondary/50 border">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
@@ -549,6 +516,45 @@
                         </div>
                     </div>
                 {/if}
+                <div class="flex flex-col justify-between sm:flex-row gap-4" style="max-width: {gridWidth}px">
+                    <ColorPicker
+                            colors={colorsValue.slice(1)}
+                            label="染色刷"
+                            on:select={(e) => (selectedColor = e.detail)}
+                            selectedColor={selectedColor}
+                    />
+                    <div>
+                        {#if isAutoSolved}
+                            <Button
+                                    variant="outline"
+                                    class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500"
+                                    onclick={restorePuzzle}
+                            >
+                                移除答案
+                            </Button>
+                        {:else}
+                            <Button variant="default" onclick={solvePuzzle}>
+                                自动解题
+                            </Button>
+                        {/if}
+                        {#if !editMode}
+                            <Button class="button" onclick={resetMoves}
+                                    disabled={moveHistory.length === 0}>
+                                重新开始
+                            </Button>
+                        {/if}
+                    </div>
+                </div>
+                <Grid
+                        colors={colorsValue}
+                        cols={cols}
+                        grid={grid}
+                        on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
+                        on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
+                        on:widthChange={handleGridWidthChange}
+                        rows={rows}
+                />
+
             </CardContent>
         </Card>
     </div>
