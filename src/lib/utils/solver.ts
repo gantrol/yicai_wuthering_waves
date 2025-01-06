@@ -1,4 +1,4 @@
-import { cloneMatrix, matrixToString, isAllTargetColor, floodFill } from './gridUtils';
+import { cloneMatrix, matrixToString, isAllTargetColor, colorConnectedComponent, getAllConnectedComponents } from './gridUtils';
 
 interface Step {
     A: number;
@@ -30,21 +30,22 @@ export function bfs(initialMatrix: number[][], targetColor: number, maxSteps: nu
 
         if (depth >= maxSteps) continue;
 
+        const components = getAllConnectedComponents(matrix);
+
         for (let A of availableColors) {
-            for (let x = 0; x < matrix.length; x++) {
-                for (let y = 0; y < matrix[0].length; y++) {
-                    const B = matrix[x][y];
-                    if (A === B) continue;
-                    const newMatrix = floodFill(matrix, A, x, y);
-                    const matrixStr = matrixToString(newMatrix);
-                    if (!visited.has(matrixStr)) {
-                        visited.add(matrixStr);
-                        queue.push({
-                            matrix: newMatrix,
-                            steps: [...steps, { A, B, position: [x, y] }],
-                            depth: depth + 1,
-                        });
-                    }
+            for (const component of components) {
+                const [x, y] = component[0];
+                const B = matrix[x][y];
+                if (A === B) continue;
+                const newMatrix = colorConnectedComponent(matrix, component, A);
+                const matrixStr = matrixToString(newMatrix);
+                if (!visited.has(matrixStr)) {
+                    visited.add(matrixStr);
+                    queue.push({
+                        matrix: newMatrix,
+                        steps: [...steps, { A, B, position: [x, y] }],
+                        depth: depth + 1,
+                    });
                 }
             }
         }
