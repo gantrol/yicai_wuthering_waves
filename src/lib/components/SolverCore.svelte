@@ -118,7 +118,6 @@
 
     async function handleShare() {
         // puzzleData 里可能还有 solutionSteps，但不需要了
-        const { grid, targetColor, maxSteps } = puzzleData;
         const code = encodePuzzle(targetColor, maxSteps, grid);
         const shareUrl = `${baseUrl}/share/${code}`;
         try {
