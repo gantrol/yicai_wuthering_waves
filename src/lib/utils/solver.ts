@@ -1,4 +1,4 @@
-import { cloneMatrix, matrixToString, isAllTargetColor } from './gridUtils';
+import { cloneMatrix, matrixToString, isAllTargetColor, floodFill } from './gridUtils';
 
 interface Step {
     A: number;
@@ -10,44 +10,6 @@ interface Result {
     type: 'success' | 'failure';
     steps?: Step[];
     message?: string;
-}
-
-function applyOperation(matrix: number[][], A: number, x: number, y: number): number[][] {
-    const rows = matrix.length;
-    const cols = matrix[0].length;
-    const B = matrix[x][y];
-    const newMatrix = cloneMatrix(matrix);
-    const queue: [number, number][] = [[x, y]];
-    const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
-    visited[x][y] = true;
-
-    while (queue.length > 0) {
-        const [i, j] = queue.shift()!;
-        if (newMatrix[i][j] === B) {
-            newMatrix[i][j] = A;
-            const directions: [number, number][] = [
-                [i - 1, j],
-                [i + 1, j],
-                [i, j - 1],
-                [i, j + 1],
-            ];
-            for (let [ni, nj] of directions) {
-                if (
-                    ni >= 0 &&
-                    ni < rows &&
-                    nj >= 0 &&
-                    nj < cols &&
-                    !visited[ni][nj] &&
-                    newMatrix[ni][nj] === B
-                ) {
-                    queue.push([ni, nj]);
-                    visited[ni][nj] = true;
-                }
-            }
-        }
-    }
-
-    return newMatrix;
 }
 
 export function bfs(initialMatrix: number[][], targetColor: number, maxSteps: number): Result {
@@ -73,7 +35,7 @@ export function bfs(initialMatrix: number[][], targetColor: number, maxSteps: nu
                 for (let y = 0; y < matrix[0].length; y++) {
                     const B = matrix[x][y];
                     if (A === B) continue;
-                    const newMatrix = applyOperation(matrix, A, x, y);
+                    const newMatrix = floodFill(matrix, A, x, y);
                     const matrixStr = matrixToString(newMatrix);
                     if (!visited.has(matrixStr)) {
                         visited.add(matrixStr);
