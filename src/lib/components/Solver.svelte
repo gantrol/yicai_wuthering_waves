@@ -1,13 +1,16 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import SolverCore from './SolverCore.svelte';
+    import type {PuzzleDataType} from "$lib/types";
+    import {Loader2} from "lucide-svelte";
+    import * as Alert from "$lib/components/ui/alert";
 
     // 你也可以用路由参数或外部传参
     export let puzzleId: string = '1';
     export let editMode = false;
 
     // 用来存放从 fetch 拿到的 puzzleData
-    let puzzleData = null;
+    let puzzleData: PuzzleDataType;
     let errorMsg = '';
 
     // 监听 puzzleId 变化，重新 fetch
@@ -38,9 +41,15 @@
 </script>
 
 {#if errorMsg}
-    <p class="text-red-500">加载出错：{errorMsg}</p>
+    <Alert.Root variant="destructive">
+        <Alert.Title>错误</Alert.Title>
+        <Alert.Description>{errorMsg}</Alert.Description>
+    </Alert.Root>
 {:else if !puzzleData}
-    <p>加载中...</p>
+    <div class="flex items-center justify-center p-8">
+        <Loader2 class="h-8 w-8 animate-spin" />
+        <span class="ml-2">加载中...</span>
+    </div>
 {:else}
     <SolverCore
             puzzleData={puzzleData}

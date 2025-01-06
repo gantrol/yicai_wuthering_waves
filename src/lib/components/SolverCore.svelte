@@ -13,7 +13,7 @@
     import Grid from './Grid.svelte';
     import Solution from './Solution.svelte';
     import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-    import type { BFSResult, Move, Step } from '$lib/types';
+    import type {BFSResult, Move, Step, PuzzleDataType} from '$lib/types';
     import {
         cloneMatrix,
         floodFill,
@@ -23,24 +23,7 @@
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
     import Footprints from 'lucide-svelte/icons/footprints';
 
-    /**
-     * puzzleData 结构示例：
-     * {
-     *   "grid": [...],
-     *   "targetColor": 4,
-     *   "maxSteps": 3,
-     *   "solutionSteps": [
-     *       { "A": 2, "B": 3, "position": [1,2] },
-     *       ...
-     *   ]
-     * }
-     */
-    export let puzzleData: {
-        grid: number[][];
-        targetColor: number;
-        maxSteps: number | string;
-        solutionSteps?: Step[];
-    };
+    export let puzzleData: PuzzleDataType;
 
     // 是否处于编辑模式（外部也可传入，以控制组件的“编辑”与“游戏”状态）
     export let editMode = true;
