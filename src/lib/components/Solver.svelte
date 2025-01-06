@@ -359,6 +359,8 @@
             oldColor
         });
 
+        moveHistory = moveHistory;
+
         // 分层 BFS
         const tempGrid = cloneMatrix(grid);
         const waveLayers = floodFillWave(tempGrid, row, col, oldColor);
