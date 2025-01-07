@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { aStarSolve } from '$lib/utils/solver';
+import { solvePuzzleWithFallback } from '$lib/utils/solver';
 
 // 递归或手动拼接 static/puzzles_json 路径
 // 注意 __dirname 在 ESM 环境下可能不可用，可改用 import.meta.url 处理
@@ -29,7 +29,7 @@ describe('Test all puzzles in static/puzzles_json (exclude list.json)', () => {
             const stepsLimit = parseInt(maxSteps, 10) || 10;
 
             // 调用 A* 求解
-            const result = aStarSolve(grid, targetColor, stepsLimit);
+            const result = solvePuzzleWithFallback(grid, targetColor, stepsLimit);
 
             // 如果想要断言它一定成功，就检查
             expect(result.type).toBe('success');

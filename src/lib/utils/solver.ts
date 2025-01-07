@@ -1,19 +1,6 @@
 /* File: src/lib/utils/solver.ts */
 import { cloneMatrix, matrixToString, isAllTargetColor } from './gridUtils';
-
-// 如果你项目里已定义过 Step / BFSResult，这里可以复用，或改名为 AStarResult
-export interface Step {
-    A: number;         // 要染成的新颜色
-    B?: number;        // 原先的颜色
-    position: [number, number]; // 任意记录一下这次点击或染色对应的坐标
-}
-
-export interface BFSResult {
-    type: 'success' | 'failure';
-    steps?: Step[];
-    message?: string;
-}
-
+import type {Step, BFSResult} from "$lib/types";
 /**
  * 1) 获取当前棋盘 matrix 中，所有颜色的连通分区
  *    返回一个 Map：color -> [若干个分区]，每个分区是坐标数组
@@ -79,11 +66,10 @@ function fillRegion(matrix: number[][], region: Array<[number, number]>, A: numb
  * 3) 启发式函数 (heuristic)：
  *    这里用「剩余不是目标颜色的 连通分区数」作为估算。
  *    返回值越小，代表离目标越近。
- *    - 如果你对游戏机制更熟悉，可尝试别的启发式，比如「剩余非目标色格子数 / 每次能影响的格子数」等。
+ *    - 还可以尝试别的启发式，比如「剩余非目标色格子数 / 每次能影响的格子数」等。
  */
-function heuristic(matrix: number[][], targetColor: number): number {
+function heuristicV1(matrix: number[][], targetColor: number): number {
     const colorRegions = getAllColorRegions(matrix);
-    // 如果棋盘全是目标色，启发值=0
     if (isAllTargetColor(matrix, targetColor)) {
         return 0;
     }
@@ -98,13 +84,30 @@ function heuristic(matrix: number[][], targetColor: number): number {
 }
 
 /**
+ * 新启发式：示例为简单的“剩余非目标色格子数”
+ * （亦可自行扩展为：非目标色格子数 / 平均可染色区域大小）
+ */
+function heuristicV2(matrix: number[][], targetColor: number): number {
+    let nonTargetCount = 0;
+    for (let r = 0; r < matrix.length; r++) {
+        for (let c = 0; c < matrix[0].length; c++) {
+            if (matrix[r][c] !== targetColor) {
+                nonTargetCount++;
+            }
+        }
+    }
+    return nonTargetCount;
+}
+
+
+/**
  * AStarState：存储 A* 搜索过程中的节点信息
  */
 interface AStarState {
-    matrix: number[][]; // 当前棋盘
-    g: number;          // 已经走了多少步
-    h: number;          // 启发式估计值
-    steps: Step[];      // 走到这里的操作序列
+    matrix: number[][];
+    g: number; // 已经走了多少步
+    h: number; // 启发式评估值
+    steps: Step[];
 }
 
 /**
@@ -112,12 +115,14 @@ interface AStarState {
  * @param initialMatrix 初始棋盘
  * @param targetColor   目标颜色
  * @param maxSteps      最大步数限制
- * @returns BFSResult (兼容之前的接口)
+ * @param useHeuristicV2 第二种启发式
+ * @returns BFSResult
  */
 export function aStarSolve(
     initialMatrix: number[][],
     targetColor: number,
-    maxSteps: number
+    maxSteps: number,
+    useHeuristicV2 = false
 ): BFSResult {
     // 1) 初始化 openSet (优先队列), visited
     //    这里用一个简单的“最小堆”或第三方库 PriorityQueue
@@ -130,7 +135,10 @@ export function aStarSolve(
         openSet.sort((a, b) => (a.g + a.h) - (b.g + b.h));
     }
 
-    const startH = heuristic(initialMatrix, targetColor);
+    const startH = useHeuristicV2
+        ? heuristicV2(initialMatrix, targetColor)
+        : heuristicV1(initialMatrix, targetColor);
+
     pushState({
         matrix: cloneMatrix(initialMatrix),
         g: 0,
@@ -170,18 +178,17 @@ export function aStarSolve(
                     // 把此 region 一次性染成 A
                     const newMatrix = fillRegion(matrix, region, A);
                     const newMatrixStr = matrixToString(newMatrix);
-
                     const newG = g + 1;
                     // 若已经访问过，且之前的 g 更优，则跳过
                     if (visited.has(newMatrixStr) && visited.get(newMatrixStr)! <= newG) {
                         continue;
                     }
 
-                    // 计算新的启发值
-                    const newH = heuristic(newMatrix, targetColor);
-                    visited.set(newMatrixStr, newG);
+                    const newH = useHeuristicV2
+                        ? heuristicV2(newMatrix, targetColor)
+                        : heuristicV1(newMatrix, targetColor);
 
-                    // 加入 openSet
+                    visited.set(newMatrixStr, newG);
                     pushState({
                         matrix: newMatrix,
                         g: newG,
@@ -192,7 +199,81 @@ export function aStarSolve(
             }
         }
     }
-
-    // 如果整个 openSet 都空了，还没找到解
     return { type: 'failure', message: `在 ${maxSteps} 步内无法将所有数字变成目标颜色。` };
+}
+
+/**
+ * 尝试先用直接目标色搜索，若失败，再尝试中转色
+ * @param grid 初始矩阵
+ * @param targetColor 目标颜色
+ * @param maxSteps 允许步数
+ */
+export function solvePuzzleWithFallback(
+    grid: number[][],
+    targetColor: number,
+    maxSteps: number
+): BFSResult {
+    // 先用新的启发式 V2 直接 A* 搜索
+    const directResult = aStarSolve(grid, targetColor, maxSteps);
+    if (directResult.type === 'success') {
+        return directResult;
+    }
+
+    // 如果直接染成目标色在 maxSteps 内失败，则尝试中转色
+    // 这里假设颜色只有 1 ~ 4, 并排除目标色本身
+    for (let intermediate = 1; intermediate <= 4; intermediate++) {
+        if (intermediate === targetColor) continue;
+
+        // 先在 maxSteps - 1 步内染成 intermediate 色
+        const midResult = aStarSolve(grid, intermediate, maxSteps - 1, true);
+        if (midResult.type === 'success' && midResult.steps) {
+            // 再看最后是否可以用 1 步把 intermediate -> targetColor
+            // 简化处理：认为所有 intermediate 色可以一次性填充
+            // 做法：只要找到一个 intermediate 色的连通分量，做一次 fillRegion
+            // 由于不一定连通，这里只是演示，可以自行扩展多步
+            // 这里把第一个 region 当作“染色点击点”，忽略可能的多个散开的 region
+            const finalMatrix = cloneMatrix(grid);
+            // 先执行 midResult 的 steps
+            for (const st of midResult.steps) {
+                const colorRegions = getAllColorRegions(finalMatrix);
+                const region = colorRegions.get(st.B!)?.find(r => r[0][0] === st.position[0] && r[0][1] === st.position[1]);
+                if (region) {
+                    for (const [rr, cc] of region) {
+                        finalMatrix[rr][cc] = st.A;
+                    }
+                }
+            }
+            // 最后一步：填充成 targetColor
+            let finalStep: Step | undefined;
+            const colorRegionsAfter = getAllColorRegions(finalMatrix);
+            if (colorRegionsAfter.has(intermediate)) {
+                const regionsOfInter = colorRegionsAfter.get(intermediate)!;
+                if (regionsOfInter.length > 0) {
+                    const firstRegion = regionsOfInter[0];
+                    const newMat = fillRegion(finalMatrix, firstRegion, targetColor);
+                    finalStep = {
+                        A: targetColor,
+                        B: intermediate,
+                        position: firstRegion[0]
+                    };
+                }
+            }
+
+            if (finalStep) {
+                // 拼接所有操作
+                const stepsAll = [...midResult.steps, finalStep];
+                if (stepsAll.length <= maxSteps) {
+                    return {
+                        type: 'success',
+                        steps: stepsAll
+                    };
+                }
+            }
+        }
+    }
+
+    return {
+        type: 'failure',
+        message: `在 ${maxSteps} 步内，即便用中转色，也无法达成全部染成 ${targetColor} 色`
+    };
 }
