@@ -1,4 +1,4 @@
-import { cloneMatrix, matrixToString, isAllTargetColor } from './gridUtils';
+import { cloneMatrix, matrixToString, isAllTargetColor, colorConnectedComponent, getAllConnectedComponents } from './gridUtils';
 
 interface Step {
     A: number;
@@ -10,44 +10,6 @@ interface Result {
     type: 'success' | 'failure';
     steps?: Step[];
     message?: string;
-}
-
-function applyOperation(matrix: number[][], A: number, x: number, y: number): number[][] {
-    const rows = matrix.length;
-    const cols = matrix[0].length;
-    const B = matrix[x][y];
-    const newMatrix = cloneMatrix(matrix);
-    const queue: [number, number][] = [[x, y]];
-    const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
-    visited[x][y] = true;
-
-    while (queue.length > 0) {
-        const [i, j] = queue.shift()!;
-        if (newMatrix[i][j] === B) {
-            newMatrix[i][j] = A;
-            const directions: [number, number][] = [
-                [i - 1, j],
-                [i + 1, j],
-                [i, j - 1],
-                [i, j + 1],
-            ];
-            for (let [ni, nj] of directions) {
-                if (
-                    ni >= 0 &&
-                    ni < rows &&
-                    nj >= 0 &&
-                    nj < cols &&
-                    !visited[ni][nj] &&
-                    newMatrix[ni][nj] === B
-                ) {
-                    queue.push([ni, nj]);
-                    visited[ni][nj] = true;
-                }
-            }
-        }
-    }
-
-    return newMatrix;
 }
 
 export function bfs(initialMatrix: number[][], targetColor: number, maxSteps: number): Result {
@@ -68,21 +30,22 @@ export function bfs(initialMatrix: number[][], targetColor: number, maxSteps: nu
 
         if (depth >= maxSteps) continue;
 
+        const components = getAllConnectedComponents(matrix);
+
         for (let A of availableColors) {
-            for (let x = 0; x < matrix.length; x++) {
-                for (let y = 0; y < matrix[0].length; y++) {
-                    const B = matrix[x][y];
-                    if (A === B) continue;
-                    const newMatrix = applyOperation(matrix, A, x, y);
-                    const matrixStr = matrixToString(newMatrix);
-                    if (!visited.has(matrixStr)) {
-                        visited.add(matrixStr);
-                        queue.push({
-                            matrix: newMatrix,
-                            steps: [...steps, { A, B, position: [x, y] }],
-                            depth: depth + 1,
-                        });
-                    }
+            for (const component of components) {
+                const [x, y] = component[0];
+                const B = matrix[x][y];
+                if (A === B) continue;
+                const newMatrix = colorConnectedComponent(matrix, component, A);
+                const matrixStr = matrixToString(newMatrix);
+                if (!visited.has(matrixStr)) {
+                    visited.add(matrixStr);
+                    queue.push({
+                        matrix: newMatrix,
+                        steps: [...steps, { A, B, position: [x, y] }],
+                        depth: depth + 1,
+                    });
                 }
             }
         }

@@ -1,4 +1,4 @@
-import { cloneMatrix, isGoalState, floodFill } from './gridUtils';
+import { cloneMatrix, isGoalState, floodFill, getAllConnectedComponents } from './gridUtils';
 import {describe, it, expect} from "vitest";
 
 describe('gridUtils', () => {
@@ -51,7 +51,46 @@ describe('gridUtils', () => {
                 [1, 1]
             ];
             const result = floodFill(grid, 1, 0, 0);
-            expect(result).toBe(grid); // Should return the same reference
+            expect(result).toEqual(grid); // Should return a same matrix
+            expect(result).not.toBe(grid); // But not the same reference
+        });
+    });
+
+    describe('getAllConnectedComponents', () => {
+        it('should return all connected components in the matrix', () => {
+            const grid = [
+                [1, 1, 2],
+                [1, 2, 2],
+                [3, 3, 3]
+            ];
+            const components = getAllConnectedComponents(grid);
+            expect(components.length).toBe(3);
+            expect(components).toContainEqual([[0, 0], [1, 0], [0, 1]]);
+            expect(components).toContainEqual([[0, 2], [1, 2], [1, 1]]);
+            expect(components).toContainEqual([[2, 0], [2, 1], [2, 2]]);
+        });
+
+        it('should return a single component for a uniform matrix', () => {
+            const grid = [
+                [1, 1],
+                [1, 1]
+            ];
+            const components = getAllConnectedComponents(grid);
+            expect(components.length).toBe(1);
+            expect(components[0].length).toBe(4);
+        });
+
+        it('should return each cell as a separate component for a unique matrix', () => {
+            const grid = [
+                [1, 2],
+                [3, 4]
+            ];
+            const components = getAllConnectedComponents(grid);
+            expect(components.length).toBe(4);
+            expect(components).toContainEqual([[0, 0]]);
+            expect(components).toContainEqual([[0, 1]]);
+            expect(components).toContainEqual([[1, 0]]);
+            expect(components).toContainEqual([[1, 1]]);
         });
     });
 });
