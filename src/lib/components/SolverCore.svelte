@@ -19,7 +19,7 @@
         floodFill,
         isGoalState
     } from '$lib/utils/gridUtils';
-    import { bfs } from '$lib/utils/solver';
+    import { aStarSolve } from '$lib/utils/solver';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
     import Footprints from 'lucide-svelte/icons/footprints';
     import {encodePuzzle} from "$lib/utils/shareUtils";
@@ -343,7 +343,7 @@
     }
 
     function solvePuzzle() {
-        const result = bfs(cloneMatrix(grid), targetColor, maxSteps);
+        const result = aStarSolve(cloneMatrix(grid), targetColor, maxSteps);
         solution = result;
         if (result.type === 'success') {
             stepGrids = [cloneMatrix(grid)];
