@@ -4,6 +4,7 @@
     import { Button } from '$lib/components/ui/button';
     import PuzzleIcon from "lucide-svelte/icons/puzzle";
     import StarIcon from "lucide-svelte/icons/star";
+    import {getColorName} from "$lib/utils/gridUtils";
 
     interface Puzzle {
         id: number;
@@ -48,11 +49,6 @@
 
     function getDifficultyStars(difficulty: number = 1) {
         return Array(difficulty).fill('★').join('');
-    }
-
-    function getColorName(colorId: number): string {
-        const colors = ['空', '蓝', '红', '黄', '绿'];
-        return colors[colorId] || '未知';
     }
 
     onMount(loadPuzzles);

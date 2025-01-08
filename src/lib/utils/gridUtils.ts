@@ -1,3 +1,5 @@
+import type {Step} from "$lib/types";
+
 export function cloneMatrix(matrix: number[][]): number[][] {
     return matrix.map(row => [...row]);
 }
@@ -46,4 +48,24 @@ export function floodFill(currentGrid: number[][], newColor: number, row: number
     }
 
     return currentGrid;
+}
+
+const colorsValue = ['#ffffff', '#4980b9', '#d2463e', '#f5db82', '#59a68d'];
+const colorsName = ['空', '蓝', '红', '黄', '绿'];
+
+export function getColors() {
+    return colorsValue;
+}
+
+
+export function getColorName(index: number) {
+    return colorsName[index];
+}
+
+export function getColorsForPicker() {
+    return colorsValue.slice(1);
+}
+
+export function getDescriptionForSolutionStep(step: Step) {
+    return `选择${getColorName(step.A)}色(${step.A}号)，点击${getColorName(step.B)}色方格 (${step.position[0] + 1}, ${step.position[1] + 1})`
 }

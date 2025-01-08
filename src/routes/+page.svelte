@@ -6,6 +6,7 @@
     import { Button } from '$lib/components/ui/button';
     import { ArrowRight, Palette, Gamepad2, BookOpen, ArrowDown } from 'lucide-svelte';
     import { goto } from '$app/navigation';
+    import { getDescriptionForSolutionStep } from "$lib/utils/gridUtils";
 
     let demoData: PuzzleDataType;
     let currentStep = 0;
@@ -143,13 +144,9 @@
                         <h3 class="font-bold text-lg mb-3">第 {currentStep + 1} 步</h3>
                         <p class="text-muted-foreground">
                             {#if currentStep === 0}
-                                选绿色染色刷，点蓝色区域，染成绿色
-                            {:else if currentStep === 1}
-                                选红色染色刷，点绿色区域，染成红色
-                            {:else if currentStep === 2}
-                                最后选黄刷点红色区域，全部染成黄色
-                            {:else if currentStep === 3}
-                                点击重来，或者选择其他题目继续游玩
+                                观察棋盘
+                            {:else}
+                                {getDescriptionForSolutionStep(demoData.solutionSteps[currentStep - 1])}
                             {/if}
                         </p>
                     </div>

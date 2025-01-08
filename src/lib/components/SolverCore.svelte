@@ -16,7 +16,7 @@
     import type { BFSResult, Move, Step, PuzzleDataType } from '$lib/types';
     import {
         cloneMatrix,
-        floodFill,
+        floodFill, getColors, getColorsForPicker,
         isGoalState
     } from '$lib/utils/gridUtils';
     import { solvePuzzleWithFallback } from '$lib/utils/solver';
@@ -70,7 +70,6 @@
     // 一些控制画板的配置
     let rows = 8;
     let cols = 10;
-    let colorsValue = ['#ffffff', '#4980b9', '#d2463e', '#f5db82', '#59a68d'];
 
     // 当 puzzleData 改变时，初始化 grid/targetColor/maxSteps/solutionSteps 等
     $: if (puzzleData) {
@@ -511,10 +510,8 @@
                         >
                             <div class="space-y-2 w-full sm:w-auto">
                                 <Label>要把色块全部染成</Label>
-                                <!-- Provide label so we don't get the missing 'label' error -->
                                 <ColorPicker
-                                        label="目标颜色"
-                                        colors={colorsValue.slice(1)}
+                                        colors={getColorsForPicker()}
                                         selectedColor={targetColor}
                                         select={(i) => (targetColor = i)}
                                 />
@@ -592,8 +589,8 @@
                 <div class="flex flex-col justify-between sm:flex-row gap-4" style="max-width: {gridWidth}px">
                     <ColorPicker
                         label="染色刷"
-                        colors={colorsValue.slice(1)}
-                        select={(i: number) => (selectedColor = i)}
+                        colors={getColorsForPicker()}
+                        select={(i) => (selectedColor = i)}
                         selectedColor={selectedColor}
                     />
                     <div>
@@ -640,7 +637,7 @@
                     </div>
                 </div>
                 <Grid
-                    colors={colorsValue}
+                    colors={getColors()}
                     cols={cols}
                     grid={grid}
                     on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
