@@ -54,7 +54,7 @@
                     <div
                             class="bg-primary rounded-full h-2 transition-all duration-300"
                             style="width: {(currentStep / steps.length) * 100}%"
-></div>
+                    ></div>
                 </div>
                 <span class="text-sm font-medium whitespace-nowrap">
                       {currentStep} / {steps.length}
