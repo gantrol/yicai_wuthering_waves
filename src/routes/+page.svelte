@@ -64,82 +64,72 @@
 <div class="min-h-screen bg-gradient-to-b from-background to-secondary/20">
     <!-- Hero Section -->
     <section class="pt-32 px-4 text-center relative overflow-hidden">
-        <!-- 背景装饰 -->
+        <!-- 增强的背景装饰效果 -->
         <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-10 left-10 w-32 h-32 bg-primary/30 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-10 right-10 w-32 h-32 bg-secondary/30 rounded-full blur-3xl"></div>
+            <div class="absolute top-10 left-10 w-32 h-32 bg-primary/30 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-10 right-10 w-32 h-32 bg-secondary/30 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent/20 rounded-full blur-3xl"></div>
         </div>
 
         <div class="relative z-10 max-w-4xl mx-auto">
-            <h1 class="text-5xl md:text-6xl font-bold mb-16">
-                <span class="bg-gradient-to-r from-[#FF6B6B] via-[#4ECDC4] to-[#45B7D1] bg-clip-text text-transparent animate-fade-in">
+            <h1 class="text-5xl md:text-6xl font-bold mb-16 tracking-tight">
+                <span class="bg-gradient-to-r from-[#FF6B6B] via-[#4ECDC4] to-[#45B7D1] bg-clip-text text-transparent animate-fade-in drop-shadow-sm">
                     溢彩画
                 </span>
             </h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <!-- 策略性卡片 -->
-                <div
-                        class="bg-background/50 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer"
-                        on:click={() => goto('/random')}
-                >
-                    <div class="text-4xl mb-4"><Gamepad2 class="mx-auto" /></div>
-                    <h3 class="font-bold text-xl mb-2">策略性</h3>
-                    <p class="text-muted-foreground">运用智慧解决每一个谜题</p>
-                </div>
-
-                <!-- 自定义卡片 -->
-                <div
-                        class="bg-background/50 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer"
-                        on:click={() => goto('/edit')}
-                >
-                    <div class="text-4xl mb-4"><Palette class="mx-auto" /></div>
-                    <h3 class="font-bold text-xl mb-2">自定义</h3>
-                    <p class="text-muted-foreground">创造属于你的独特谜题</p>
-                </div>
-
-                <!-- 题库卡片 -->
-                <div
-                        class="bg-background/50 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer"
-                        on:click={() => goto('/puzzles')}
-                >
-                    <div class="text-4xl mb-4"><BookOpen class="mx-auto" /></div>
-                    <h3 class="font-bold text-xl mb-2">题库与自动解答</h3>
-                    <p class="text-muted-foreground">丰富的题库与智能解答系统</p>
-                </div>
-            </div>
-
-            <div class="flex justify-center gap-4 mb-16 animate-slide-up-delayed">
+            <!-- 优化按钮样式 -->
+            <div class="flex justify-center gap-6 mb-20 animate-slide-up-delayed">
                 <Button
                         size="lg"
                         variant="default"
-                        class="group transition-all hover:scale-105"
+                        class="group transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
                         onclick={() => goto('/random')}
                 >
                     开始游戏
-                    <ArrowRight class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
                 <Button
                         size="lg"
                         variant="outline"
-                        class="group hover:scale-105 transition-all"
+                        class="group transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
                         onclick={scrollToDemo}
                 >
                     怎么玩
-                    <ArrowDown class="ml-2 h-5 w-5 group-hover:translate-y-1 transition-transform" />
+                    <ArrowDown class="ml-2 h-5 w-5 group-hover:translate-y-1 transition-transform duration-300" />
                 </Button>
             </div>
 
+            <!-- 优化卡片样式 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                {#each [
+                    { icon: Gamepad2, title: '策略性', desc: '运用智慧解决每一个谜题', path: '/random' },
+                    { icon: Palette, title: '自定义', desc: '创造属于你的独特谜题', path: '/edit' },
+                    { icon: BookOpen, title: '题库与自动解答', desc: '丰富的题库与智能解答系统', path: '/puzzles' }
+                ] as { icon, title, desc, path }}
+                    <div
+                            class="bg-background/50 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border border-border/50"
+                            on:click={() => goto(path)}
+                    >
+                        <div class="text-4xl mb-6 text-primary/80">
+                            <svelte:component this={icon} class="mx-auto" />
+                        </div>
+                        <h3 class="font-bold text-xl mb-3">{title}</h3>
+                        <p class="text-muted-foreground">{desc}</p>
+                    </div>
+                {/each}
+            </div>
         </div>
     </section>
 
-    <section id="how-to-play" class="py-20 px-4 bg-secondary/10 backdrop-blur-sm">
+    <!-- 优化教程部分 -->
+    <section id="how-to-play" class="py-24 px-4 bg-secondary/10 backdrop-blur-sm">
         <div class="max-w-6xl mx-auto">
-            <h2 class="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h2 class="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 看看溢彩画怎么玩
             </h2>
 
-            <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+            <div class="relative rounded-2xl shadow-2xl">
                 {#if demoData}
                     <SolverCore
                             bind:this={solverRef}
@@ -149,7 +139,7 @@
                             currentStep={currentStep}
                     />
 
-                    <div class="absolute top-4 right-4 bg-background/95 p-6 rounded-xl border shadow-lg backdrop-blur-sm transition-all hover:scale-105">
+                    <div class="absolute top-4 right-4 bg-background/95 p-6 rounded-xl border shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105">
                         <h3 class="font-bold text-lg mb-3">第 {currentStep + 1} 步</h3>
                         <p class="text-muted-foreground">
                             {#if currentStep === 0}

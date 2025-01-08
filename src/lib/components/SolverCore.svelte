@@ -558,7 +558,7 @@
             <CardContent>
                 {#if !editMode}
                     <div class="mb-6" style="max-width: {gridWidth}px">
-                        <div class="p-4 rounded-lg bg-secondary/50 border">
+                        <div class="p-4 bg-secondary/50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <Footprints class="h-5 w-5 text-primary" />
