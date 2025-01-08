@@ -49,7 +49,7 @@
 
 ### 提交问题
 
-如果您发现任何问题或有改进建议，请在 [Issues](https://github.com/yourusername/溢彩画高手/issues) 中提交。
+如果您发现任何问题或有改进建议，请在 [Issues](https://github.com/gantrol/yicai_wuthering_waves/issues) 中提交。
 
 ## 新增题目
 
@@ -66,7 +66,7 @@
 1. **克隆仓库**
 
    ```bash
-   git clone https://github.com/yourusername/溢彩画高手.git
+   git clone https://github.com/gantrol/yicai_wuthering_waves.git
    cd 溢彩画高手
    ```
 
