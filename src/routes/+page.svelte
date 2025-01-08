@@ -35,8 +35,8 @@
         }
     }
 
-    function scrollToDemo() {
-        const demoSection = document.querySelector('#how-to-play');
+    function scrollTomore() {
+        const demoSection = document.querySelector('#more');
         demoSection?.scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -80,7 +80,7 @@
             </h1>
 
             <!-- 优化按钮样式 -->
-            <div class="flex justify-center gap-6 mb-20 animate-slide-up-delayed">
+            <div class="flex justify-center gap-6 mb-4 animate-slide-up-delayed">
                 <Button
                         size="lg"
                         variant="default"
@@ -94,42 +94,18 @@
                         size="lg"
                         variant="outline"
                         class="group transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
-                        onclick={scrollToDemo}
+                        onclick={scrollTomore}
                 >
-                    怎么玩
+                    查看更多
                     <ArrowDown class="ml-2 h-5 w-5 group-hover:translate-y-1 transition-transform duration-300" />
                 </Button>
-            </div>
-
-            <!-- 优化卡片样式 -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                {#each [
-                    { icon: Gamepad2, title: '策略性', desc: '运用智慧解决每一个谜题', path: '/random' },
-                    { icon: Palette, title: '自定义', desc: '创造属于你的独特谜题', path: '/edit' },
-                    { icon: BookOpen, title: '题库与自动解答', desc: '丰富的题库与智能解答系统', path: '/puzzles' }
-                ] as { icon, title, desc, path }}
-                    <div
-                            class="bg-background/50 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border border-border/50"
-                            on:click={() => goto(path)}
-                    >
-                        <div class="text-4xl mb-6 text-primary/80">
-                            <svelte:component this={icon} class="mx-auto" />
-                        </div>
-                        <h3 class="font-bold text-xl mb-3">{title}</h3>
-                        <p class="text-muted-foreground">{desc}</p>
-                    </div>
-                {/each}
             </div>
         </div>
     </section>
 
     <!-- 优化教程部分 -->
-    <section id="how-to-play" class="py-24 px-4 bg-secondary/10 backdrop-blur-sm">
+    <section id="how-to-play" class="px-4 bg-secondary/10 backdrop-blur-sm">
         <div class="max-w-6xl mx-auto">
-            <h2 class="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                看看溢彩画怎么玩
-            </h2>
-
             <div class="relative rounded-2xl shadow-2xl">
                 {#if demoData}
                     <SolverCore
@@ -152,6 +128,27 @@
                     </div>
                 {/if}
             </div>
+        </div>
+    </section>
+
+    <section id="more" class="py-16 px-4 text-center relative overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {#each [
+                { icon: Gamepad2, title: '策略性', desc: '运用智慧解决每一个谜题', path: '/random' },
+                { icon: Palette, title: '自定义', desc: '创造属于你的独特谜题', path: '/edit' },
+                { icon: BookOpen, title: '题库', desc: '丰富的题库与自动解答', path: '/puzzles' }
+            ] as { icon, title, desc, path }}
+                <div
+                        class="bg-background/50 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border border-border/50"
+                        on:click={() => goto(path)}
+                >
+                    <div class="text-4xl mb-6 text-primary/80">
+                        <svelte:component this={icon} class="mx-auto" />
+                    </div>
+                    <h3 class="font-bold text-xl mb-3">{title}</h3>
+                    <p class="text-muted-foreground">{desc}</p>
+                </div>
+            {/each}
         </div>
     </section>
 </div>
