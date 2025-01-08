@@ -38,7 +38,8 @@
 
         const step = solvingSteps[currentStep];
         const [row, col] = step.position;
-
+        // 选择颜色 step.A
+        selectedColor = step.A;
         // 执行染色动画
         animateWaveFill(row, col, step.A);
     }
