@@ -30,7 +30,7 @@
                     solverRef.executeNextStep();
                     currentStep++;
                 }
-            }, 3000);
+            }, 4000);
         }
     }
 
@@ -143,11 +143,11 @@
                         <h3 class="font-bold text-lg mb-3">第 {currentStep + 1} 步</h3>
                         <p class="text-muted-foreground">
                             {#if currentStep === 0}
-                                选择蓝色区域，将其染成绿色
+                                选绿色染色刷，点蓝色区域，染成绿色
                             {:else if currentStep === 1}
-                                选择绿色区域，将其染成红色
+                                选红色染色刷，点绿色区域，染成红色
                             {:else if currentStep === 2}
-                                最后选择红色区域，染成黄色
+                                最后选黄刷点红色区域，全部染成黄色
                             {:else if currentStep === 3}
                                 点击重来，或者选择其他题目继续游玩
                             {/if}
