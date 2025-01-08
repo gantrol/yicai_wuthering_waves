@@ -1,10 +1,20 @@
 <script lang="ts">
     import { Button } from "$lib/components/ui/button";
-    export let solution: any;
-    export let steps: any[];
-    export let currentStep: number;
-    export let prevStep: () => void;
-    export let nextStep: () => void;
+    interface Props {
+        solution: any;
+        steps: any[];
+        currentStep: number;
+        prevStep: () => void;
+        nextStep: () => void;
+    }
+
+    let {
+        solution,
+        steps,
+        currentStep,
+        prevStep,
+        nextStep
+    }: Props = $props();
 
     let colorsName = ['空', '蓝', '红', '黄', '绿'];
 </script>
@@ -44,7 +54,7 @@
                     <div
                             class="bg-primary rounded-full h-2 transition-all duration-300"
                             style="width: {(currentStep / steps.length) * 100}%"
-                    />
+></div>
                 </div>
                 <span class="text-sm font-medium whitespace-nowrap">
                       {currentStep} / {steps.length}

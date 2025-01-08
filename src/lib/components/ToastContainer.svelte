@@ -33,6 +33,7 @@
 
 <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 w-[360px]">
     {#each $toastStore as toast (toast.id)}
+        {@const SvelteComponent = icons[toast.type]}
         <div
                 transition:fly={{ x: 50, duration: 300 }}
                 class={cn(
@@ -41,14 +42,13 @@
       )}
         >
             <div class="flex items-start gap-3">
-                <svelte:component
-                        this={icons[toast.type]}
+                <SvelteComponent
                         class={cn('h-5 w-5', iconColors[toast.type])}
                 />
                 <p class="text-sm flex-1">{toast.message}</p>
                 <button
                         class="text-gray-400 hover:text-gray-600 transition-colors"
-                        on:click={() => toastStore.removeToast(toast.id)}
+                        onclick={() => toastStore.removeToast(toast.id)}
                 >
                     <X class="h-4 w-4" />
                 </button>
@@ -61,7 +61,7 @@
             iconColors[toast.type]
           )}
                         style="width: 100%; animation: shrink {toast.duration}ms linear forwards;"
-                />
+                ></div>
             {/if}
         </div>
     {/each}

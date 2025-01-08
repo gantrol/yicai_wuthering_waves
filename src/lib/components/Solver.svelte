@@ -5,18 +5,19 @@
     import {Loader2} from "lucide-svelte";
     import * as Alert from "$lib/components/ui/alert";
 
-    // 你也可以用路由参数或外部传参
-    export let puzzleId: string = '1';
-    export let editMode = false;
+    
+    interface Props {
+        // 你也可以用路由参数或外部传参
+        puzzleId?: string;
+        editMode?: boolean;
+    }
+
+    let { puzzleId = '1', editMode = false }: Props = $props();
 
     // 用来存放从 fetch 拿到的 puzzleData
-    let puzzleData: PuzzleDataType;
-    let errorMsg = '';
+    let puzzleData: PuzzleDataType = $state();
+    let errorMsg = $state('');
 
-    // 监听 puzzleId 变化，重新 fetch
-    $: if (puzzleId) {
-        fetchPuzzle(puzzleId);
-    }
 
     // 首次挂载时
     onMount(() => {
@@ -37,6 +38,12 @@
             errorMsg = err.message;
         }
     }
+    // 监听 puzzleId 变化，重新 fetch
+    $effect(() => {
+        if (puzzleId) {
+            fetchPuzzle(puzzleId);
+        }
+    });
 </script>
 
 {#if errorMsg}

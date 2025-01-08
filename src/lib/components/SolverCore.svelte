@@ -13,7 +13,7 @@
     import Solution from './Solution.svelte';
     import { toast } from "$lib/stores/toast";
     import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-    import type {BFSResult, Move, Step, PuzzleDataType} from '$lib/types';
+    import type { BFSResult, Move, Step, PuzzleDataType } from '$lib/types';
     import {
         cloneMatrix,
         floodFill,
@@ -22,10 +22,11 @@
     import { solvePuzzleWithFallback } from '$lib/utils/solver';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
     import Footprints from 'lucide-svelte/icons/footprints';
-    import {encodePuzzle} from "$lib/utils/shareUtils";
+    import { encodePuzzle } from "$lib/utils/shareUtils";
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Share from 'lucide-svelte/icons/share';
     import XCircle from 'lucide-svelte/icons/x-circle';
+
     export let puzzleData: PuzzleDataType;
 
     // 是否处于编辑模式（外部也可传入，以控制组件的“编辑”与“游戏”状态）
@@ -43,10 +44,10 @@
 
     // BFS 的搜索结果（success/failed）
     let solution: BFSResult | undefined = undefined;
-    // BFS 的每一步
+    // BFS 的每一步 (避免 undefined by defaulting to [])
     let solvingSteps: Step[] = [];
     // BFS 每一步对应的 grid（只在无动画的 next/prevStep 用到）
-    let stepGrids: number[][] = [];
+    let stepGrids: number[][][] = [];
     let currentStep = 0;
     let isAutoSolved = false;
 
@@ -67,7 +68,7 @@
     }
 
     // 将 puzzleData 初始化到本组件内部的状态
-    function initPuzzle(data) {
+    function initPuzzle(data: PuzzleDataType) {
         grid = cloneMatrix(data.grid);
         originalGrid = cloneMatrix(data.grid);
 
@@ -172,7 +173,7 @@
                     stepGrids = [cloneMatrix(grid)];
                     let tempGrid = cloneMatrix(grid);
                     for (let step of puzzle.solutionSteps) {
-                        const {A, position} = step;
+                        const { A, position } = step;
                         tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
                         stepGrids.push(cloneMatrix(tempGrid));
                     }
@@ -231,11 +232,12 @@
     //   2. 拖拽、颜色变更相关
     // ----------------------------
     let isDragging = false;
-    function handleMouseDown(row, col) {
+
+    function handleMouseDown(row: number, col: number) {
         isDragging = true;
         tryMove(row, col);
     }
-    function handleMouseEnter(row, col) {
+    function handleMouseEnter(row: number, col: number) {
         // 只有编辑模式才允许拖拽连续涂色
         if (isDragging && editMode) {
             changeColor(row, col);
@@ -245,7 +247,7 @@
         isDragging = false;
     }
 
-    function tryMove(row, col) {
+    function tryMove(row: number, col: number) {
         if (editMode) {
             changeColor(row, col);
         } else {
@@ -253,7 +255,7 @@
         }
     }
 
-    function changeColor(row, col) {
+    function changeColor(row: number, col: number) {
         grid[row][col] = selectedColor;
         // 手动触发 svelte 更新
         grid = cloneMatrix(grid);
@@ -274,7 +276,12 @@
     // ----------------------------
     //   3. 波次扩散 + BFS 求解
     // ----------------------------
-    function floodFillWave(currentGrid: number[][], row: number, col: number, oldColor: number) {
+    function floodFillWave(
+        currentGrid: number[][],
+        row: number,
+        col: number,
+        oldColor: number
+    ): Array<Array<[number, number]>> {
         const rowCount = currentGrid.length;
         const colCount = currentGrid[0].length;
         const visited = Array.from({ length: rowCount }, () => Array(colCount).fill(false));
@@ -345,7 +352,8 @@
     function solvePuzzle() {
         const result = solvePuzzleWithFallback(cloneMatrix(grid), targetColor, maxSteps);
         solution = result;
-        if (result.type === 'success') {
+        // Guard against undefined steps
+        if (result.type === 'success' && result.steps) {
             stepGrids = [cloneMatrix(grid)];
             let tempGrid = cloneMatrix(grid);
             for (let step of result.steps) {
@@ -354,8 +362,11 @@
                 stepGrids.push(cloneMatrix(tempGrid));
             }
             isAutoSolved = true;
+            solvingSteps = result.steps;
+        } else {
+            // If we get here, result.steps may be undefined or empty
+            solvingSteps = [];
         }
-        solvingSteps = result.steps;
         currentStep = 0;
     }
 
@@ -423,17 +434,18 @@
 
 <!-- 隐藏的文件选择器，用于导入题目 JSON -->
 <input
-        accept="application/json"
-        bind:this={fileInput}
-        on:change={handleFileChange}
-        style="display: none;"
-        type="file"
+    accept="application/json"
+    bind:this={fileInput}
+    on:change={handleFileChange}
+    style="display: none;"
+    type="file"
 />
 
 <div
-        class="flex flex-col md:flex-row gap-4 mt-5"
-        on:mouseleave={handleMouseUp}
-        on:mouseup={handleMouseUp}
+    role="none"
+    class="flex flex-col md:flex-row gap-4 mt-5"
+    on:mouseleave={handleMouseUp}
+    on:mouseup={handleMouseUp}
 >
     <div class="flex-1 flex flex-col gap-4">
         <Card>
@@ -442,34 +454,36 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-semibold tracking-tight">编辑区</h2>
                         <Collapsible.Trigger
-                                class={buttonVariants({ variant: "outline", size: "sm", class: "w-9 p-0" })}
+                            class={buttonVariants({ variant: "outline", size: "sm", class: "w-9 p-0" })}
                         >
                             <ChevronsUpDown class="h-4 w-4" />
                             <span class="sr-only">Toggle</span>
                         </Collapsible.Trigger>
                     </div>
                     <div
-                            class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                            style="max-width: {gridWidth}px"
+                        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                        style="max-width: {gridWidth}px"
                     >
                         <div class="space-y-2 w-full sm:w-auto">
                             <Label>要把色块全部染成</Label>
+                            <!-- Provide label so we don't get the missing 'label' error -->
                             <ColorPicker
-                                    colors={colorsValue.slice(1)}
-                                    selectedColor={targetColor}
-                                    on:select={(e) => (targetColor = e.detail)}
+                                label="目标颜色"
+                                colors={colorsValue.slice(1)}
+                                selectedColor={targetColor}
+                                select={(i: number) => (targetColor = i)}
                             />
                         </div>
                         <div class="flex items-center space-x-8">
                             <div class="space-y-2">
                                 <Label for="steps">最大步数</Label>
                                 <Input
-                                        id="steps"
-                                        type="number"
-                                        min="1"
-                                        max="10"
-                                        bind:value={maxSteps}
-                                        class="w-24"
+                                    id="steps"
+                                    type="number"
+                                    min="1"
+                                    max="10"
+                                    bind:value={maxSteps}
+                                    class="w-24"
                                 />
                             </div>
                             <div class="space-y-2">
@@ -477,25 +491,18 @@
                                     编辑模式
                                 </Label>
                                 <Switch
-                                        id="edit-mode"
-                                        bind:checked={editMode}
+                                    id="edit-mode"
+                                    bind:checked={editMode}
                                 />
                             </div>
                         </div>
                     </div>
                     <Collapsible.Content class="space-y-2">
                         <Controls
-                                editMode={editMode}
-                                isAutoSolved={isAutoSolved}
-                                maxSteps={maxSteps}
-                                on:clearGrid={clearGrid}
-                                on:exportPuzzle={handleExportPuzzle}
-                                on:fillEmpty={fillEmpty}
-                                on:generatePuzzle={generatePuzzle}
-                                on:importPuzzle={handleImportPuzzle}
-                                on:resetMoves={resetMoves}
-                                on:restorePuzzle={restorePuzzle}
-                                on:solvePuzzle={solvePuzzle}
+                            clearGrid={clearGrid}
+                            fillEmpty={fillEmpty}
+                            exportPuzzle={handleExportPuzzle}
+                            importPuzzle={handleImportPuzzle}
                         />
                     </Collapsible.Content>
                 </Collapsible.Root>
@@ -520,8 +527,8 @@
                             </div>
                             <div class="mt-3 h-2 bg-secondary rounded-full overflow-hidden">
                                 <div
-                                        class="h-full bg-primary transition-all duration-300 ease-out rounded-full"
-                                        style="width: {(moveHistory.length / maxSteps * 100)}%"
+                                    class="h-full bg-primary transition-all duration-300 ease-out rounded-full"
+                                    style="width: {(moveHistory.length / maxSteps * 100)}%"
                                 ></div>
                             </div>
                             <p class="mt-2 text-sm text-muted-foreground">
@@ -538,17 +545,17 @@
                 {/if}
                 <div class="flex flex-col justify-between sm:flex-row gap-4" style="max-width: {gridWidth}px">
                     <ColorPicker
-                            colors={colorsValue.slice(1)}
-                            label="染色刷"
-                            on:select={(e) => (selectedColor = e.detail)}
-                            selectedColor={selectedColor}
+                        label="染色刷"
+                        colors={colorsValue.slice(1)}
+                        select={(i: number) => (selectedColor = i)}
+                        selectedColor={selectedColor}
                     />
                     <div>
                         {#if isAutoSolved}
                             <Button
-                                    variant="outline"
-                                    class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500 group"
-                                    onclick={restorePuzzle}
+                                variant="outline"
+                                class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500 group"
+                                onclick={restorePuzzle}
                             >
                                 <XCircle class="h-4 w-4" />
                                 <span class="hidden group-hover:inline">移除答案</span>
@@ -576,9 +583,9 @@
                         </Button>
                         {#if !editMode}
                             <Button
-                                    class="group"
-                                    onclick={resetMoves}
-                                    disabled={moveHistory.length === 0}
+                                class="group"
+                                onclick={resetMoves}
+                                disabled={moveHistory.length === 0}
                             >
                                 <RotateCcw class="h-4 w-4" />
                                 <span class="hidden group-hover:inline">重新开始</span>
@@ -587,15 +594,14 @@
                     </div>
                 </div>
                 <Grid
-                        colors={colorsValue}
-                        cols={cols}
-                        grid={grid}
-                        on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
-                        on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
-                        on:widthChange={handleGridWidthChange}
-                        rows={rows}
+                    colors={colorsValue}
+                    cols={cols}
+                    grid={grid}
+                    on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
+                    on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
+                    on:widthChange={handleGridWidthChange}
+                    rows={rows}
                 />
-
             </CardContent>
         </Card>
     </div>
@@ -605,11 +611,11 @@
             <Card>
                 <CardContent>
                     <Solution
-                            solution={solution}
-                            steps={solvingSteps}
-                            currentStep={currentStep}
-                            prevStep={prevStep}
-                            nextStep={nextStep}
+                        solution={solution}
+                        steps={solvingSteps}
+                        currentStep={currentStep}
+                        prevStep={prevStep}
+                        nextStep={nextStep}
                     />
                 </CardContent>
             </Card>

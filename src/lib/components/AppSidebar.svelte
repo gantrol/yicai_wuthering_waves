@@ -9,7 +9,6 @@
     import Inbox from "lucide-svelte/icons/inbox";
     import Github from "lucide-svelte/icons/github";
     import PuzzleIcon from "lucide-svelte/icons/puzzle";
-    import ChevronRight from "lucide-svelte/icons/chevron-right";
 
     interface PuzzleItem {
         id: number;
@@ -18,10 +17,11 @@
     const commonItems = [
         { title: "首页", url: "/", icon: House },
         { title: "题库", url: "/puzzles", icon: Inbox },
-        // { title: "其它示例", url: "#random", icon: Circle },
+        // { title: "新题编辑", url: "#random", icon: Circle },
+        // { title: "随机做题", url: "#random", icon: Circle },
     ];
 
-    let puzzles: PuzzleItem[] = [];
+    let puzzles: PuzzleItem[] = $state([]);
 
     async function loadPuzzles() {
         try {
@@ -87,7 +87,6 @@
                                         <PuzzleIcon class="h-4 w-4" />
                                         <span>{puzzle.id}</span>
                                     </div>
-<!--                                        <ChevronRight class="h-4 w-4" />-->
                                 </a>
                                 {/snippet}
                             </Sidebar.MenuButton>

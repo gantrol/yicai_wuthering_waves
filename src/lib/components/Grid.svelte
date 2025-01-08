@@ -93,6 +93,9 @@
                                 "hover:opacity-90 touch-none",
                                 "border-gray-200 dark:border-gray-700"
                             )}
+                                aria-label="Grid cell: {rowIndex}, {colIndex}"
+                                role="button"
+                                tabindex="0"
                                 style="
                                 width: {cellSize}px;
                                 height: {cellSize}px;

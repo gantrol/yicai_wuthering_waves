@@ -7,6 +7,7 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
+repomix-output.md
 
 # OS
 .DS_Store

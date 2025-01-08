@@ -274,6 +274,6 @@ export function solvePuzzleWithFallback(
 
     return {
         type: 'failure',
-        message: `在 ${maxSteps} 步内，即便用中转色，也无法达成全部染成 ${targetColor} 色`
+        message: `在 ${maxSteps} 步内，无法全部染成 ${targetColor} 色`
     };
 }

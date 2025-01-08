@@ -2,16 +2,17 @@
     import { Button } from "$lib/components/ui/button";
     import { cn } from "$lib/utils";
 
-    export let label: string;
-    export let colors: string[];
-    export let selectedColor: number;
-
-    import { createEventDispatcher } from 'svelte';
-    const dispatch = createEventDispatcher();
-
-    function selectColor(index: number) {
-        dispatch('select', index + 1);
+    interface Props {
+        label: string;
+        colors: string[];
+        selectedColor: number;
+        select: (i: number) => number;
     }
+
+    let {
+        label = "", colors, selectedColor,
+        select,
+    } : Props = $props();
 </script>
 
 <div class="flex items-center gap-4">
@@ -25,7 +26,7 @@
                 selectedColor === (i + 1) ? "ring-2 ring-offset-2 ring-primary" : ""
             )}
                 style="background-color: {color};"
-                onclick={() => selectColor(i)}
+                onclick={() => select(i + 1)}
         >
             <span class="absolute inset-0 flex items-center justify-center text-xs font-medium
                 {color === '#FFFFFF' ? 'text-black' : 'text-white'}">

@@ -7,11 +7,16 @@
     import Settings from 'lucide-svelte/icons/settings';
     import * as Sheet from '$lib/components/ui/sheet';
     import { Tooltip } from './ui/tooltip';
+    interface Props {
+        children?: import('svelte').Snippet;
+    }
+
+    let { children }: Props = $props();
 </script>
 
 <nav class="border-b bg-white dark:bg-slate-900 sticky top-0 z-50">
     <div class="container mx-auto flex h-16 items-center px-4">
-        <slot />
+        {@render children?.()}
 
         <!-- Logo and Title -->
         <div class="flex items-center gap-6 md:gap-8">
@@ -58,9 +63,9 @@
                     <Github class="h-5 w-5" />
                     <span class="sr-only">GitHub</span>
                 </Button>
-                <svelte:fragment slot="content">
-                    GitHub 仓库
-                </svelte:fragment>
+                {#snippet content()}
+                        GitHub 仓库
+                {/snippet}
             </Tooltip>
 
             <!-- Mobile menu trigger -->

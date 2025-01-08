@@ -12,8 +12,8 @@
         maxSteps?: number;
     }
 
-    let puzzles: Puzzle[] = [];
-    let loading = true;
+    let puzzles: Puzzle[] = $state([]);
+    let loading = $state(true);
     let error = null;
 
     async function loadPuzzles() {
