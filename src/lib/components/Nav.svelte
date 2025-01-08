@@ -27,11 +27,14 @@
             </a>
             <Separator orientation="vertical" class="h-6" />
             <div class="flex gap-6">
-                <a href="/" class="flex items-center text-sm font-medium">
-                    首页
+                <a href="/random" class="flex items-center text-sm font-medium">
+                    做题
                 </a>
                 <a href="/puzzles" class="flex items-center text-sm font-medium">
                     题库
+                </a>
+                <a href="/edit" class="flex items-center text-sm font-medium">
+                    编题
                 </a>
             </div>
         </div>

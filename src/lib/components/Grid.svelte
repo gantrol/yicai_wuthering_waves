@@ -6,6 +6,8 @@
     export let colors: string[];
     export let rows: number;
     export let cols: number;
+    export let readonly = false; // 新增: 只读模式
+
     const MAX_CELL_LENGTH = 64;
     const MIN_CELL_SIZE = 40;
     const GOLDEN_RATIO = 1.618;
@@ -43,7 +45,9 @@
 </script>
 
 <div class="overflow-x-auto">
-    <div class="min-w-fit" bind:clientWidth={containerWidth}>
+    <div class="min-w-fit"
+         class:pointer-events-none={readonly}
+         bind:clientWidth={containerWidth}>
         <!-- Header -->
         <div class="flex" style="margin-left: {labelWidth}px">
             {#each Array(cols).fill(0).map((_, i) => i + 1) as colLabel}
@@ -88,23 +92,23 @@
                     {#each row as cell, colIndex}
                         <div
                                 class={cn(
-                                "relative cursor-pointer border rounded",
-                                "transition-colors duration-300 ease-in-out",
-                                "hover:opacity-90 touch-none",
-                                "border-gray-200 dark:border-gray-700"
-                            )}
+                "relative border rounded",
+                "transition-colors duration-300 ease-in-out",
+                !readonly && "cursor-pointer hover:opacity-90",
+                "border-gray-200 dark:border-gray-700"
+            )}
                                 aria-label="Grid cell: {rowIndex}, {colIndex}"
-                                role="button"
-                                tabindex="0"
+                                role={readonly ? "cell" : "button"}
+                                tabindex={readonly ? "-1" : "0"}
                                 style="
-                                width: {cellSize}px;
-                                height: {cellSize}px;
-                                background-color: {colors[cell]};
-                            "
-                                on:mousedown={(e) => handleStart(rowIndex, colIndex, e)}
-                                on:touchstart={(e) => handleStart(rowIndex, colIndex, e)}
-                                on:mousemove={(e) => handleMove(rowIndex, colIndex, e)}
-                                on:touchmove={(e) => handleMove(rowIndex, colIndex, e)}
+                                    width: {cellSize}px;
+                                    height: {cellSize}px;
+                                    background-color: {colors[cell]};
+                                "
+                                on:mousedown={(e) => !readonly && handleStart(rowIndex, colIndex, e)}
+                                on:touchstart={(e) => !readonly && handleStart(rowIndex, colIndex, e)}
+                                on:mousemove={(e) => !readonly && handleMove(rowIndex, colIndex, e)}
+                                on:touchmove={(e) => !readonly && handleMove(rowIndex, colIndex, e)}
                         >
                             <span
                                     class={cn(

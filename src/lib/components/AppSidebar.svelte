@@ -5,20 +5,16 @@
     import { Separator } from "$lib/components/ui/separator";
     import { Button } from "$lib/components/ui/button";
 
-    import House from "lucide-svelte/icons/house";
-    import Inbox from "lucide-svelte/icons/inbox";
-    import Github from "lucide-svelte/icons/github";
-    import PuzzleIcon from "lucide-svelte/icons/puzzle";
+    import {House, Inbox, Github, PuzzleIcon, Circle, Dices} from "lucide-svelte";
 
     interface PuzzleItem {
         id: number;
     }
 
     const commonItems = [
-        { title: "首页", url: "/", icon: House },
+        { title: "做题", url: "/random", icon: Circle }, // TODO: 随机加载，并可以点击“下一题”
         { title: "题库", url: "/puzzles", icon: Inbox },
-        // { title: "新题编辑", url: "#random", icon: Circle },
-        // { title: "随机做题", url: "#random", icon: Circle },
+        { title: "编题", url: "/edit", icon: Dices },
     ];
 
     let puzzles: PuzzleItem[] = $state([]);
@@ -42,7 +38,9 @@
     <Sidebar.Header class="px-4 py-2">
         <div class="flex items-center gap-2 mt-6">
             <PuzzleIcon class="h-6 w-6" />
-            <span class="font-semibold text-xl">溢彩画高手</span>
+            <a href="/" class="">
+                <span class="font-semibold text-xl">溢彩画高手</span>
+            </a>
         </div>
     </Sidebar.Header>
 

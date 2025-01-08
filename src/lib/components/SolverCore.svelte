@@ -28,10 +28,20 @@
     import XCircle from 'lucide-svelte/icons/x-circle';
 
     export let puzzleData: PuzzleDataType;
+    export let currentStep = 0;
 
     // 是否处于编辑模式（外部也可传入，以控制组件的“编辑”与“游戏”状态）
     export let editMode = true;
+    export let autoPlay = false;
+    export function executeNextStep() {
+        if (!solution || !solvingSteps || currentStep >= solvingSteps.length) return;
 
+        const step = solvingSteps[currentStep];
+        const [row, col] = step.position;
+
+        // 执行染色动画
+        animateWaveFill(row, col, step.A);
+    }
     // 实际操作用的网格数据
     let grid: number[][] = [];
     // 原始网格数据（用于“重置”功能）
@@ -48,7 +58,6 @@
     let solvingSteps: Step[] = [];
     // BFS 每一步对应的 grid（只在无动画的 next/prevStep 用到）
     let stepGrids: number[][][] = [];
-    let currentStep = 0;
     let isAutoSolved = false;
 
     // 当前选的刷子颜色（1表示蓝色，对应 colorsValue[1]）
@@ -102,6 +111,15 @@
         selectedColor = 1;
     }
 
+    $: externalCurrentStep = currentStep;
+
+    $: if (autoPlay && externalCurrentStep !== currentStep) {
+        if (externalCurrentStep === 0) {
+            resetDemo();
+        } else {
+            nextStep();
+        }
+    }
 
     // ----------------------------
     //   1. 常用编辑/操作函数
@@ -228,17 +246,37 @@
         grid = grid.map(row => row.map(cell => cell === 0 ? selectedColor : cell));
     }
 
+    // 新增: 重置演示状态的方法
+    export function resetDemo() {
+        grid = cloneMatrix(originalGrid);
+        currentStep = 0;
+        moveHistory = [];
+
+        // 如果有解法步骤,重置相关状态
+        if (solution?.steps) {
+            stepGrids = [cloneMatrix(grid)];
+            let tempGrid = cloneMatrix(grid);
+            for (let step of solution.steps) {
+                const { A, position } = step;
+                tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
+                stepGrids.push(cloneMatrix(tempGrid));
+            }
+        }
+    }
+
     // ----------------------------
     //   2. 拖拽、颜色变更相关
     // ----------------------------
     let isDragging = false;
 
     function handleMouseDown(row: number, col: number) {
+        if (autoPlay) return; // 演示模式下禁用交互
         isDragging = true;
         tryMove(row, col);
     }
+
     function handleMouseEnter(row: number, col: number) {
-        // 只有编辑模式才允许拖拽连续涂色
+        if (autoPlay) return; // 演示模式下禁用交互
         if (isDragging && editMode) {
             changeColor(row, col);
         }
@@ -342,7 +380,7 @@
                 grid = cloneMatrix(grid);
 
                 // 最后一圈染完后检查
-                if (layerIndex === waveLayers.length - 1) {
+                if (layerIndex === waveLayers.length - 1 && !autoPlay) {
                     checkWinCondition();
                 }
             }, layerIndex * 80);
@@ -352,7 +390,7 @@
     function solvePuzzle() {
         const result = solvePuzzleWithFallback(cloneMatrix(grid), targetColor, maxSteps);
         solution = result;
-        // Guard against undefined steps
+
         if (result.type === 'success' && result.steps) {
             stepGrids = [cloneMatrix(grid)];
             let tempGrid = cloneMatrix(grid);
@@ -363,15 +401,19 @@
             }
             isAutoSolved = true;
             solvingSteps = result.steps;
+
+            // 如果是自动演示模式,立即开始第一步
+            if (autoPlay) {
+                nextStep();
+            }
         } else {
-            // If we get here, result.steps may be undefined or empty
             solvingSteps = [];
         }
         currentStep = 0;
     }
 
     let isAnimatingStep = false;
-    function nextStep() {
+    function nextStep(callback?: () => void) {
         if (!solution || !solvingSteps || isAnimatingStep) return;
         if (currentStep >= solvingSteps.length) return;
 
@@ -392,11 +434,11 @@
                 if (layerIndex === waveLayers.length - 1) {
                     currentStep++;
                     isAnimatingStep = false;
+                    if (callback) callback();
                 }
             }, layerIndex * 80);
         });
     }
-
     function prevStep() {
         if (currentStep > 0) {
             currentStep--;
@@ -444,70 +486,73 @@
 <div
     role="none"
     class="flex flex-col md:flex-row gap-4 mt-5"
+    class:pointer-events-none={autoPlay}
     on:mouseleave={handleMouseUp}
     on:mouseup={handleMouseUp}
 >
     <div class="flex-1 flex flex-col gap-4">
-        <Card>
-            <CardContent class="space-y-4 p-6">
-                <Collapsible.Root class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold tracking-tight">编辑区</h2>
-                        <Collapsible.Trigger
-                            class={buttonVariants({ variant: "outline", size: "sm", class: "w-9 p-0" })}
+        {#if !autoPlay}
+            <Card>
+                <CardContent class="space-y-4 p-6">
+                    <Collapsible.Root class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold tracking-tight">编辑区</h2>
+                            <Collapsible.Trigger
+                                    class={buttonVariants({ variant: "outline", size: "sm", class: "w-9 p-0" })}
+                            >
+                                <ChevronsUpDown class="h-4 w-4" />
+                                <span class="sr-only">Toggle</span>
+                            </Collapsible.Trigger>
+                        </div>
+                        <div
+                                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                                style="max-width: {gridWidth}px"
                         >
-                            <ChevronsUpDown class="h-4 w-4" />
-                            <span class="sr-only">Toggle</span>
-                        </Collapsible.Trigger>
-                    </div>
-                    <div
-                        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                        style="max-width: {gridWidth}px"
-                    >
-                        <div class="space-y-2 w-full sm:w-auto">
-                            <Label>要把色块全部染成</Label>
-                            <!-- Provide label so we don't get the missing 'label' error -->
-                            <ColorPicker
-                                label="目标颜色"
-                                colors={colorsValue.slice(1)}
-                                selectedColor={targetColor}
-                                select={(i: number) => (targetColor = i)}
+                            <div class="space-y-2 w-full sm:w-auto">
+                                <Label>要把色块全部染成</Label>
+                                <!-- Provide label so we don't get the missing 'label' error -->
+                                <ColorPicker
+                                        label="目标颜色"
+                                        colors={colorsValue.slice(1)}
+                                        selectedColor={targetColor}
+                                        select={(i) => (targetColor = i)}
+                                />
+                            </div>
+                            <div class="flex items-center space-x-8">
+                                <div class="space-y-2">
+                                    <Label for="steps">最大步数</Label>
+                                    <Input
+                                            id="steps"
+                                            type="number"
+                                            min="1"
+                                            max="10"
+                                            bind:value={maxSteps}
+                                            class="w-24"
+                                    />
+                                </div>
+                                <div class="space-y-2">
+                                    <Label class="flex items-center space-x-2">
+                                        编辑模式
+                                    </Label>
+                                    <Switch
+                                            id="edit-mode"
+                                            bind:checked={editMode}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <Collapsible.Content class="space-y-2">
+                            <Controls
+                                    clearGrid={clearGrid}
+                                    fillEmpty={fillEmpty}
+                                    exportPuzzle={handleExportPuzzle}
+                                    importPuzzle={handleImportPuzzle}
                             />
-                        </div>
-                        <div class="flex items-center space-x-8">
-                            <div class="space-y-2">
-                                <Label for="steps">最大步数</Label>
-                                <Input
-                                    id="steps"
-                                    type="number"
-                                    min="1"
-                                    max="10"
-                                    bind:value={maxSteps}
-                                    class="w-24"
-                                />
-                            </div>
-                            <div class="space-y-2">
-                                <Label class="flex items-center space-x-2">
-                                    编辑模式
-                                </Label>
-                                <Switch
-                                    id="edit-mode"
-                                    bind:checked={editMode}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <Collapsible.Content class="space-y-2">
-                        <Controls
-                            clearGrid={clearGrid}
-                            fillEmpty={fillEmpty}
-                            exportPuzzle={handleExportPuzzle}
-                            importPuzzle={handleImportPuzzle}
-                        />
-                    </Collapsible.Content>
-                </Collapsible.Root>
-            </CardContent>
-        </Card>
+                        </Collapsible.Content>
+                    </Collapsible.Root>
+                </CardContent>
+            </Card>
+        {/if}
 
         <Card>
             <CardContent>
@@ -601,21 +646,22 @@
                     on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
                     on:widthChange={handleGridWidthChange}
                     rows={rows}
+                    readonly={autoPlay}
                 />
             </CardContent>
         </Card>
     </div>
 
-    {#if solution}
+    {#if solution && !autoPlay}
         <div class="w-full md:w-[320px] flex-shrink-0">
             <Card>
                 <CardContent>
                     <Solution
-                        solution={solution}
-                        steps={solvingSteps}
-                        currentStep={currentStep}
-                        prevStep={prevStep}
-                        nextStep={nextStep}
+                            solution={solution}
+                            steps={solvingSteps}
+                            currentStep={currentStep}
+                            prevStep={prevStep}
+                            nextStep={nextStep}
                     />
                 </CardContent>
             </Card>

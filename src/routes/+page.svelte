@@ -1,8 +1,200 @@
-<script>
-	import Solver from '$lib/components/Solver.svelte';
+<!-- src/routes/+page.svelte -->
+<script lang="ts">
+    import {onMount, onDestroy, tick} from 'svelte';
+    import SolverCore from '$lib/components/SolverCore.svelte';
+    import type { PuzzleDataType } from '$lib/types';
+    import { Button } from '$lib/components/ui/button';
+    import { ArrowRight, Palette, Gamepad2, BookOpen, ArrowDown } from 'lucide-svelte';
+    import { goto } from '$app/navigation';
+
+    let demoData: PuzzleDataType;
+    let currentStep = 0;
+    let autoPlayTimer: NodeJS.Timeout;
+    let solverRef: any;
+
+    // 修改自动播放逻辑
+    async function startDemo() {
+        if (!demoData?.solutionSteps) return;
+
+        // 先确保 solver 完成初始化
+        await tick();
+
+        if (solverRef) {
+            // 开始自动播放
+            autoPlayTimer = setInterval(() => {
+                if (currentStep >= demoData.solutionSteps.length) {
+                    // 重置演示
+                    currentStep = 0;
+                    solverRef.resetDemo();
+                } else {
+                    solverRef.executeNextStep();
+                    currentStep++;
+                }
+            }, 3000);
+        }
+    }
+
+    function scrollToDemo() {
+        const demoSection = document.querySelector('#how-to-play');
+        demoSection?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    onMount(async () => {
+        try {
+            const response = await fetch('/puzzles_json/槲生半岛青栎庭院右.json');
+            if (!response.ok) throw new Error('Failed to load demo data');
+            demoData = await response.json();
+
+            // 等待下一个tick确保组件已渲染
+            await tick();
+            startDemo();
+        } catch (error) {
+            console.error('Demo initialization failed:', error);
+        }
+    });
+
+    onDestroy(() => {
+        if (autoPlayTimer) {
+            clearInterval(autoPlayTimer);
+        }
+    });
+
 </script>
 
-<Solver
-    editMode={true}
-/>
+<div class="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <!-- Hero Section -->
+    <section class="pt-32 px-4 text-center relative overflow-hidden">
+        <!-- 背景装饰 -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-10 left-10 w-32 h-32 bg-primary/30 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-32 h-32 bg-secondary/30 rounded-full blur-3xl"></div>
+        </div>
 
+        <div class="relative z-10 max-w-4xl mx-auto">
+            <h1 class="text-5xl md:text-6xl font-bold mb-16">
+                <span class="bg-gradient-to-r from-[#FF6B6B] via-[#4ECDC4] to-[#45B7D1] bg-clip-text text-transparent animate-fade-in">
+                    溢彩画
+                </span>
+            </h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <!-- 策略性卡片 -->
+                <div
+                        class="bg-background/50 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer"
+                        on:click={() => goto('/random')}
+                >
+                    <div class="text-4xl mb-4"><Gamepad2 class="mx-auto" /></div>
+                    <h3 class="font-bold text-xl mb-2">策略性</h3>
+                    <p class="text-muted-foreground">运用智慧解决每一个谜题</p>
+                </div>
+
+                <!-- 自定义卡片 -->
+                <div
+                        class="bg-background/50 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer"
+                        on:click={() => goto('/edit')}
+                >
+                    <div class="text-4xl mb-4"><Palette class="mx-auto" /></div>
+                    <h3 class="font-bold text-xl mb-2">自定义</h3>
+                    <p class="text-muted-foreground">创造属于你的独特谜题</p>
+                </div>
+
+                <!-- 题库卡片 -->
+                <div
+                        class="bg-background/50 backdrop-blur-sm p-6 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer"
+                        on:click={() => goto('/puzzles')}
+                >
+                    <div class="text-4xl mb-4"><BookOpen class="mx-auto" /></div>
+                    <h3 class="font-bold text-xl mb-2">题库与自动解答</h3>
+                    <p class="text-muted-foreground">丰富的题库与智能解答系统</p>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4 mb-16 animate-slide-up-delayed">
+                <Button
+                        size="lg"
+                        variant="default"
+                        class="group transition-all hover:scale-105"
+                        onclick={() => goto('/random')}
+                >
+                    开始游戏
+                    <ArrowRight class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+                <Button
+                        size="lg"
+                        variant="outline"
+                        class="group hover:scale-105 transition-all"
+                        onclick={scrollToDemo}
+                >
+                    怎么玩
+                    <ArrowDown class="ml-2 h-5 w-5 group-hover:translate-y-1 transition-transform" />
+                </Button>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="how-to-play" class="py-20 px-4 bg-secondary/10 backdrop-blur-sm">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                看看溢彩画怎么玩
+            </h2>
+
+            <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+                {#if demoData}
+                    <SolverCore
+                            bind:this={solverRef}
+                            puzzleData={demoData}
+                            editMode={false}
+                            autoPlay={true}
+                            currentStep={currentStep}
+                    />
+
+                    <div class="absolute top-4 right-4 bg-background/95 p-6 rounded-xl border shadow-lg backdrop-blur-sm transition-all hover:scale-105">
+                        <h3 class="font-bold text-lg mb-3">第 {currentStep + 1} 步</h3>
+                        <p class="text-muted-foreground">
+                            {#if currentStep === 0}
+                                选择蓝色区域，将其染成绿色
+                            {:else if currentStep === 1}
+                                选择绿色区域，将其染成红色
+                            {:else if currentStep === 2}
+                                最后选择红色区域，染成黄色
+                            {:else if currentStep === 3}
+                                点击重来，或者选择其他题目继续游玩
+                            {/if}
+                        </p>
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 1s ease-out;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.8s ease-out;
+    }
+
+    .animate-slide-up-delayed {
+        animation: slideUp 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
