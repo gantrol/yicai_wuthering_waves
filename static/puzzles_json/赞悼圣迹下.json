@@ -98,6 +98,31 @@
     ]
   ],
   "targetColor": 1,
-  "maxSteps": "4",
-  "solutionSteps": []
+  "maxSteps": 4,
+  "solutionSteps": [
+    {
+      "A": 3,
+      "B": 2,
+      "position": [
+        3,
+        2
+      ]
+    },
+    {
+      "A": 2,
+      "B": 3,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "A": 1,
+      "B": 2,
+      "position": [
+        0,
+        0
+      ]
+    }
+  ]
 }
