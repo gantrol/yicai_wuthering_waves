@@ -534,7 +534,7 @@
     on:mouseleave={handleMouseUp}
     on:mouseup={handleMouseUp}
 >
-    <div class="flex-1 flex flex-col gap-4">
+    <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto my-10 w-full">
         {#if !autoPlay}
             <Card>
                 <CardContent class="space-y-4 p-6">
