@@ -19,7 +19,6 @@
         floodFill, getColors, getColorsForPicker,
         isGoalState
     } from '$lib/utils/gridUtils';
-    import { solvePuzzleWithFallback } from '$lib/utils/solver';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
     import Footprints from 'lucide-svelte/icons/footprints';
     import { encodePuzzle } from "$lib/utils/shareUtils";
@@ -386,32 +385,54 @@
             }, layerIndex * 80);
         });
     }
-
+    let worker: Worker | null = null;
+    let loading = false;
+    // deprecate
     function solvePuzzle() {
-        const result = solvePuzzleWithFallback(cloneMatrix(grid), targetColor, maxSteps);
-        solution = result;
-
-        if (result.type === 'success' && result.steps) {
-            stepGrids = [cloneMatrix(grid)];
-            let tempGrid = cloneMatrix(grid);
-            for (let step of result.steps) {
-                const { A, position } = step;
-                tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
-                stepGrids.push(cloneMatrix(tempGrid));
-            }
-            isAutoSolved = true;
-            solvingSteps = result.steps;
-
-            // 如果是自动演示模式,立即开始第一步
-            if (autoPlay) {
-                nextStep();
-            }
-        } else {
-            solvingSteps = [];
-        }
-        currentStep = 0;
+        solvePuzzleInWorker(cloneMatrix(grid), targetColor, maxSteps);
     }
+    function solvePuzzleInWorker() {
+        // 1) 创建 Worker（每次都 new 或只 new 一次都行）
+        if (!worker) {
+            worker = new Worker(new URL('$lib/utils/solverWorker.ts', import.meta.url), {
+                type: 'module'
+            });
 
+            // 2) 监听 worker 返回的消息
+            worker.addEventListener('message', (e) => {
+                const result = e.data; // BFSResult
+                loading = false; // 隐藏“加载中”
+                if (result.type === 'success' && result.steps) {
+                    stepGrids = [cloneMatrix(grid)];
+                    let tempGrid = cloneMatrix(grid);
+                    for (let step of result.steps) {
+                        const { A, position } = step;
+                        tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
+                        stepGrids.push(cloneMatrix(tempGrid));
+                    }
+                    isAutoSolved = true;
+                    solvingSteps = result.steps;
+                    solution = result;
+
+                    // 如果是自动演示模式,立即开始第一步
+                    if (autoPlay) {
+                        nextStep();
+                    }
+                } else {
+                    solvingSteps = [];
+                }
+                currentStep = 0;
+            });
+        }
+
+        // 3) 发送数据
+        loading = true;
+        worker.postMessage({
+            grid: cloneMatrix(grid), // 请保证 grid 是纯数组即可
+            targetColor,
+            maxSteps
+        });
+    }
     let isAnimatingStep = false;
     function nextStep(callback?: () => void) {
         if (!solution || !solvingSteps || isAnimatingStep) return;
@@ -482,7 +503,13 @@
     style="display: none;"
     type="file"
 />
-
+{#if loading}
+    <div class="fixed inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm z-50">
+        <div class="flex flex-col items-center gap-2">
+            <span class="text-xl">全力计算中...</span>
+        </div>
+    </div>
+{/if}
 <div
     role="none"
     class="flex flex-col md:flex-row gap-4 mt-5"

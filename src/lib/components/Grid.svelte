@@ -92,11 +92,11 @@
                     {#each row as cell, colIndex}
                         <div
                                 class={cn(
-                "relative border rounded",
-                "transition-colors duration-300 ease-in-out",
-                !readonly && "cursor-pointer hover:opacity-90",
-                "border-gray-200 dark:border-gray-700"
-            )}
+                                    "relative border rounded",
+                                    "transition-colors duration-300 ease-in-out",
+                                    !readonly && "cursor-pointer hover:opacity-90",
+                                    "border-gray-200 dark:border-gray-700"
+                                )}
                                 aria-label="Grid cell: {rowIndex}, {colIndex}"
                                 role={readonly ? "cell" : "button"}
                                 tabindex={readonly ? "-1" : "0"}

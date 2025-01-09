@@ -230,7 +230,7 @@ export function solvePuzzleWithFallback(
             // 再看最后是否可以用 1 步把 intermediate -> targetColor
             // 简化处理：认为所有 intermediate 色可以一次性填充
             // 做法：只要找到一个 intermediate 色的连通分量，做一次 fillRegion
-            // 由于不一定连通，这里只是演示，可以自行扩展多步
+            // 注意不一定连通
             // 这里把第一个 region 当作“染色点击点”，忽略可能的多个散开的 region
             const finalMatrix = cloneMatrix(grid);
             // 先执行 midResult 的 steps
