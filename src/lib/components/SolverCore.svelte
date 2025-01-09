@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { fade } from 'svelte/transition';
     import { Button, buttonVariants } from '$lib/components/ui/button';
     import {
         Card,
@@ -387,7 +388,8 @@
     }
     let worker: Worker | null = null;
     let loading = false;
-    // deprecate
+    let startTime: number;
+
     function solvePuzzle() {
         solvePuzzleInWorker(cloneMatrix(grid), targetColor, maxSteps);
     }
@@ -401,7 +403,7 @@
             // 2) 监听 worker 返回的消息
             worker.addEventListener('message', (e) => {
                 const result = e.data; // BFSResult
-                loading = false; // 隐藏“加载中”
+                onSolveDone()
                 if (result.type === 'success' && result.steps) {
                     stepGrids = [cloneMatrix(grid)];
                     let tempGrid = cloneMatrix(grid);
@@ -413,7 +415,6 @@
                     isAutoSolved = true;
                     solvingSteps = result.steps;
                     solution = result;
-
                     // 如果是自动演示模式,立即开始第一步
                     if (autoPlay) {
                         nextStep();
@@ -427,12 +428,28 @@
 
         // 3) 发送数据
         loading = true;
+        startTime = Date.now();
         worker.postMessage({
             grid: cloneMatrix(grid), // 请保证 grid 是纯数组即可
             targetColor,
             maxSteps
         });
     }
+    function onSolveDone() {
+        // TODO: https://ux.stackexchange.com/questions/104606/should-a-loading-text-or-spinner-stay-a-minimum-time-on-screen
+        const elapsed = Date.now() - startTime;
+        const MIN_DURATION = 300;
+
+        if (elapsed < MIN_DURATION) {
+            // 如果小于最短显示时长，就再等一等
+            setTimeout(() => {
+                loading = false;
+            }, MIN_DURATION - elapsed);
+        } else {
+            loading = false;
+        }
+    }
+
     let isAnimatingStep = false;
     function nextStep(callback?: () => void) {
         if (!solution || !solvingSteps || isAnimatingStep) return;
