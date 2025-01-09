@@ -6,7 +6,7 @@
     import { Button } from "$lib/components/ui/button";
 
     import {House, Inbox, Github, PuzzleIcon, Circle, Dices} from "lucide-svelte";
-
+    import {page} from '$app/state'
     interface PuzzleItem {
         id: number;
     }
@@ -32,6 +32,11 @@
     onMount(async () => {
         await loadPuzzles();
     });
+
+    function isPathActive(urlStr: string) {
+        console.log(decodeURIComponent(page.url.pathname))
+        return decodeURIComponent(page.url.pathname) === urlStr;
+    }
 </script>
 
 <Sidebar.Root side="left" variant="sidebar" collapsible="offcanvas" class="border-r">
@@ -43,12 +48,12 @@
             </a>
         </div>
         <Sidebar.Menu>
-            {#each commonItems as item (item.title)}
+            {#each commonItems as item(item.title)}
                 <Sidebar.MenuItem>
-                    <Sidebar.MenuButton isActive>
+                    <Sidebar.MenuButton isActive={isPathActive(item.url)}>
                         {#snippet child({ props })}
                         <a href={item.url} {...props}
-                           class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent">
+                        >
                             <item.icon class="h-4 w-4" />
                             <span>{item.title}</span>
                         </a>
@@ -69,16 +74,14 @@
                 <Sidebar.Menu>
                     {#each puzzles as puzzle (puzzle.id)}
                         <Sidebar.MenuItem>
-                            <Sidebar.MenuButton>
+                            <Sidebar.MenuButton isActive={isPathActive(`/puzzles/${puzzle.id}`)}>
                                 {#snippet child({ props })}
                                 <a
                                         href={`/puzzles/${puzzle.id}`}
                                        {...props}
-                                       class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-accent">
-                                    <div class="flex items-center gap-3">
-                                        <PuzzleIcon class="h-4 w-4" />
-                                        <span>{puzzle.id}</span>
-                                    </div>
+                                >
+                                    <PuzzleIcon class="h-4 w-4" />
+                                    <span>{puzzle.id}</span>
                                 </a>
                                 {/snippet}
                             </Sidebar.MenuButton>
