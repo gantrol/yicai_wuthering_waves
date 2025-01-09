@@ -112,7 +112,7 @@
                             bind:this={solverRef}
                             puzzleData={demoData}
                             editMode={false}
-                            autoPlay={true}
+                            isAutoPlay={true}
                             currentStep={currentStep}
                     />
 

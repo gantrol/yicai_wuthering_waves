@@ -32,7 +32,7 @@
 
     // 是否处于编辑模式（外部也可传入，以控制组件的“编辑”与“游戏”状态）
     export let editMode = true;
-    export let autoPlay = false;
+    export let isAutoPlay = false;
     export function executeNextStep() {
         if (!solution || !solvingSteps || currentStep >= solvingSteps.length) return;
 
@@ -113,7 +113,7 @@
 
     $: externalCurrentStep = currentStep;
 
-    $: if (autoPlay && externalCurrentStep !== currentStep) {
+    $: if (isAutoPlay && externalCurrentStep !== currentStep) {
         if (externalCurrentStep === 0) {
             resetDemo();
         } else {
@@ -270,13 +270,13 @@
     let isDragging = false;
 
     function handleMouseDown(row: number, col: number) {
-        if (autoPlay) return; // 演示模式下禁用交互
+        if (isAutoPlay) return; // 演示模式下禁用交互
         isDragging = true;
         tryMove(row, col);
     }
 
     function handleMouseEnter(row: number, col: number) {
-        if (autoPlay) return; // 演示模式下禁用交互
+        if (isAutoPlay) return; // 演示模式下禁用交互
         if (isDragging && editMode) {
             changeColor(row, col);
         }
@@ -380,7 +380,7 @@
                 grid = cloneMatrix(grid);
 
                 // 最后一圈染完后检查
-                if (layerIndex === waveLayers.length - 1 && !autoPlay) {
+                if (layerIndex === waveLayers.length - 1 && !isAutoPlay) {
                     checkWinCondition();
                 }
             }, layerIndex * 80);
@@ -416,7 +416,7 @@
                     solvingSteps = result.steps;
                     solution = result;
                     // 如果是自动演示模式,立即开始第一步
-                    if (autoPlay) {
+                    if (isAutoPlay) {
                         nextStep();
                     }
                 } else {
@@ -530,12 +530,12 @@
 <div
     role="none"
     class="flex flex-col md:flex-row gap-4 mt-5"
-    class:pointer-events-none={autoPlay}
+    class:pointer-events-none={isAutoPlay}
     on:mouseleave={handleMouseUp}
     on:mouseup={handleMouseUp}
 >
-    <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto my-10 w-full">
-        {#if !autoPlay}
+    <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto {isAutoPlay ? 'my-10' : ''} w-full">
+        {#if !isAutoPlay}
             <Card>
                 <CardContent class="space-y-4 p-6">
                     <Collapsible.Root class="space-y-4">
@@ -688,13 +688,13 @@
                     on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
                     on:widthChange={handleGridWidthChange}
                     rows={rows}
-                    readonly={autoPlay}
+                    readonly={isAutoPlay}
                 />
             </CardContent>
         </Card>
     </div>
 
-    {#if solution && !autoPlay}
+    {#if solution && !isAutoPlay}
         <div class="w-full md:w-[320px] flex-shrink-0">
             <Card>
                 <CardContent>
