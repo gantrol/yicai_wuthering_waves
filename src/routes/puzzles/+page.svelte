@@ -1,14 +1,11 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { Card, CardHeader, CardTitle, CardContent } from '$lib/components/ui/card';
     import { Button } from '$lib/components/ui/button';
-    import PuzzleIcon from "lucide-svelte/icons/puzzle";
-    import StarIcon from "lucide-svelte/icons/star";
-    import {getColorName} from "$lib/utils/gridUtils";
+    import { getColorName } from "$lib/utils/gridUtils";
 
     interface Puzzle {
         id: number;
-        difficulty?: number; // 1-5 表示难度
+        title?: string;
         targetColor?: number;
         maxSteps?: number;
     }
@@ -18,12 +15,14 @@
     let error = null;
 
     async function loadPuzzles() {
+        loading = true;
+        error = null;
+
         try {
             const response = await fetch('/puzzles_json/list.json');
             if (!response.ok) throw new Error('无法加载题目列表');
             puzzles = await response.json();
 
-            // 加载每个题目的详细信息
             const detailedPuzzles = await Promise.all(
                 puzzles.map(async (puzzle) => {
                     try {
@@ -38,81 +37,118 @@
                     }
                 })
             );
-
             puzzles = detailedPuzzles;
-        } catch (error) {
-            console.error('加载题目列表失败:', error);
+        } catch (err) {
+            console.error('加载题目列表失败:', err);
+            error = err.message;
         } finally {
             loading = false;
         }
     }
 
-    function getDifficultyStars(difficulty: number = 1) {
-        return Array(difficulty).fill('★').join('');
-    }
-
     onMount(loadPuzzles);
 </script>
 
-<div class="container mx-auto py-6">
+<div class="container mx-auto py-6 px-4">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold">题目列表</h1>
-        <Button variant="outline" on:click={() => loadPuzzles()}>
+        <Button variant="outline" on:click={loadPuzzles}>
             刷新列表
         </Button>
     </div>
 
     {#if loading}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {#each Array(6) as _}
-                <div class="animate-pulse bg-gray-200 rounded-lg h-48"></div>
-            {/each}
+        <div class="flex items-center justify-center py-10 text-gray-500">
+            正在加载题目列表...
         </div>
     {:else if error}
         <div class="text-red-500 p-4 rounded-lg bg-red-50">
             加载失败: {error}
         </div>
     {:else}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 大屏幕显示表格 -->
+        <div class="hidden md:block">
+            <div class="rounded-lg border border-slate-200">
+                <table class="w-full text-sm">
+                    <thead>
+                    <tr class="bg-slate-50">
+                        <th class="px-6 py-4 text-left font-medium text-slate-600">标题</th>
+                        <th class="px-6 py-4 text-left font-medium text-slate-600">目标颜色</th>
+                        <th class="px-6 py-4 text-left font-medium text-slate-600">最大步数</th>
+                        <th class="px-6 py-4 text-right font-medium text-slate-600">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                    {#each puzzles as puzzle (puzzle.id)}
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 text-slate-700">
+                                {puzzle.title || `第 ${puzzle.id} 题`}
+                            </td>
+                            <td class="px-6 py-4 text-slate-700">
+                                {#if puzzle.targetColor !== undefined}
+                                    {getColorName(puzzle.targetColor)}
+                                {/if}
+                            </td>
+                            <td class="px-6 py-4 text-slate-700">
+                                {#if puzzle.maxSteps !== undefined}
+                                    {puzzle.maxSteps} 步
+                                {/if}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <Button
+                                        variant="default"
+                                        size="sm"
+                                        href={`/puzzles/${puzzle.id}`}
+                                        class="hover:scale-105 transition-transform"
+                                >
+                                    开始解题
+                                </Button>
+                            </td>
+                        </tr>
+                    {/each}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 小屏幕显示卡片 -->
+        <div class="md:hidden space-y-4">
             {#each puzzles as puzzle (puzzle.id)}
-                <Card>
-                    <CardHeader>
-                        <CardTitle class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <PuzzleIcon class="w-5 h-5" />
-                                <span>{puzzle.id}</span>
-                            </div>
-                            {#if puzzle.difficulty}
-                                <div class="text-yellow-500">
-                                    {getDifficultyStars(puzzle.difficulty)}
-                                </div>
-                            {/if}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div class="space-y-2">
-                            {#if puzzle.targetColor !== undefined}
-                                <div class="flex items-center gap-2">
-                                    <span class="text-gray-600">目标颜色:</span>
-                                    <span>{getColorName(puzzle.targetColor)}</span>
-                                </div>
-                            {/if}
-                            {#if puzzle.maxSteps !== undefined}
-                                <div class="flex items-center gap-2">
-                                    <span class="text-gray-600">最大步数:</span>
-                                    <span>{puzzle.maxSteps}</span>
-                                </div>
-                            {/if}
-                            <Button
-                                    class="w-full mt-4"
-                                    variant="default"
-                                    href={`/puzzles/${puzzle.id}`}
-                            >
-                                开始解题
-                            </Button>
+                <div class="bg-white rounded-lg border border-slate-200 p-4 space-y-3">
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-medium text-slate-900">
+                            {puzzle.title || `第 ${puzzle.id} 题`}
+                        </h3>
+                    </div>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">目标颜色</span>
+                            <span class="text-slate-700">
+                                {#if puzzle.targetColor !== undefined}
+                                    {getColorName(puzzle.targetColor)}
+                                {/if}
+                            </span>
                         </div>
-                    </CardContent>
-                </Card>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">最大步数</span>
+                            <span class="text-slate-700">
+                                {#if puzzle.maxSteps !== undefined}
+                                    {puzzle.maxSteps} 步
+                                {/if}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <Button
+                                variant="default"
+                                size="sm"
+                                href={`/puzzles/${puzzle.id}`}
+                                class="w-full"
+                        >
+                            开始解题
+                        </Button>
+                    </div>
+                </div>
             {/each}
         </div>
     {/if}
