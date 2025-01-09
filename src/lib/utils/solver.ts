@@ -84,8 +84,8 @@ function heuristicV1(matrix: number[][], targetColor: number): number {
 }
 
 /**
+ * @deprecated 好像没什么用
  * 新启发式：示例为简单的“剩余非目标色格子数”
- * （亦可自行扩展为：非目标色格子数 / 平均可染色区域大小）
  */
 function heuristicV2(matrix: number[][], targetColor: number): number {
     let nonTargetCount = 0;
@@ -213,7 +213,6 @@ export function solvePuzzleWithFallback(
     targetColor: number,
     maxSteps: number
 ): BFSResult {
-    // 先用新的启发式 V2 直接 A* 搜索
     const directResult = aStarSolve(grid, targetColor, maxSteps);
     if (directResult.type === 'success') {
         return directResult;
