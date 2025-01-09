@@ -7,6 +7,7 @@
     import Settings from 'lucide-svelte/icons/settings';
     import * as Sheet from '$lib/components/ui/sheet';
     import { Tooltip } from './ui/tooltip';
+    import {commonItems} from "$lib/utils/bar";
     interface Props {
         children?: import('svelte').Snippet;
     }
@@ -27,15 +28,11 @@
             </a>
             <Separator orientation="vertical" class="h-6" />
             <div class="flex gap-6">
-                <a href="/random" class="flex items-center text-sm font-medium">
-                    做题
-                </a>
-                <a href="/puzzles" class="flex items-center text-sm font-medium">
-                    题库
-                </a>
-                <a href="/edit" class="flex items-center text-sm font-medium">
-                    编题
-                </a>
+                {#each commonItems as item(item.title)}
+                    <a href={item.url} class="flex items-center text-sm font-medium">
+                        {item.title}
+                    </a>
+                {/each}
             </div>
         </div>
 

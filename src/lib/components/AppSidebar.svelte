@@ -7,15 +7,11 @@
 
     import {House, Inbox, Github, PuzzleIcon, Circle, Dices} from "lucide-svelte";
     import {page} from '$app/state'
+    import {commonItems} from "$lib/utils/bar";
     interface PuzzleItem {
         id: number;
     }
 
-    const commonItems = [
-        { title: "做题", url: "/random", icon: Circle }, // TODO: 随机加载，并可以点击“下一题”
-        { title: "题库", url: "/puzzles", icon: Inbox },
-        { title: "编题", url: "/edit", icon: Dices },
-    ];
 
     let puzzles: PuzzleItem[] = $state([]);
 
@@ -34,7 +30,6 @@
     });
 
     function isPathActive(urlStr: string) {
-        console.log(decodeURIComponent(page.url.pathname))
         return decodeURIComponent(page.url.pathname) === urlStr;
     }
 </script>
