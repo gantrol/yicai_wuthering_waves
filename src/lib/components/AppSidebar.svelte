@@ -42,35 +42,29 @@
                 <span class="font-semibold text-xl">溢彩画高手</span>
             </a>
         </div>
+        <Sidebar.Menu>
+            {#each commonItems as item (item.title)}
+                <Sidebar.MenuItem>
+                    <Sidebar.MenuButton isActive>
+                        {#snippet child({ props })}
+                        <a href={item.url} {...props}
+                           class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent">
+                            <item.icon class="h-4 w-4" />
+                            <span>{item.title}</span>
+                        </a>
+                        {/snippet}
+                    </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+            {/each}
+        </Sidebar.Menu>
     </Sidebar.Header>
-
+    <Separator class="my-4" />
+    <Sidebar.GroupLabel class="px-3 text-sm font-semibold">
+        题目列表
+    </Sidebar.GroupLabel>
     <Sidebar.Content class="p-1">
         <Sidebar.Group>
-            <Sidebar.GroupContent>
-                <Sidebar.Menu>
-                    {#each commonItems as item (item.title)}
-                        <Sidebar.MenuItem>
-                            <Sidebar.MenuButton>
-                                {#snippet child({ props })}
-                                <a href={item.url} {...props}
-                                   class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent">
-                                    <item.icon class="h-4 w-4" />
-                                    <span>{item.title}</span>
-                                </a>
-                                {/snippet}
-                            </Sidebar.MenuButton>
-                        </Sidebar.MenuItem>
-                    {/each}
-                </Sidebar.Menu>
-            </Sidebar.GroupContent>
-        </Sidebar.Group>
 
-        <Separator class="my-4" />
-
-        <Sidebar.Group>
-            <Sidebar.GroupLabel class="px-3 text-sm font-semibold">
-                题目列表
-            </Sidebar.GroupLabel>
             <Sidebar.GroupContent>
                 <Sidebar.Menu>
                     {#each puzzles as puzzle (puzzle.id)}
@@ -93,7 +87,7 @@
                 </Sidebar.Menu>
             </Sidebar.GroupContent>
         </Sidebar.Group>
-</Sidebar.Content>
+    </Sidebar.Content>
 
     <Sidebar.Footer class="border-t p-4">
         <Button
