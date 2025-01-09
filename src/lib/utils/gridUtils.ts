@@ -67,5 +67,5 @@ export function getColorsForPicker() {
 }
 
 export function getDescriptionForSolutionStep(step: Step) {
-    return `选择${getColorName(step.A)}色(${step.A}号)，点击${getColorName(step.B)}色方格 (${step.position[0] + 1}, ${step.position[1] + 1})`
+    return `选${getColorName(step.A)}色(${step.A}号)，点击${getColorName(step.B)}方格(${step.position[0] + 1}, ${step.position[1] + 1})`
 }

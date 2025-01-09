@@ -117,10 +117,18 @@
                     />
 
                     <div class="absolute top-4 right-4 bg-background/95 p-6 rounded-xl border shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105">
-                        <h3 class="font-bold text-lg mb-3">第 {currentStep + 1} 步</h3>
+
+                            <h3 class="font-bold text-lg mb-3">
+                                {#if currentStep === 0}
+                                    观察棋盘
+                                {:else}
+                                    第 {currentStep} 步
+                                {/if}
+                            </h3>
+
                         <p class="text-muted-foreground">
                             {#if currentStep === 0}
-                                观察棋盘
+                                一步染一片，三步内染成黄色
                             {:else}
                                 {getDescriptionForSolutionStep(demoData.solutionSteps[currentStep - 1])}
                             {/if}
