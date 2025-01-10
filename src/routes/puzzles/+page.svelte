@@ -52,7 +52,6 @@
 
     onMount(loadPuzzles);
 
-
     // 基于搜索关键词过滤题目
     function getFilteredPuzzles(searchQuery) {
         const keyword = searchQuery?.trim().toLowerCase();
@@ -65,6 +64,7 @@
         });
     }
 </script>
+
 
 <div class="min-h-screen bg-white">
     <div class="container mx-auto py-8 px-4">
@@ -195,3 +195,7 @@
         {/if}
     </div>
 </div>
+
+<svelte:head>
+    <title>溢彩画题库</title>
+</svelte:head>

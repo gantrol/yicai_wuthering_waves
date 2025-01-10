@@ -34,7 +34,7 @@
 <ToastContainer/>
 
 <svelte:head>
-    <title>溢彩画题库</title>
+    <title>溢彩画解题工具|鸣潮</title>
     <meta name="description" content="溢彩画是一款鸣潮小游戏，这是它的编辑与解题工具，帮助玩家在目标步数内完成染色挑战。支持编辑模式和手工解题模式，助您轻松掌握游戏技巧。" />
     <meta name="keywords" content="溢彩画, 鸣潮小游戏, Svelte游戏, 游戏编辑器, 解题工具, 染色游戏" />
 

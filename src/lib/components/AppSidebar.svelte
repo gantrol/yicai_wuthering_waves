@@ -38,9 +38,9 @@
 <Sidebar.Root side="left" variant="sidebar" collapsible="offcanvas" class="border-r">
     <Sidebar.Header class="px-4 py-2">
         <div class="flex items-center gap-2 mt-6">
-            <YiCai width="6" height="6" />
-            <a href="/" class="">
-                <span class="font-semibold text-xl">溢彩画高手|鸣潮</span>
+            <a href="/" class="flex items-center space-x-2">
+                <YiCai width="5" height="5" />
+                <span class="font-semibold text-xl sm:inline-block">溢彩画高手|鸣潮</span>
             </a>
         </div>
         <Sidebar.Menu>
