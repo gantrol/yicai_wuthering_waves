@@ -33,6 +33,14 @@
     function isPathActive(urlStr: string) {
         return decodeURIComponent(page.url.pathname) === urlStr;
     }
+
+    const sidebar = Sidebar.useSidebar();
+
+    function handleClick() {
+        if(sidebar.isMobile) {
+            sidebar.setOpenMobile(false);
+        }
+    }
 </script>
 
 <Sidebar.Root side="left" variant="sidebar" collapsible="offcanvas" class="border-r">
@@ -48,7 +56,10 @@
                 <Sidebar.MenuItem>
                     <Sidebar.MenuButton isActive={isPathActive(item.url)}>
                         {#snippet child({ props })}
-                        <a href={item.url} {...props}
+                        <a
+                                href={item.url}
+                                {...props}
+                                on:click={handleClick}
                         >
                             <item.icon class="h-4 w-4" />
                             <span>{item.title}</span>
@@ -75,6 +86,7 @@
                                 <a
                                         href={`/puzzles/${puzzle.id}`}
                                        {...props}
+                                        on:click={handleClick}
                                 >
                                     <PuzzleIcon class="h-4 w-4" />
                                     <span>{puzzle.id}</span>
