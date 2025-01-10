@@ -8,6 +8,7 @@
     import * as Sheet from '$lib/components/ui/sheet';
     import { Tooltip } from './ui/tooltip';
     import {commonItems} from "$lib/utils/bar";
+    import YiCai from "$lib/components/YiCai.svelte";
     interface Props {
         children?: import('svelte').Snippet;
     }
@@ -22,8 +23,9 @@
         <!-- Logo and Title -->
         <div class="flex items-center gap-6 md:gap-8">
             <a href="/" class="flex items-center space-x-2">
+                <YiCai width="4" height="4" />
                 <span class="hidden font-bold sm:inline-block">
-                    溢彩画|鸣潮|解题工具
+                    溢彩画
                 </span>
             </a>
             <Separator orientation="vertical" class="h-6" />

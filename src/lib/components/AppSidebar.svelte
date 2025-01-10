@@ -8,6 +8,7 @@
     import {House, Inbox, Github, PuzzleIcon, Circle, Dices} from "lucide-svelte";
     import {page} from '$app/state'
     import {commonItems} from "$lib/utils/bar";
+    import YiCai from "$lib/components/YiCai.svelte";
     interface PuzzleItem {
         id: number;
     }
@@ -37,9 +38,9 @@
 <Sidebar.Root side="left" variant="sidebar" collapsible="offcanvas" class="border-r">
     <Sidebar.Header class="px-4 py-2">
         <div class="flex items-center gap-2 mt-6">
-            <PuzzleIcon class="h-6 w-6" />
+            <YiCai width="6" height="6" />
             <a href="/" class="">
-                <span class="font-semibold text-xl">溢彩画高手</span>
+                <span class="font-semibold text-xl">溢彩画高手|鸣潮</span>
             </a>
         </div>
         <Sidebar.Menu>
