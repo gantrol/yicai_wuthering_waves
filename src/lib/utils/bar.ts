@@ -5,3 +5,11 @@ export const commonItems = [
     { title: "题库", url: "/puzzles", icon: Inbox },
     { title: "编题", url: "/edit", icon: Dices },
 ];
+
+export const WUTHERING_WAVES = "鸣潮"
+export const GANTROL = "Gantrol"
+export const Wuthering = "Wuthering"
+export const SourceMap = {
+    Wuthering: WUTHERING_WAVES,
+    GANTROL: GANTROL
+}
