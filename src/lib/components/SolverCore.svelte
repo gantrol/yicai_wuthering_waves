@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { fade } from 'svelte/transition';
     import { Button, buttonVariants } from '$lib/components/ui/button';
     import {
         Card,
@@ -8,10 +7,9 @@
     import { Label } from "$lib/components/ui/label";
     import { Input } from "$lib/components/ui/input";
     import { Switch } from "$lib/components/ui/switch";
-    import ColorPicker from './ColorPicker.svelte';
-    import Controls from './Controls.svelte';
-    import Grid from './Grid.svelte';
-    import Solution from './Solution.svelte';
+    import Controls from '$lib/components/Controls.svelte';
+    import ColorPicker from "$lib/components/ColorPicker.svelte";
+    import Solution from "$lib/components/Solution.svelte";
     import { toast } from "$lib/stores/toast";
     import * as Collapsible from '$lib/components/ui/collapsible/index.js';
     import type { BFSResult, Move, Step, PuzzleDataType } from '$lib/types';
@@ -22,12 +20,12 @@
         isGoalState
     } from '$lib/utils/gridUtils';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
-    import Footprints from 'lucide-svelte/icons/footprints';
     import { encodePuzzle } from "$lib/utils/shareUtils";
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Share from 'lucide-svelte/icons/share';
     import XCircle from 'lucide-svelte/icons/x-circle';
     import StepCounter from "$lib/components/game/StepCounter.svelte";
+    import Grid from "$lib/components/Grid.svelte";
 
     export let puzzleData: PuzzleDataType;
     export let currentStep = 0;
