@@ -1,3 +1,4 @@
+<!--src/lib/components/game/DemoCore.svelte-->
 <script lang="ts">
     import {Card, CardContent,} from '$lib/components/ui/card';
     import {toast} from "$lib/stores/toast";

@@ -1,3 +1,4 @@
+<!--src/lib/components/game/Demo.svelte-->
 <script>
     import {onDestroy, onMount, tick} from "svelte";
     import { getDescriptionForSolutionStep } from "$lib/utils/gridUtils";
