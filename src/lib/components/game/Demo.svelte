@@ -1,7 +1,7 @@
 <script>
     import {onDestroy, onMount, tick} from "svelte";
-    import SolverCore from "$lib/components/SolverCore.svelte";
     import { getDescriptionForSolutionStep } from "$lib/utils/gridUtils";
+    import DemoCore from "$lib/components/game/DemoCore.svelte";
 
     let solverRef;
     let demoData;
@@ -55,10 +55,9 @@
 <div class="max-w-6xl mx-auto">
     <div class="relative rounded-2xl shadow-2xl">
         {#if demoData}
-            <SolverCore
+            <DemoCore
                     bind:this={solverRef}
                     puzzleData={demoData}
-                    editMode={false}
                     isAutoPlay={true}
                     currentStep={currentStep}
             />
