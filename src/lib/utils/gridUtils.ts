@@ -16,6 +16,7 @@ export function isAllTargetColor(matrix: number[][], targetColor: number): boole
     return isGoalState(matrix, targetColor);
 }
 
+
 export function floodFill(currentGrid: number[][], newColor: number, row: number, col: number): number[][] {
     const oldColor = currentGrid[row][col];
     if (oldColor === newColor) return currentGrid;
@@ -49,6 +50,48 @@ export function floodFill(currentGrid: number[][], newColor: number, row: number
 
     return currentGrid;
 }
+
+export function floodFillWave(
+    currentGrid: number[][],
+    row: number,
+    col: number,
+    oldColor: number
+): Array<Array<[number, number]>> {
+    const rowCount = currentGrid.length;
+    const colCount = currentGrid[0].length;
+    const visited = Array.from({ length: rowCount }, () => Array(colCount).fill(false));
+    const queue: [number, number, number][] = [];
+    const waveLayers: Array<Array<[number, number]>> = [];
+
+    visited[row][col] = true;
+    queue.push([row, col, 0]);
+
+    while (queue.length > 0) {
+        const [r, c, dist] = queue.shift()!;
+        if (!waveLayers[dist]) {
+            waveLayers[dist] = [];
+        }
+        waveLayers[dist].push([r, c]);
+
+        const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+        for (const [dr, dc] of dirs) {
+            const nr = r + dr;
+            const nc = c + dc;
+            if (
+                nr >= 0 && nr < rowCount &&
+                nc >= 0 && nc < colCount &&
+                !visited[nr][nc] &&
+                currentGrid[nr][nc] === oldColor
+            ) {
+                visited[nr][nc] = true;
+                queue.push([nr, nc, dist + 1]);
+            }
+        }
+    }
+
+    return waveLayers;
+}
+
 
 const colorsValue = ['#ffffff', '#4980b9', '#d2463e', '#f5db82', '#59a68d'];
 const colorsName = ['空', '蓝', '红', '黄', '绿'];

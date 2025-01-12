@@ -18,6 +18,7 @@
     import {
         cloneMatrix,
         floodFill, getColors, getColorsForPicker,
+        floodFillWave,
         isGoalState
     } from '$lib/utils/gridUtils';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
@@ -33,16 +34,7 @@
     // 是否处于编辑模式（外部也可传入，以控制组件的“编辑”与“游戏”状态）
     export let editMode = true;
     export let isAutoPlay = false;
-    export function executeNextStep() {
-        if (!solution || !solvingSteps || currentStep >= solvingSteps.length) return;
 
-        const step = solvingSteps[currentStep];
-        const [row, col] = step.position;
-        // 选择颜色 step.A
-        selectedColor = step.A;
-        // 执行染色动画
-        animateWaveFill(row, col, step.A);
-    }
     // 实际操作用的网格数据
     let grid: number[][] = [];
     // 原始网格数据（用于“重置”功能）
@@ -227,7 +219,6 @@
         isAutoSolved = false;
     }
 
-    // 如果需要把当前状态保存至本地 localStorage 的示例
     function saveToHistory() {
         const puzzles = JSON.parse(localStorage.getItem('puzzles') || '[]');
         puzzles.push({
@@ -238,10 +229,7 @@
         });
         localStorage.setItem('puzzles', JSON.stringify(puzzles));
     }
-    function generatePuzzle() {
-        saveToHistory();
-        fillEmpty();
-    }
+
     function fillEmpty() {
         grid = grid.map(row => row.map(cell => cell === 0 ? selectedColor : cell));
     }
@@ -312,50 +300,9 @@
     }
 
     // ----------------------------
-    //   3. 波次扩散 + BFS 求解
+    //   求解逻辑
     // ----------------------------
-    function floodFillWave(
-        currentGrid: number[][],
-        row: number,
-        col: number,
-        oldColor: number
-    ): Array<Array<[number, number]>> {
-        const rowCount = currentGrid.length;
-        const colCount = currentGrid[0].length;
-        const visited = Array.from({ length: rowCount }, () => Array(colCount).fill(false));
-        const queue: [number, number, number][] = [];
-        const waveLayers: Array<Array<[number, number]>> = [];
-
-        visited[row][col] = true;
-        queue.push([row, col, 0]);
-
-        while (queue.length > 0) {
-            const [r, c, dist] = queue.shift()!;
-            if (!waveLayers[dist]) {
-                waveLayers[dist] = [];
-            }
-            waveLayers[dist].push([r, c]);
-
-            const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
-            for (const [dr, dc] of dirs) {
-                const nr = r + dr;
-                const nc = c + dc;
-                if (
-                    nr >= 0 && nr < rowCount &&
-                    nc >= 0 && nc < colCount &&
-                    !visited[nr][nc] &&
-                    currentGrid[nr][nc] === oldColor
-                ) {
-                    visited[nr][nc] = true;
-                    queue.push([nr, nc, dist + 1]);
-                }
-            }
-        }
-
-        return waveLayers;
-    }
-
-    function animateWaveFill(row: number, col: number, newColor: number) {
+    export function animateWaveFill(row: number, col: number, newColor: number) {
         if (moveHistory.length >= maxSteps) return;
         const oldColor = grid[row][col];
         if (oldColor === newColor) return;
@@ -386,6 +333,7 @@
             }, layerIndex * 80);
         });
     }
+
     let worker: Worker | null = null;
     let loading = false;
     let startTime: number;
