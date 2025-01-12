@@ -27,6 +27,7 @@
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Share from 'lucide-svelte/icons/share';
     import XCircle from 'lucide-svelte/icons/x-circle';
+    import StepCounter from "$lib/components/game/StepCounter.svelte";
 
     export let puzzleData: PuzzleDataType;
     export let currentStep = 0;
@@ -34,7 +35,16 @@
     // 是否处于编辑模式（外部也可传入，以控制组件的“编辑”与“游戏”状态）
     export let editMode = true;
     export let isAutoPlay = false;
+    export function executeNextStep() {
+        if (!solution || !solvingSteps || currentStep >= solvingSteps.length) return;
 
+        const step = solvingSteps[currentStep];
+        const [row, col] = step.position;
+        // 选择颜色 step.A
+        selectedColor = step.A;
+        // 执行染色动画
+        animateWaveFill(row, col, step.A);
+    }
     // 实际操作用的网格数据
     let grid: number[][] = [];
     // 原始网格数据（用于“重置”功能）
@@ -420,7 +430,7 @@
                 if (layerIndex === waveLayers.length - 1) {
                     currentStep++;
                     isAnimatingStep = false;
-                    if (callback) callback();
+                    // if (callback) callback();
                 }
             }, layerIndex * 80);
         });
@@ -547,36 +557,11 @@
         <Card>
             <CardContent>
                 {#if !editMode}
-                    <div class="mb-6" style="max-width: {gridWidth}px">
-                        <div class="p-4 bg-secondary/50">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <Footprints class="h-5 w-5 text-primary" />
-                                    <span class="text-base font-medium">步数</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xl font-bold text-primary">{moveHistory.length}</span>
-                                    <span class="text-muted-foreground">/</span>
-                                    <span class="text-lg font-medium text-muted-foreground">{maxSteps}</span>
-                                </div>
-                            </div>
-                            <div class="mt-3 h-2 bg-secondary rounded-full overflow-hidden">
-                                <div
-                                    class="h-full bg-primary transition-all duration-300 ease-out rounded-full"
-                                    style="width: {(moveHistory.length / maxSteps * 100)}%"
-                                ></div>
-                            </div>
-                            <p class="mt-2 text-sm text-muted-foreground">
-                                {#if moveHistory.length === maxSteps}
-                                    已达到最大步数
-                                {:else if moveHistory.length === 0}
-                                    开始你的游戏吧
-                                {:else}
-                                    还剩 {maxSteps - moveHistory.length} 步
-                                {/if}
-                            </p>
-                        </div>
-                    </div>
+                    <StepCounter
+                            gridWidth={gridWidth}
+                            moveHistory={moveHistory}
+                            maxSteps={maxSteps}
+                    />
                 {/if}
                 <div class="flex flex-col justify-between sm:flex-row gap-4" style="max-width: {gridWidth}px">
                     <ColorPicker

@@ -1,65 +1,14 @@
 <!-- src/routes/+page.svelte -->
 <script lang="ts">
-    import {onMount, onDestroy, tick} from 'svelte';
-    import SolverCore from '$lib/components/SolverCore.svelte';
-    import type { PuzzleDataType } from '$lib/types';
     import { Button } from '$lib/components/ui/button';
     import { ArrowRight, Palette, Gamepad2, BookOpen, ArrowDown } from 'lucide-svelte';
     import { goto } from '$app/navigation';
-    import { getDescriptionForSolutionStep } from "$lib/utils/gridUtils";
-
-    let demoData: PuzzleDataType;
-    let currentStep = 0;
-    let autoPlayTimer: NodeJS.Timeout;
-    let solverRef: any;
-
-    // 修改自动播放逻辑
-    async function startDemo() {
-        if (!demoData?.solutionSteps) return;
-
-        // 先确保 solver 完成初始化
-        await tick();
-
-        if (solverRef) {
-            // 开始自动播放
-            autoPlayTimer = setInterval(() => {
-                if (currentStep >= demoData.solutionSteps.length) {
-                    // 重置演示
-                    currentStep = 0;
-                    solverRef.resetDemo();
-                } else {
-                    solverRef.executeNextStep();
-                    currentStep++;
-                }
-            }, 4000);
-        }
-    }
+    import Demo from "$lib/components/game/Demo.svelte";
 
     function scrollTomore() {
         const demoSection = document.querySelector('#more');
         demoSection?.scrollIntoView({ behavior: 'smooth' });
     }
-
-    onMount(async () => {
-        try {
-            const response = await fetch('/puzzles_json/槲生半岛青栎庭院右.json');
-            if (!response.ok) throw new Error('Failed to load demo data');
-            demoData = await response.json();
-
-            // 等待下一个tick确保组件已渲染
-            await tick();
-            startDemo();
-        } catch (error) {
-            console.error('Demo initialization failed:', error);
-        }
-    });
-
-    onDestroy(() => {
-        if (autoPlayTimer) {
-            clearInterval(autoPlayTimer);
-        }
-    });
-
 </script>
 
 <div class="min-h-screen bg-gradient-to-b from-background to-secondary/20">
@@ -103,40 +52,9 @@
         </div>
     </section>
 
-    <!-- 优化教程部分 -->
+
     <section id="how-to-play" class="px-4 bg-secondary/10 backdrop-blur-sm">
-        <div class="max-w-6xl mx-auto">
-            <div class="relative rounded-2xl shadow-2xl">
-                {#if demoData}
-                    <SolverCore
-                            bind:this={solverRef}
-                            puzzleData={demoData}
-                            editMode={false}
-                            isAutoPlay={true}
-                            currentStep={currentStep}
-                    />
-
-                    <div class="absolute top-4 right-4 bg-background/95 p-6 rounded-xl border shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105">
-
-                            <h3 class="font-bold text-lg mb-3">
-                                {#if currentStep === 0}
-                                    观察棋盘
-                                {:else}
-                                    第 {currentStep} 步
-                                {/if}
-                            </h3>
-
-                        <p class="text-muted-foreground">
-                            {#if currentStep === 0}
-                                一步染一片，三步内染成黄色
-                            {:else}
-                                {getDescriptionForSolutionStep(demoData.solutionSteps[currentStep - 1])}
-                            {/if}
-                        </p>
-                    </div>
-                {/if}
-            </div>
-        </div>
+        <Demo></Demo>
     </section>
 
     <section id="more" class="py-16 px-4 text-center relative overflow-hidden">
