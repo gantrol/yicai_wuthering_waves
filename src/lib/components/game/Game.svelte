@@ -8,13 +8,16 @@
         data: PuzzleDataType;
         mode: GameMode;
     }
-    let {data, mode}: Props = $props();
+    let props: Props = $props();
+
+    let data = $derived(props.data);
+    let mode = $derived(props.mode);
+
 </script>
 
 {#if mode === GameMode.PLAY_TRAVERSE}
     <PlayCore
             data={data}
-            bind:mode={mode}
     ></PlayCore>
 <!--{:else if mode === GameMode.DEMO}-->
 <!--    <DemoCore-->

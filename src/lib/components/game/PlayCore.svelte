@@ -4,33 +4,27 @@
     import {Card, CardContent,} from '$lib/components/ui/card';
     import ColorPicker from "$lib/components/ColorPicker.svelte";
     import {toast} from "$lib/stores/toast";
-    import type {BFSResult, Move, PuzzleDataType, Step} from '$lib/types';
-    import {
-        cloneMatrix,
-        floodFill,
-        floodFillWave,
-        getColors,
-        getColorsForPicker,
-        isGoalState
-    } from '$lib/utils/gridUtils';
+    import type {Move, PuzzleDataType} from '$lib/types';
+    import {cloneMatrix, floodFillWave, getColors, getColorsForPicker, isGoalState} from '$lib/utils/gridUtils';
     import {encodePuzzle} from "$lib/utils/shareUtils";
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Share from 'lucide-svelte/icons/share';
     import StepCounter from "$lib/components/game/StepCounter.svelte";
     import Grid from "$lib/components/Grid.svelte";
     import TargetColorButton from "$lib/components/TargetColorButton.svelte";
-    import {GameMode} from "$lib/types";
 
     type Props = {
         data: PuzzleDataType;
-        mode: GameMode;
     }
 
-    let {data, mode = $bindable() }: Props = $props();
+    let props: Props = $props();
 
+    let data = $derived(props.data);
     let currentStep = $state(0);
 
-
+    $effect(() => {
+        grid = data.grid;
+    })
     // 实际操作用的网格数据
     let grid: number[][] = $state(data.grid);
     // 原始网格数据（用于“重置”功能）

@@ -1,4 +1,6 @@
-export async function load({ fetch, params }) {
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ({ fetch, params }) => {
     const { id } = params;
     try {
         const response = await fetch(`/puzzles_json/${id}.json`);
