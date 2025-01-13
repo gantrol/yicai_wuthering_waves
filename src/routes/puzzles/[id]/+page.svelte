@@ -1,6 +1,7 @@
 <!-- /src/routes/solver/+page.svelte -->
 <script>
-    import Solver from '$lib/components/Solver.svelte';
+    import PlayCore from "$lib/components/game/PlayCore.svelte";
+
     let {data} = $props();
 </script>
 
@@ -8,7 +9,6 @@
     <title>溢彩画{data.puzzleId}</title>
 </svelte:head>
 
-<Solver
-        puzzleId={data.puzzleId}
-        editMode={false}
-/>
+<PlayCore
+    puzzleData={data.puzzleData}
+></PlayCore>
