@@ -3,6 +3,7 @@
     import {Button} from '$lib/components/ui/button';
     import {derived} from "svelte/store";
     import {getColors, getColorName} from "$lib/utils/gridUtils";
+    import {goto} from "$app/navigation";
     interface Puzzle {
         id: number;
         title?: string;
@@ -131,8 +132,7 @@
                         <tbody class="divide-y divide-slate-200">
                         {#each filterPuzzles as puzzle (puzzle.id)}
                             <tr class="hover:bg-slate-50 cursor-pointer transition-colors"
-                                on:click={() => window.location.href = `/puzzles/${puzzle.id}`}>
-<!--                                TODO: too slow-->
+                                onclick={() => goto(`/puzzles/${puzzle.id}`)}>
                                 <td class="px-6 py-4 text-slate-700 font-medium">
                                     {puzzle.title}
                                 </td>
