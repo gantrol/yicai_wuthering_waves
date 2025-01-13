@@ -1,97 +1,82 @@
 <!-- src/lib/components/game/PlayRandomCore.svelte -->
 <script lang="ts">
-    import { Button, buttonVariants } from '$lib/components/ui/button';
-    import {
-        Card,
-        CardContent,
-    } from '$lib/components/ui/card';
-    import { Label } from "$lib/components/ui/label";
-    import { Input } from "$lib/components/ui/input";
-    import { Switch } from "$lib/components/ui/switch";
-    import Controls from '$lib/components/Controls.svelte';
+    import {Button} from '$lib/components/ui/button';
+    import {Card, CardContent,} from '$lib/components/ui/card';
     import ColorPicker from "$lib/components/ColorPicker.svelte";
     import Solution from "$lib/components/Solution.svelte";
-    import { toast } from "$lib/stores/toast";
-    import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-    import type { BFSResult, Move, Step, PuzzleDataType } from '$lib/types';
+    import {toast} from "$lib/stores/toast";
+    import type {BFSResult, Move, PuzzleDataType, Step} from '$lib/types';
     import {
         cloneMatrix,
-        floodFill, getColors, getColorsForPicker,
+        floodFill,
         floodFillWave,
+        getColors,
+        getColorsForPicker,
         isGoalState
     } from '$lib/utils/gridUtils';
-    import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
-    import { encodePuzzle } from "$lib/utils/shareUtils";
+    import {encodePuzzle} from "$lib/utils/shareUtils";
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Share from 'lucide-svelte/icons/share';
     import XCircle from 'lucide-svelte/icons/x-circle';
     import StepCounter from "$lib/components/game/StepCounter.svelte";
     import Grid from "$lib/components/Grid.svelte";
+    import TargetColorButton from "$lib/components/TargetColorButton.svelte";
 
-    export let puzzleData: PuzzleDataType;
-    export let currentStep = 0;
+    type Props = {
+        puzzleData: PuzzleDataType;
+    }
+    let {puzzleData}: Props = $props();
+
+    let currentStep = $state(0);
 
 
     // 实际操作用的网格数据
-    let grid: number[][] = [];
+    let grid: number[][] = $state(puzzleData.grid);
     // 原始网格数据（用于“重置”功能）
-    let originalGrid: number[][] = [];
+    let originalGrid: number[][] = $state(puzzleData.grid);
 
     // 要把所有格子最终变成的目标颜色
-    let targetColor = 1;
+    let targetColor = $state(puzzleData.targetColor);
     // 最大步数
-    let maxSteps = 3;
+    let maxSteps = $state(puzzleData.maxSteps);
 
     // BFS 的搜索结果（success/failed）
-    let solution: BFSResult | undefined = undefined;
+    let solution: BFSResult | undefined = $state({type: 'success', steps: puzzleData.solutionSteps});
     // BFS 的每一步 (避免 undefined by defaulting to [])
-    let solvingSteps: Step[] = [];
+    let solvingSteps: Step[] = $state(puzzleData.solutionSteps | []);
     // BFS 每一步对应的 grid（只在无动画的 next/prevStep 用到）
     let stepGrids: number[][][] = [];
     let isAutoSolved = false;
 
     // 当前选的刷子颜色（1表示蓝色，对应 colorsValue[1]）
-    let selectedColor = 1;
+    let selectedColor = $state(1);
 
     // 记录玩家手动移动历史（仅在游戏模式下使用）
-    let moveHistory: Move[] = [];
+    let moveHistory: Move[] = $state([]);
 
     // 一些控制画板的配置
-    let rows = 8;
-    let cols = 10;
-
-    // 当 puzzleData 改变时，初始化 grid/targetColor/maxSteps/solutionSteps 等
-    $: if (puzzleData) {
-        initPuzzle(puzzleData);
-    }
+    let rows = $derived(grid.length);
+    let cols = $derived(grid[0].length);
 
     // 将 puzzleData 初始化到本组件内部的状态
     function initPuzzle(data: PuzzleDataType) {
-        grid = cloneMatrix(data.grid);
-        originalGrid = cloneMatrix(data.grid);
-
-        // 这里可能是字符串，需要转为数字
-        targetColor = +data.targetColor;
-        maxSteps = +data.maxSteps;
 
         // 如果已经有解法
         if (data.solutionSteps && data.solutionSteps.length > 0) {
-            solution = { type: 'success', steps: data.solutionSteps };
+            solution = {type: 'success', steps: data.solutionSteps};
             solvingSteps = data.solutionSteps;
             stepGrids = [cloneMatrix(grid)];
             let tempGrid = cloneMatrix(grid);
             for (let step of data.solutionSteps) {
-                const { A, position } = step;
+                const {A, position} = step;
                 tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
                 stepGrids.push(cloneMatrix(tempGrid));
             }
-            currentStep = 0;
             isAutoSolved = true;
         } else {
             solution = undefined;
             solvingSteps = [];
             stepGrids = [];
-            currentStep = 0;
             isAutoSolved = false;
         }
 
@@ -99,8 +84,6 @@
         moveHistory = [];
         selectedColor = 1;
     }
-
-    $: externalCurrentStep = currentStep;
 
     // ----------------------------
     //   1. 常用编辑/操作函数
@@ -130,139 +113,15 @@
         }
     }
 
-    function handleExportPuzzle() {
-        const puzzleData = {
-            grid,
-            targetColor,
-            maxSteps,
-            solutionSteps: solution?.steps ?? [],
-        };
-        const jsonStr = JSON.stringify(puzzleData, null, 2);
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
-        const dlAnchorElem = document.createElement('a');
-        dlAnchorElem.setAttribute("href", dataStr);
-        dlAnchorElem.setAttribute("download", "溢彩画示例.json");
-        dlAnchorElem.click();
-    }
-
-    let fileInput: HTMLInputElement;
-    function handleImportPuzzle() {
-        fileInput.click();
-    }
-    function handleFileChange(e: Event) {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            try {
-                const content = (ev.target as FileReader).result as string;
-                const puzzle = JSON.parse(content);
-                if (puzzle.grid) {
-                    grid = puzzle.grid;
-                    originalGrid = cloneMatrix(grid);
-                }
-                if (puzzle.targetColor) targetColor = puzzle.targetColor;
-                if (puzzle.maxSteps) maxSteps = puzzle.maxSteps;
-                if (puzzle.solutionSteps && puzzle.solutionSteps.length > 0) {
-                    solution = {
-                        type: 'success',
-                        steps: puzzle.solutionSteps
-                    };
-                    solvingSteps = puzzle.solutionSteps;
-                    stepGrids = [cloneMatrix(grid)];
-                    let tempGrid = cloneMatrix(grid);
-                    for (let step of puzzle.solutionSteps) {
-                        const { A, position } = step;
-                        tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
-                        stepGrids.push(cloneMatrix(tempGrid));
-                    }
-                    currentStep = 0;
-                    isAutoSolved = true;
-                } else {
-                    solution = undefined;
-                    solvingSteps = [];
-                    stepGrids = [];
-                    currentStep = 0;
-                    isAutoSolved = false;
-                }
-                moveHistory = [];
-                toast('题目已成功导入！', "success");
-            } catch (error) {
-                console.error('导入的 JSON 文件格式不正确:', error);
-                toast('导入失败，文件格式不正确！', "error");
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    // 清空画板
-    function clearGrid() {
-        grid = Array.from({ length: rows }, () =>
-            Array.from({ length: cols }, () => 0)
-        );
-        moveHistory = [];
-        solution = undefined;
-        solvingSteps = [];
-        stepGrids = [];
-        currentStep = 0;
-        isAutoSolved = false;
-    }
-
-    function saveToHistory() {
-        const puzzles = JSON.parse(localStorage.getItem('puzzles') || '[]');
-        puzzles.push({
-            grid: grid,
-            targetColor,
-            maxSteps,
-            timestamp: new Date().toISOString()
-        });
-        localStorage.setItem('puzzles', JSON.stringify(puzzles));
-    }
-
-
-    // 新增: 重置演示状态的方法
-    export function resetDemo() {
-        grid = cloneMatrix(originalGrid);
-        currentStep = 0;
-        moveHistory = [];
-
-        // 如果有解法步骤,重置相关状态
-        if (solution?.steps) {
-            stepGrids = [cloneMatrix(grid)];
-            let tempGrid = cloneMatrix(grid);
-            for (let step of solution.steps) {
-                const { A, position } = step;
-                tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
-                stepGrids.push(cloneMatrix(tempGrid));
-            }
-        }
-    }
-
     // ----------------------------
-    //   2. 拖拽、颜色变更相关
+    //
     // ----------------------------
-    let isDragging = false;
-
     function handleMouseDown(row: number, col: number) {
-        isDragging = true;
         tryMove(row, col);
     }
 
-    function handleMouseEnter(row: number, col: number) {
-        if (isDragging && editMode) {
-            changeColor(row, col);
-        }
-    }
-    function handleMouseUp() {
-        isDragging = false;
-    }
-
     function tryMove(row: number, col: number) {
-        if (editMode) {
-            changeColor(row, col);
-        } else {
-            animateWaveFill(row, col, selectedColor);
-        }
+        animateWaveFill(row, col, selectedColor);
     }
 
     function changeColor(row: number, col: number) {
@@ -283,9 +142,6 @@
         }
     }
 
-    // ----------------------------
-    //   求解逻辑
-    // ----------------------------
     export function animateWaveFill(row: number, col: number, newColor: number) {
         if (moveHistory.length >= maxSteps) return;
         const oldColor = grid[row][col];
@@ -318,148 +174,16 @@
         });
     }
 
-    let worker: Worker | null = null;
-    let loading = false;
-    let startTime: number;
-
-    function solvePuzzle() {
-        solvePuzzleInWorker(cloneMatrix(grid), targetColor, maxSteps);
-    }
-    function solvePuzzleInWorker() {
-        // 1) 创建 Worker（每次都 new 或只 new 一次都行）
-        if (!worker) {
-            worker = new Worker(new URL('$lib/utils/solverWorker.ts', import.meta.url), {
-                type: 'module'
-            });
-
-            // 2) 监听 worker 返回的消息
-            worker.addEventListener('message', (e) => {
-                const result = e.data; // BFSResult
-                onSolveDone()
-                if (result.type === 'success' && result.steps) {
-                    stepGrids = [cloneMatrix(grid)];
-                    let tempGrid = cloneMatrix(grid);
-                    for (let step of result.steps) {
-                        const { A, position } = step;
-                        tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
-                        stepGrids.push(cloneMatrix(tempGrid));
-                    }
-                    isAutoSolved = true;
-                    solvingSteps = result.steps;
-                    solution = result;
-                } else {
-                    solvingSteps = [];
-                }
-                currentStep = 0;
-            });
-        }
-
-        // 3) 发送数据
-        loading = true;
-        startTime = Date.now();
-        worker.postMessage({
-            grid: cloneMatrix(grid), // 请保证 grid 是纯数组即可
-            targetColor,
-            maxSteps
-        });
-    }
-    function onSolveDone() {
-        // TODO: https://ux.stackexchange.com/questions/104606/should-a-loading-text-or-spinner-stay-a-minimum-time-on-screen
-        const elapsed = Date.now() - startTime;
-        const MIN_DURATION = 300;
-
-        if (elapsed < MIN_DURATION) {
-            // 如果小于最短显示时长，就再等一等
-            setTimeout(() => {
-                loading = false;
-            }, MIN_DURATION - elapsed);
-        } else {
-            loading = false;
-        }
-    }
-
-    let isAnimatingStep = false;
-    function nextStep(callback?: () => void) {
-        if (!solution || !solvingSteps || isAnimatingStep) return;
-        if (currentStep >= solvingSteps.length) return;
-
-        const step = solvingSteps[currentStep];
-        isAnimatingStep = true;
-        const [row, col] = step.position;
-        const oldColor = grid[row][col];
-
-        const waveLayers = floodFillWave(cloneMatrix(grid), row, col, oldColor);
-
-        waveLayers.forEach((layer, layerIndex) => {
-            setTimeout(() => {
-                for (const [r, c] of layer) {
-                    grid[r][c] = step.A;
-                }
-                grid = cloneMatrix(grid);
-
-                if (layerIndex === waveLayers.length - 1) {
-                    currentStep++;
-                    isAnimatingStep = false;
-                    // if (callback) callback();
-                }
-            }, layerIndex * 80);
-        });
-    }
-    function prevStep() {
-        if (currentStep > 0) {
-            currentStep--;
-            grid = cloneMatrix(stepGrids[currentStep]);
-        }
-    }
-
-    function showSolution() {
-        if (solution && solution.steps && solution.steps.length > 0) {
-            solvingSteps = solution.steps;
-            currentStep = 0;
-            if (stepGrids.length > 0) {
-                grid = cloneMatrix(stepGrids[0]);
-            }
-        }
-    }
-
-    // 移除答案
-    function restorePuzzle() {
-        if (stepGrids.length > 0) {
-            grid = cloneMatrix(stepGrids[0]);
-            solvingSteps = [];
-            stepGrids = [];
-            solution = undefined;
-            currentStep = 0;
-            isAutoSolved = false;
-        }
-    }
-
     let gridWidth: number;
+
     function handleGridWidthChange(event: CustomEvent) {
         gridWidth = event.detail;
     }
 </script>
 
-<!-- 隐藏的文件选择器，用于导入题目 JSON -->
-<input
-        accept="application/json"
-        bind:this={fileInput}
-        on:change={handleFileChange}
-        style="display: none;"
-        type="file"
-/>
-{#if loading}
-    <div class="fixed inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm z-50">
-        <div class="flex flex-col items-center gap-2">
-            <span class="text-xl">全力计算中...</span>
-        </div>
-    </div>
-{/if}
 <div
-        role="none"
         class="flex flex-col md:flex-row gap-4 mt-5"
-        on:mouseleave={handleMouseUp}
-        on:mouseup={handleMouseUp}
+        role="none"
 >
     <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto w-full">
 
@@ -467,54 +191,34 @@
             <CardContent>
                 <StepCounter
                         gridWidth={gridWidth}
-                        moveHistory={moveHistory}
                         maxSteps={maxSteps}
+                        moveHistory={moveHistory}
                 />
                 <div class="flex flex-col justify-between sm:flex-row gap-4" style="max-width: {gridWidth}px">
                     <ColorPicker
-                            label="染色刷"
                             colors={getColorsForPicker()}
+                            label="染色刷"
                             select={(i) => (selectedColor = i)}
                             selectedColor={selectedColor}
                     />
-                    <div>
-                        {#if isAutoSolved}
-                            <Button
-                                    variant="outline"
-                                    class="hover:border-red-500 hover:bg-red-500/10 hover:text-red-500 group"
-                                    onclick={restorePuzzle}
-                            >
-                                <XCircle class="h-4 w-4" />
-                                <span class="hidden group-hover:inline">移除答案</span>
-                            </Button>
-                        {:else}
-                            <Button variant="default" onclick={solvePuzzle} class="group">
-                                <div class="h-4 w-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 2v4"/>
-                                        <path d="M12 18v4"/>
-                                        <path d="m4.93 4.93 2.83 2.83"/>
-                                        <path d="m16.24 16.24 2.83 2.83"/>
-                                        <path d="M2 12h4"/>
-                                        <path d="M18 12h4"/>
-                                        <path d="m4.93 19.07 2.83-2.83"/>
-                                        <path d="m16.24 7.76 2.83-2.83"/>
-                                    </svg>
-                                </div>
-                                <span class="hidden group-hover:inline">自动解题</span>
-                            </Button>
-                        {/if}
-                        <Button onclick={handleShare} variant="secondary" class="group">
-                            <Share class="h-4 w-4" />
-                            <span class="hidden group-hover:inline">分享当前</span>
+                    <div class="flex">
+                        <div class="flex items-center gap-4 mr-5">
+                            <span class="text-sm font-medium leading-none">全染成</span>
+                            <TargetColorButton
+                                    index={targetColor}
+                            ></TargetColorButton>
+                        </div>
+                        <Button class="group mr-1.5" onclick={handleShare} variant="secondary">
+                            <Share class="h-4 w-4"/>
+                            <span class="hidden">分享当前</span>
                         </Button>
                         <Button
                                 class="group"
-                                onclick={resetMoves}
                                 disabled={moveHistory.length === 0}
+                                onclick={resetMoves}
                         >
-                            <RotateCcw class="h-4 w-4" />
-                            <span class="hidden group-hover:inline">重新开始</span>
+                            <RotateCcw class="h-4 w-4"/>
+                            <span class="hidden">重新开始</span>
                         </Button>
                     </div>
                 </div>
@@ -523,27 +227,10 @@
                         cols={cols}
                         grid={grid}
                         on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
-                        on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
                         on:widthChange={handleGridWidthChange}
                         rows={rows}
                 />
             </CardContent>
         </Card>
     </div>
-
-    {#if solution}
-        <div class="w-full md:w-[320px] flex-shrink-0">
-            <Card>
-                <CardContent>
-                    <Solution
-                            solution={solution}
-                            steps={solvingSteps}
-                            currentStep={currentStep}
-                            prevStep={prevStep}
-                            nextStep={nextStep}
-                    />
-                </CardContent>
-            </Card>
-        </div>
-    {/if}
 </div>
