@@ -127,24 +127,6 @@
     // ----------------------------
     //   2. 拖拽、颜色变更相关
     // ----------------------------
-    let isDragging = false;
-
-    function handleMouseDown(row: number, col: number) {
-        if (isAutoPlay) return; // 演示模式下禁用交互
-        isDragging = true;
-        tryMove(row, col);
-    }
-
-    function handleMouseEnter(row: number, col: number) {
-        if (isAutoPlay) return; // 演示模式下禁用交互
-        if (isDragging && editMode) {
-            changeColor(row, col);
-        }
-    }
-
-    function handleMouseUp() {
-        isDragging = false;
-    }
 
     function tryMove(row: number, col: number) {
         if (editMode) {
@@ -219,8 +201,6 @@
 <div
         class="flex flex-col md:flex-row gap-4 mt-5"
         class:pointer-events-none={isAutoPlay}
-        on:mouseleave={handleMouseUp}
-        on:mouseup={handleMouseUp}
         role="none"
 >
     <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto w-full">
@@ -246,8 +226,6 @@
                         colors={getColors()}
                         cols={cols}
                         grid={grid}
-                        on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
-                        on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
                         on:widthChange={handleGridWidthChange}
                         readonly={isAutoPlay}
                         rows={rows}
