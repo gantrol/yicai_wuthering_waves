@@ -90,7 +90,7 @@
 
                 <Button
                         variant="outline"
-                        on:click={loadPuzzles}
+                        onclick={loadPuzzles}
                         class="flex items-center gap-2"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,6 +132,7 @@
                         {#each filterPuzzles as puzzle (puzzle.id)}
                             <tr class="hover:bg-slate-50 cursor-pointer transition-colors"
                                 on:click={() => window.location.href = `/puzzles/${puzzle.id}`}>
+<!--                                TODO: too slow-->
                                 <td class="px-6 py-4 text-slate-700 font-medium">
                                     {puzzle.title}
                                 </td>
