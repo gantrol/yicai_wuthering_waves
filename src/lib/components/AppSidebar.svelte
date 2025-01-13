@@ -124,11 +124,11 @@
         <Button
                 variant="outline"
                 class="w-full justify-start gap-2"
-                href="https://github.com/gantrol/yicai_wuthering_waves"
+                href="https://github.com/gantrol/yicai_wuthering_waves/issues"
                 target="_blank"
         >
             <Github class="h-4 w-4" />
-            <span>GitHub 仓库</span>
+            <span>报问题？点这里</span>
         </Button>
     </Sidebar.Footer>
 </Sidebar.Root>
