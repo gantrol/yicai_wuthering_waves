@@ -194,9 +194,6 @@
 
     let gridWidth: number;
 
-    function handleGridWidthChange(event: CustomEvent) {
-        gridWidth = event.detail;
-    }
 </script>
 
 
@@ -231,8 +228,8 @@
                         colors={getColors()}
                         cols={cols}
                         grid={grid}
-                        on:widthChange={handleGridWidthChange}
                         readonly={isAutoPlay}
+                        bind:gridWidth={gridWidth}
                         rows={rows}
                 />
             </CardContent>

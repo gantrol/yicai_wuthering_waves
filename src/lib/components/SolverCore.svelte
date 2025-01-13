@@ -448,9 +448,6 @@
     }
 
     let gridWidth: number;
-    function handleGridWidthChange(event: CustomEvent) {
-        gridWidth = event.detail;
-    }
 </script>
 
 <!-- 隐藏的文件选择器，用于导入题目 JSON -->
@@ -599,7 +596,7 @@
                     grid={grid}
                     on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
                     on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
-                    on:widthChange={handleGridWidthChange}
+                    bind:gridWidth={gridWidth}
                     rows={rows}
                 />
             </CardContent>

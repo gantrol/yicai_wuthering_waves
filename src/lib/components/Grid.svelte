@@ -1,18 +1,16 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import { cn } from '$lib/utils';
+    import {cn} from '$lib/utils';
 
     export let grid: number[][];
     export let colors: string[];
     export let rows: number;
     export let cols: number;
     export let readonly = false; // 新增: 只读模式
+    export let gridWidth: number;
 
     const MAX_CELL_LENGTH = 64;
     const MIN_CELL_SIZE = 40;
     const GOLDEN_RATIO = 1.618;
-
-    const dispatch = createEventDispatcher();
 
     function handleStart(row: number, col: number, event: MouseEvent | TouchEvent) {
         event.preventDefault();
@@ -39,8 +37,7 @@
         cellSize = Math.min(MAX_CELL_LENGTH, (containerWidth - MAX_CELL_LENGTH) / cols);
         cellSize = Math.max(cellSize, MIN_CELL_SIZE)
         labelWidth = cellSize / GOLDEN_RATIO;
-        const actualSize = labelWidth + 10 * cellSize;
-        dispatch('widthChange', actualSize);
+        gridWidth = labelWidth + 10 * cellSize;
     }
 </script>
 

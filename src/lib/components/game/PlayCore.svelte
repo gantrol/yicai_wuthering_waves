@@ -135,10 +135,6 @@
     }
 
     let gridWidth: number;
-
-    function handleGridWidthChange(event: CustomEvent) {
-        gridWidth = event.detail;
-    }
 </script>
 
 <div
@@ -187,7 +183,7 @@
                         cols={cols}
                         grid={grid}
                         on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
-                        on:widthChange={handleGridWidthChange}
+                        bind:gridWidth={gridWidth}
                         rows={rows}
                 />
             </CardContent>
