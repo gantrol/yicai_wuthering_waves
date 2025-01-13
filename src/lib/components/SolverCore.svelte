@@ -32,7 +32,6 @@
 
     // 是否处于编辑模式（外部也可传入，以控制组件的“编辑”与“游戏”状态）
     export let editMode = true;
-    export let isAutoPlay = false;
     export function executeNextStep() {
         if (!solution || !solvingSteps || currentStep >= solvingSteps.length) return;
 
@@ -112,14 +111,6 @@
     }
 
     $: externalCurrentStep = currentStep;
-
-    $: if (isAutoPlay && externalCurrentStep !== currentStep) {
-        if (externalCurrentStep === 0) {
-            resetDemo();
-        } else {
-            nextStep();
-        }
-    }
 
     // ----------------------------
     //   1. 常用编辑/操作函数
@@ -266,13 +257,11 @@
     let isDragging = false;
 
     function handleMouseDown(row: number, col: number) {
-        if (isAutoPlay) return; // 演示模式下禁用交互
         isDragging = true;
         tryMove(row, col);
     }
 
     function handleMouseEnter(row: number, col: number) {
-        if (isAutoPlay) return; // 演示模式下禁用交互
         if (isDragging && editMode) {
             changeColor(row, col);
         }
@@ -335,7 +324,7 @@
                 grid = cloneMatrix(grid);
 
                 // 最后一圈染完后检查
-                if (layerIndex === waveLayers.length - 1 && !isAutoPlay) {
+                if (layerIndex === waveLayers.length - 1) {
                     checkWinCondition();
                 }
             }, layerIndex * 80);
@@ -371,10 +360,6 @@
                     isAutoSolved = true;
                     solvingSteps = result.steps;
                     solution = result;
-                    // 如果是自动演示模式,立即开始第一步
-                    if (isAutoPlay) {
-                        nextStep();
-                    }
                 } else {
                     solvingSteps = [];
                 }
@@ -486,71 +471,68 @@
 <div
     role="none"
     class="flex flex-col md:flex-row gap-4 mt-5"
-    class:pointer-events-none={isAutoPlay}
     on:mouseleave={handleMouseUp}
     on:mouseup={handleMouseUp}
 >
-    <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto {isAutoPlay ? 'my-10' : ''} w-full">
-        {#if !isAutoPlay}
-            <Card>
-                <CardContent class="space-y-4 p-6">
-                    <Collapsible.Root class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-lg font-semibold tracking-tight">编辑区</h2>
-                            <Collapsible.Trigger
-                                    class={buttonVariants({ variant: "outline", size: "sm", class: "w-9 p-0" })}
-                            >
-                                <ChevronsUpDown class="h-4 w-4" />
-                                <span class="sr-only">Toggle</span>
-                            </Collapsible.Trigger>
-                        </div>
-                        <div
-                                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                                style="max-width: {gridWidth}px"
+    <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto w-full">
+        <Card>
+            <CardContent class="space-y-4 p-6">
+                <Collapsible.Root class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold tracking-tight">编辑区</h2>
+                        <Collapsible.Trigger
+                                class={buttonVariants({ variant: "outline", size: "sm", class: "w-9 p-0" })}
                         >
-                            <div class="space-y-2 w-full sm:w-auto">
-                                <Label>要把色块全部染成</Label>
-                                <ColorPicker
-                                        colors={getColorsForPicker()}
-                                        selectedColor={targetColor}
-                                        select={(i) => (targetColor = i)}
+                            <ChevronsUpDown class="h-4 w-4" />
+                            <span class="sr-only">Toggle</span>
+                        </Collapsible.Trigger>
+                    </div>
+                    <div
+                            class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                            style="max-width: {gridWidth}px"
+                    >
+                        <div class="space-y-2 w-full sm:w-auto">
+                            <Label>要把色块全部染成</Label>
+                            <ColorPicker
+                                    colors={getColorsForPicker()}
+                                    selectedColor={targetColor}
+                                    select={(i) => (targetColor = i)}
+                            />
+                        </div>
+                        <div class="flex items-center space-x-8">
+                            <div class="space-y-2">
+                                <Label for="steps">最大步数</Label>
+                                <Input
+                                        id="steps"
+                                        type="number"
+                                        min="1"
+                                        max="10"
+                                        bind:value={maxSteps}
+                                        class="w-24"
                                 />
                             </div>
-                            <div class="flex items-center space-x-8">
-                                <div class="space-y-2">
-                                    <Label for="steps">最大步数</Label>
-                                    <Input
-                                            id="steps"
-                                            type="number"
-                                            min="1"
-                                            max="10"
-                                            bind:value={maxSteps}
-                                            class="w-24"
-                                    />
-                                </div>
-                                <div class="space-y-2">
-                                    <Label class="flex items-center space-x-2">
-                                        编辑模式
-                                    </Label>
-                                    <Switch
-                                            id="edit-mode"
-                                            bind:checked={editMode}
-                                    />
-                                </div>
+                            <div class="space-y-2">
+                                <Label class="flex items-center space-x-2">
+                                    编辑模式
+                                </Label>
+                                <Switch
+                                        id="edit-mode"
+                                        bind:checked={editMode}
+                                />
                             </div>
                         </div>
-                        <Collapsible.Content class="space-y-2">
-                            <Controls
-                                    clearGrid={clearGrid}
-                                    fillEmpty={fillEmpty}
-                                    exportPuzzle={handleExportPuzzle}
-                                    importPuzzle={handleImportPuzzle}
-                            />
-                        </Collapsible.Content>
-                    </Collapsible.Root>
-                </CardContent>
-            </Card>
-        {/if}
+                    </div>
+                    <Collapsible.Content class="space-y-2">
+                        <Controls
+                                clearGrid={clearGrid}
+                                fillEmpty={fillEmpty}
+                                exportPuzzle={handleExportPuzzle}
+                                importPuzzle={handleImportPuzzle}
+                        />
+                    </Collapsible.Content>
+                </Collapsible.Root>
+            </CardContent>
+        </Card>
 
         <Card>
             <CardContent>
@@ -619,13 +601,12 @@
                     on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
                     on:widthChange={handleGridWidthChange}
                     rows={rows}
-                    readonly={isAutoPlay}
                 />
             </CardContent>
         </Card>
     </div>
 
-    {#if solution && !isAutoPlay}
+    {#if solution}
         <div class="w-full md:w-[320px] flex-shrink-0">
             <Card>
                 <CardContent>
