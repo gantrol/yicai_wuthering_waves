@@ -14,6 +14,8 @@
     import StepCounter from "$lib/components/game/StepCounter.svelte";
     import ColorPicker from "$lib/components/ColorPicker.svelte";
     import Grid from "$lib/components/Grid.svelte";
+    import ColorButton from "$lib/components/ColorButton.svelte";
+    import TargetColorButton from "$lib/components/TargetColorButton.svelte";
 
     export let puzzleData: PuzzleDataType;
     export let currentStep = 0;
@@ -218,8 +220,11 @@
                             select={(i) => (selectedColor = i)}
                             selectedColor={selectedColor}
                     />
-                    <div>
-                        <!--                        TODO: 目标颜色、步数-->
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-medium leading-none">全染成</span>
+                        <TargetColorButton
+                                index={targetColor}
+                        ></TargetColorButton>
                     </div>
                 </div>
                 <Grid
