@@ -6,7 +6,6 @@ export async function load({ fetch, params }) {
             throw new Error('无法加载题目数据');
         }
         const puzzleData = await response.json();
-        console.log(puzzleData)
         return {
             puzzleId: id,
             puzzleData

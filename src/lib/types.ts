@@ -22,3 +22,12 @@ export interface PuzzleDataType {
     maxSteps: number | string;
     solutionSteps?: Step[];
 }
+
+export enum GameMode {
+    DEMO = 'demo',
+    PLAY_TRAVERSE = 'play_traverse',
+    PLAY_RANDOM = 'play_random',
+    EDIT = 'edit',
+    CREATE = 'create',
+    SOLUTION = 'solution',
+}

@@ -3,7 +3,6 @@
     import {Button} from '$lib/components/ui/button';
     import {Card, CardContent,} from '$lib/components/ui/card';
     import ColorPicker from "$lib/components/ColorPicker.svelte";
-    import Solution from "$lib/components/Solution.svelte";
     import {toast} from "$lib/stores/toast";
     import type {BFSResult, Move, PuzzleDataType, Step} from '$lib/types';
     import {
@@ -17,36 +16,31 @@
     import {encodePuzzle} from "$lib/utils/shareUtils";
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Share from 'lucide-svelte/icons/share';
-    import XCircle from 'lucide-svelte/icons/x-circle';
     import StepCounter from "$lib/components/game/StepCounter.svelte";
     import Grid from "$lib/components/Grid.svelte";
     import TargetColorButton from "$lib/components/TargetColorButton.svelte";
+    import {GameMode} from "$lib/types";
 
     type Props = {
-        puzzleData: PuzzleDataType;
+        data: PuzzleDataType;
+        mode: GameMode;
     }
-    let {puzzleData}: Props = $props();
+
+    let {data, mode = $bindable() }: Props = $props();
 
     let currentStep = $state(0);
 
 
     // 实际操作用的网格数据
-    let grid: number[][] = $state(puzzleData.grid);
+    let grid: number[][] = $state(data.grid);
     // 原始网格数据（用于“重置”功能）
-    let originalGrid: number[][] = $state(puzzleData.grid);
+    let originalGrid: number[][] = $derived(data.grid);
 
     // 要把所有格子最终变成的目标颜色
-    let targetColor = $state(puzzleData.targetColor);
+    let targetColor = $state(data.targetColor);
     // 最大步数
-    let maxSteps = $state(puzzleData.maxSteps);
+    let maxSteps = $state(data.maxSteps);
 
-    // BFS 的搜索结果（success/failed）
-    let solution: BFSResult | undefined = $state({type: 'success', steps: puzzleData.solutionSteps});
-    // BFS 的每一步 (避免 undefined by defaulting to [])
-    let solvingSteps: Step[] = $state(puzzleData.solutionSteps | []);
-    // BFS 每一步对应的 grid（只在无动画的 next/prevStep 用到）
-    let stepGrids: number[][][] = [];
-    let isAutoSolved = false;
 
     // 当前选的刷子颜色（1表示蓝色，对应 colorsValue[1]）
     let selectedColor = $state(1);
@@ -58,44 +52,16 @@
     let rows = $derived(grid.length);
     let cols = $derived(grid[0].length);
 
-    // 将 puzzleData 初始化到本组件内部的状态
-    function initPuzzle(data: PuzzleDataType) {
-
-        // 如果已经有解法
-        if (data.solutionSteps && data.solutionSteps.length > 0) {
-            solution = {type: 'success', steps: data.solutionSteps};
-            solvingSteps = data.solutionSteps;
-            stepGrids = [cloneMatrix(grid)];
-            let tempGrid = cloneMatrix(grid);
-            for (let step of data.solutionSteps) {
-                const {A, position} = step;
-                tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
-                stepGrids.push(cloneMatrix(tempGrid));
-            }
-            isAutoSolved = true;
-        } else {
-            solution = undefined;
-            solvingSteps = [];
-            stepGrids = [];
-            isAutoSolved = false;
-        }
-
-        // 每次切换 puzzle 时，也要清空 moveHistory
-        moveHistory = [];
-        selectedColor = 1;
-    }
-
     // ----------------------------
     //   1. 常用编辑/操作函数
     // ----------------------------
     function resetMoves() {
         moveHistory = [];
         grid = cloneMatrix(originalGrid);
-        stepGrids = [];
         currentStep = 0;
     }
 
-    // 可选：导出、导入功能
+    // 分享需要URL
     let baseUrl = "";
     if (typeof window !== "undefined") {
         baseUrl = window.location.origin;

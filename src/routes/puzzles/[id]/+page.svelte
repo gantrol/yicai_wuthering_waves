@@ -1,7 +1,7 @@
 <!-- /src/routes/solver/+page.svelte -->
-<script>
-    import PlayCore from "$lib/components/game/PlayCore.svelte";
-
+<script lang="ts">
+    import Game from "$lib/components/game/Game.svelte";
+    import {GameMode} from "$lib/types";
     let {data} = $props();
 </script>
 
@@ -9,6 +9,7 @@
     <title>溢彩画{data.puzzleId}</title>
 </svelte:head>
 
-<PlayCore
-    puzzleData={data.puzzleData}
-></PlayCore>
+<Game
+    data={data.puzzleData}
+    mode={GameMode.PLAY_TRAVERSE}
+></Game>
