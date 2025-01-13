@@ -84,12 +84,6 @@
         animateWaveFill(row, col, selectedColor);
     }
 
-    function changeColor(row: number, col: number) {
-        grid[row][col] = selectedColor;
-        // 手动触发 svelte 更新
-        grid = cloneMatrix(grid);
-    }
-
     function checkWinCondition() {
         if (isGoalState(grid, targetColor)) {
             setTimeout(() => {
