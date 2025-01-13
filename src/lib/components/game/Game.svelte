@@ -3,6 +3,7 @@
     import type {PuzzleDataType, } from "$lib/types";
     import PlayCore from "$lib/components/game/PlayCore.svelte";
     import DemoCore from "$lib/components/game/DemoCore.svelte";
+    import SolutionCore from "$lib/components/game/SolutionCore.svelte";
 
     type Props = {
         data: PuzzleDataType;
@@ -32,7 +33,9 @@
 {:else if mode === GameMode.CREATE}
 
 {:else if mode === GameMode.SOLUTION}
-
+    <SolutionCore
+            data={data}
+    ></SolutionCore>
 {:else}
 <!--    TODO: 404?-->
 {/if}
