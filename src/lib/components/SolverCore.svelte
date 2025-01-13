@@ -594,8 +594,8 @@
                     colors={getColors()}
                     cols={cols}
                     grid={grid}
-                    on:mousedown={(e) => handleMouseDown(e.detail.row, e.detail.col)}
-                    on:mouseenter={(e) => handleMouseEnter(e.detail.row, e.detail.col)}
+                    mousedown={(e) => handleMouseDown(e.row, e.col)}
+                    mouseenter={(e) => handleMouseEnter(e.row, e.col)}
                     bind:gridWidth={gridWidth}
                     rows={rows}
                 />
