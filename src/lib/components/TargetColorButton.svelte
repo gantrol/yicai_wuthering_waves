@@ -1,23 +1,27 @@
 <script lang="ts">
     import {Button} from "$lib/components/ui/button/index";
     import {derived} from "svelte/store";
-    import {getColorsForPicker} from "$lib/utils/gridUtils";
+    import {getColors} from "$lib/utils/gridUtils";
 
     interface Props {
         index: number;
+        width: number;
+        height: number;
     }
 
     let {
-        index
+        index,
+        width = 8,
+        height = 8,
     } : Props = $props();
 
-    let color = $derived(getColorsForPicker()[index]);
+    let color = $derived(getColors()[index]);
 </script>
 
 <Button
         variant="outline"
         size="icon"
-        class="w-8 h-8 rounded-md relative transition-all"
+        class="w-{width} h-{height} rounded-md relative transition-all"
         style="background-color: {color};"
 >
             <span class="absolute inset-0 flex items-center justify-center text-xs font-medium

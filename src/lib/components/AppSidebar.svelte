@@ -9,6 +9,7 @@
     import {page} from '$app/state'
     import {commonItems} from "$lib/utils/bar";
     import YiCai from "$lib/components/YiCai.svelte";
+    import TargetColorButton from "$lib/components/TargetColorButton.svelte";
     interface PuzzleItem {
         id: number;
     }
@@ -21,6 +22,21 @@
             const response = await fetch('/puzzles_json/list.json');
             if (!response.ok) throw new Error('无法加载题目列表');
             puzzles = await response.json();
+            const detailedPuzzles = await Promise.all(
+                puzzles.map(async (puzzle) => {
+                    try {
+                        const detailResponse = await fetch(`/puzzles_json/${puzzle.id}.json`);
+                        if (detailResponse.ok) {
+                            const details = await detailResponse.json();
+                            return { ...puzzle, ...details };
+                        }
+                        return puzzle;
+                    } catch (e) {
+                        return puzzle;
+                    }
+                })
+            );
+            puzzles = detailedPuzzles;
         } catch (error) {
             console.error('加载题目列表失败:', error);
         }
@@ -88,7 +104,11 @@
                                        {...props}
                                         on:click={handleClick}
                                 >
-                                    <PuzzleIcon class="h-4 w-4" />
+                                    <TargetColorButton
+                                        index={puzzle.targetColor}
+                                        width={5}
+                                        height={5}
+                                    ></TargetColorButton>
                                     <span>{puzzle.id}</span>
                                 </a>
                                 {/snippet}
