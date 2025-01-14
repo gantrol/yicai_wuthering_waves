@@ -3,7 +3,7 @@
     import type { Move } from '$lib/types';
     import Footprints from 'lucide-svelte/icons/footprints';
 
-    let { gridWidth, moveHistory, maxSteps } = $props();
+    let { gridWidth, moveHistory, maxSteps, children } = $props();
 
     interface StepCounterProps {
         gridWidth: number;
@@ -31,14 +31,17 @@
                     style="width: {(moveHistory.length / maxSteps * 100)}%"
             ></div>
         </div>
-        <p class="mt-2 text-sm text-muted-foreground">
-            {#if moveHistory.length === maxSteps}
-                已达到最大步数
-            {:else if moveHistory.length === 0}
-                开始你的游戏吧
-            {:else}
-                还剩 {maxSteps - moveHistory.length} 步
-            {/if}
-        </p>
+        <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-muted-foreground">
+                {#if moveHistory.length === maxSteps}
+                    已达到最大步数
+                {:else if moveHistory.length === 0}
+                    开始你的游戏吧
+                {:else}
+                    还剩 {maxSteps - moveHistory.length} 步
+                {/if}
+            </p>
+            {@render children?.()}
+        </div>
     </div>
 </div>

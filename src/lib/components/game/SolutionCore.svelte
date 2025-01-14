@@ -5,16 +5,16 @@
     import type {Move, PuzzleDataType} from '$lib/types';
     import {cloneMatrix, floodFill, floodFillWave, getColors, isGoalState} from '$lib/utils/gridUtils';
     import Grid from "$lib/components/Grid.svelte";
-    import Solution from "$lib/components/Solution.svelte";
+    import SolutionMessage from "$lib/components/game/SolutionMessage.svelte";
 
 
     type Props = {
         data: PuzzleDataType;
+        closeSolution
     }
 
-    let props: Props = $props();
+    let {data, closeSolution}: Props = $props();
 
-    let data = $derived(props.data);
     let currentStep = $state(0);
     let grid: number[][] = $state(data.grid);
     let originalGrid: number[][] = $derived(data.grid);
@@ -164,12 +164,13 @@
     <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto w-full">
         <Card>
             <CardContent>
-                <Solution
+                <SolutionMessage
                         currentStep={currentStep}
                         nextStep={nextStep}
                         prevStep={prevStep}
                         solution={solution}
                         steps={solvingSteps}
+                        {closeSolution}
                 />
                 <Grid
                         bind:gridWidth={gridWidth}
