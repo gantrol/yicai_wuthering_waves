@@ -40,9 +40,9 @@
     let originalGrid: number[][] = $derived(data.grid);
 
     // 要把所有格子最终变成的目标颜色
-    let targetColor = $state(data.targetColor);
+    let targetColor = $derived(data.targetColor);
     // 最大步数
-    let maxSteps = $state(data.maxSteps);
+    let maxSteps = $derived(data.maxSteps);
 
 
     // 当前选的刷子颜色（1表示蓝色，对应 colorsValue[1]）
