@@ -336,9 +336,9 @@
     let startTime: number;
 
     function solvePuzzle() {
-        solvePuzzleInWorker(cloneMatrix(grid), targetColor, maxSteps);
+        solvePuzzleInWorker(cloneMatrix(originalGrid), targetColor, maxSteps);
     }
-    function solvePuzzleInWorker() {
+    function solvePuzzleInWorker(grid, targetColor, maxSteps) {
         // 1) 创建 Worker（每次都 new 或只 new 一次都行）
         if (!worker) {
             worker = new Worker(new URL('$lib/utils/solverWorker.ts', import.meta.url), {

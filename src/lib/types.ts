@@ -25,6 +25,7 @@ export interface PuzzleDataType {
 
 export enum GameMode {
     DEMO = 'demo',
+    PLAY_SIMPLE = 'play_simple',
     PLAY_TRAVERSE = 'play_traverse',
     PLAY_RANDOM = 'play_random',
     EDIT = 'edit',

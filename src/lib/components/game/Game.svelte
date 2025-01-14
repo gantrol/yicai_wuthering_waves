@@ -13,20 +13,25 @@
 
     let data = $derived(props.data);
     let mode = $derived(props.mode);
-
 </script>
+
+
 
 {#if mode === GameMode.PLAY_TRAVERSE}
     <PlayCore
             data={data}
     ></PlayCore>
-<!--{:else if mode === GameMode.DEMO}-->
-<!--    <DemoCore-->
-<!--            bind:this={solverRef}-->
-<!--            puzzleData={demoData}-->
-<!--            isAutoPlay={true}-->
-<!--            currentStep={currentStep}-->
-<!--    />-->
+    <!--{:else if mode === GameMode.DEMO}-->
+    <!--    <DemoCore-->
+    <!--            bind:this={solverRef}-->
+    <!--            puzzleData={demoData}-->
+    <!--            isAutoPlay={true}-->
+    <!--            currentStep={currentStep}-->
+    <!--    />-->
+{:else if mode === GameMode.PLAY_SIMPLE}
+    <PlayCore
+            data={data}
+    ></PlayCore>
 {:else if mode === GameMode.PLAY_RANDOM}
 
 {:else if mode === GameMode.EDIT}
@@ -37,5 +42,5 @@
             data={data}
     ></SolutionCore>
 {:else}
-<!--    TODO: 404?-->
+    <!--    TODO: 404?-->
 {/if}
