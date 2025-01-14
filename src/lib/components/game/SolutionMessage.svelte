@@ -21,7 +21,7 @@
 </script>
 
 <div class="relative mt-5 max-w-2xl break-words p-6 bg-white rounded-lg">
-    {#if solution.type === 'success'}
+    {#if solution?.type === 'success'}
         {#if closeSolution}
             <Button
                     variant="outline"
@@ -90,7 +90,7 @@
         {/if}
     {:else}
         <div class="text-red-600 mt-4">
-            <h2 class="text-xl font-semibold">{solution.message}</h2>
+            <h2 class="text-xl font-semibold">{solution?.message}</h2>
         </div>
     {/if}
 </div>
