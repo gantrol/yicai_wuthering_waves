@@ -214,10 +214,6 @@
                             </div>
 
 
-                            <Button class="group mr-1.5" onclick={handleShare} variant="secondary">
-                                <Share class="h-4 w-4"/>
-                                <span class="hidden">分享当前</span>
-                            </Button>
                             <Button variant="default"
                                     onclick={openSolution}
                                     class="group mr-1.5">
@@ -230,6 +226,11 @@
                                     </svg>
                                 </div>
                                 <span class="hidden md:group-hover:inline">看看答案</span>
+                            </Button>
+
+                            <Button class="group mr-1.5" onclick={handleShare} variant="secondary">
+                                <Share class="h-4 w-4"/>
+                                <span class="hidden">分享当前</span>
                             </Button>
                             <Button
                                     class="group"

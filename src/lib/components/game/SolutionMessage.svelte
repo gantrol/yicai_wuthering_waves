@@ -1,6 +1,8 @@
 <script lang="ts">
-    import { Button } from "$lib/components/ui/button";
-    import { getDescriptionForSolutionStep } from "$lib/utils/gridUtils";
+    import {Button} from "$lib/components/ui/button";
+    import {ChevronLeft, ChevronRight, X} from "lucide-svelte";
+    import {getDescriptionForSolutionStep} from "$lib/utils/gridUtils";
+
     interface Props {
         solution: any;
         steps: any[];
@@ -21,24 +23,21 @@
 </script>
 
 <div class="relative mt-5 max-w-2xl break-words p-6 bg-white rounded-lg">
-    {#if solution?.type === 'success'}
+    {#if solution?.type === "success"}
         {#if closeSolution}
             <Button
                     variant="outline"
                     onclick={closeSolution}
                     aria-label="Close"
-                    class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 close-button"
+                    class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 rounded-full h-12 w-12 p-0"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+                <X class="h-16 w-16"/>
             </Button>
         {/if}
         {#if solution.steps.length > 0}
-
-
-            <h2 class="text-xl font-semibold mb-4">找到解决方案，共 {solution.steps.length} 步：</h2>
+            <h2 class="text-xl font-semibold mb-4">
+                找到解决方案，共 {solution.steps.length} 步：
+            </h2>
             <ol class="space-y-2 list-decimal list-inside mb-4">
                 {#each solution.steps as step, index}
                     <li class="text-base">
@@ -52,17 +51,20 @@
                         variant="outline"
                         onclick={prevStep}
                         disabled={currentStep <= 0}
-                        class="disabled:opacity-50"
+                        class="disabled:opacity-50 h-12 w-12 p-0"
+                        aria-label="Previous step"
                 >
-                    上一步
+                    <ChevronLeft class="h-12 w-12"/>
                 </Button>
 
                 <Button
+                        variant="outline"
                         onclick={nextStep}
                         disabled={currentStep >= steps.length}
-                        class="disabled:opacity-50"
+                        class="disabled:opacity-50 h-12 w-12 p-0"
+                        aria-label="Next step"
                 >
-                    下一步
+                    <ChevronRight class="h-12 w-12"/>
                 </Button>
             </div>
             <div class="flex items-center gap-4 my-4">
@@ -73,20 +75,33 @@
                     ></div>
                 </div>
                 <span class="text-sm font-medium whitespace-nowrap">
-                      {currentStep} / {steps.length}
-                  </span>
+                    {currentStep} / {steps.length}
+                </span>
             </div>
 
             <div class="bg-muted p-4 rounded-lg mt-4">
-                <p class="text-sm text-muted-foreground flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                <p
+                        class="text-sm text-muted-foreground flex items-center gap-2"
+                >
+                    <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                    >
+                        <path
+                                fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clip-rule="evenodd"
+                        />
                     </svg>
                     先数行，再数列，比方说（1, 5）表示第一行第五列
                 </p>
             </div>
         {:else}
-            <h2 class="text-xl font-semibold text-green-600">当前方格已经全部为目标颜色，无需操作。</h2>
+            <h2 class="text-xl font-semibold text-green-600">
+                当前方格已经全部为目标颜色，无需操作。
+            </h2>
         {/if}
     {:else}
         <div class="text-red-600 mt-4">
