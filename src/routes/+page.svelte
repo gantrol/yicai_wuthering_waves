@@ -11,7 +11,7 @@
     }
 </script>
 
-<div class="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+<div class="min-h-screen from-background to-secondary/20">
     <!-- Hero Section -->
     <section class="pt-32 px-4 text-center relative overflow-hidden">
         <!-- 增强的背景装饰效果 -->
