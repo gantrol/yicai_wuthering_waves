@@ -110,9 +110,9 @@
                                 height: {cellSize}px;
                                 background-color: {colors[cell]};
                             "
-                            onclick={!readonly ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
+                            onmousedown={!readonly ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
                             ontouchstart={!readonly ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
-                            mousemove={!readonly ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
+                            onmousemove={!readonly ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
                             ontouchmove={!readonly ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
                     >
                             <span
