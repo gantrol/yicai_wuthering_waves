@@ -12,9 +12,7 @@
 </script>
 
 <div class="min-h-screen from-background to-secondary/20">
-    <!-- Hero Section -->
     <section class="pt-32 px-4 text-center relative overflow-hidden">
-        <!-- 增强的背景装饰效果 -->
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-10 left-10 w-32 h-32 bg-primary/30 rounded-full blur-3xl animate-pulse"></div>
             <div class="absolute bottom-10 right-10 w-32 h-32 bg-secondary/30 rounded-full blur-3xl animate-pulse"></div>
@@ -28,7 +26,6 @@
                 </span>
             </h1>
 
-            <!-- 优化按钮样式 -->
             <div class="flex justify-center gap-6 mb-4 animate-slide-up-delayed">
                 <Button
                         size="lg"

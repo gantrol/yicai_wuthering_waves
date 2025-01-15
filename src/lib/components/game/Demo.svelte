@@ -3,6 +3,7 @@
     import {onDestroy, onMount, tick} from "svelte";
     import {getDescriptionForSolutionStep} from "$lib/utils/gridUtils";
     import DemoCore from "$lib/components/game/DemoCore.svelte";
+    import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
 
     let solverRef;
     let demoData;
@@ -80,5 +81,7 @@
                 {/if}
             </p>
         </div>
+    {:else}
+        <LoadingSpinner text="火速叫醒示例..."/>
     {/if}
 </div>

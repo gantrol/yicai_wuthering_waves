@@ -6,6 +6,7 @@
     import {cloneMatrix, floodFill, floodFillWave, getColors, isGoalState} from '$lib/utils/gridUtils';
     import Grid from "$lib/components/Grid.svelte";
     import SolutionMessage from "$lib/components/game/SolutionMessage.svelte";
+    import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
 
 
     type Props = {
@@ -140,7 +141,7 @@
             solvePuzzleInWorker(cloneMatrix(data.grid), targetColor, maxSteps);
         } else {
             // 否则直接用现成答案
-            solution = { type: 'success', steps: data.solutionSteps };
+            solution = {type: 'success', steps: data.solutionSteps};
             solvingSteps = data.solutionSteps;
         }
     });
@@ -240,9 +241,8 @@
 </script>
 
 {#if isLoading}
-    <p class="text-sm text-gray-500">正在计算中……</p>
-    {:else}
-
+    <LoadingSpinner text="正在计算……"/>
+{:else}
     <div
             class="flex flex-col md:flex-row gap-4 mt-5"
             role="none"

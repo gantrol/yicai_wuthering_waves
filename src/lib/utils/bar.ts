@@ -6,9 +6,8 @@ export const commonItems = [
     { title: "编题", url: "/edit/puzzles/1", icon: Dices },
 ];
 
-export const WUTHERING_WAVES = "鸣潮"
+export const WUTHERING_WAVES = "Wuthering"  // 鸣潮
 export const GANTROL = "Gantrol"
-export const Wuthering = "Wuthering"
 export const SourceMap = {
     Wuthering: WUTHERING_WAVES,
     GANTROL: GANTROL

@@ -4,6 +4,7 @@
     import {derived} from "svelte/store";
     import {getColors, getColorName} from "$lib/utils/gridUtils";
     import {goto} from "$app/navigation";
+    import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
     interface Puzzle {
         id: number;
         title?: string;
@@ -104,10 +105,7 @@
 
         <!-- 加载状态 -->
         {#if loading}
-            <div class="flex items-center justify-center py-20">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <span class="ml-3 text-slate-600">正在加载题目列表...</span>
-            </div>
+            <LoadingSpinner text="快速拉取题目列表..." />
         {:else if error}
             <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
                 <div class="flex items-center">
