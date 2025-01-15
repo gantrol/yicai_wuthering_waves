@@ -1,18 +1,13 @@
 <!-- src/lib/components/game/PlayCore.svelte -->
 <script lang="ts">
+    import {goto} from "$app/navigation";
+    import { page } from '$app/state';
     import {Button} from '$lib/components/ui/button';
     import {Card, CardContent,} from '$lib/components/ui/card';
     import ColorPicker from "$lib/components/ColorPicker.svelte";
     import {toast} from "$lib/stores/toast";
     import type {Move, PuzzleDataType} from '$lib/types';
-    import {
-        cloneMatrix,
-        floodFill,
-        floodFillWave,
-        getColors,
-        getColorsForPicker,
-        isGoalState
-    } from '$lib/utils/gridUtils';
+    import {cloneMatrix, floodFillWave, getColors, getColorsForPicker, isGoalState} from '$lib/utils/gridUtils';
     import {encodePuzzle} from "$lib/utils/shareUtils";
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Share from 'lucide-svelte/icons/share';
@@ -20,6 +15,7 @@
     import Grid from "$lib/components/Grid.svelte";
     import TargetColorButton from "$lib/components/TargetColorButton.svelte";
     import SolutionCore from "$lib/components/game/SolutionCore.svelte";
+    import {Edit2, Gamepad2} from "lucide-svelte";
 
     type Props = {
         data: PuzzleDataType;
@@ -148,7 +144,17 @@
         showSolution = false;
     }
 
+    function gotoEdit() {
+        const currentPath = page.url.pathname;
+        goto(`/edit${currentPath}`);
+    }
 
+    function goBackFromEdit() {
+        const currentPath = page.url.pathname;
+        const gamePath = currentPath.replace('/edit', '');
+        goto(gamePath);
+    }
+    let isPathContainsEdit = $derived(page.url.pathname.startsWith('/edit'));
 </script>
 
 {#if showSolution}
@@ -170,11 +176,27 @@
                             maxSteps={maxSteps}
                             moveHistory={moveHistory}
                     >
-                        <button class="text-sm text-primary"
-                                onclick={openSolution}
-                        >
-                            显示答案
-                        </button>
+                        {#if isPathContainsEdit}
+                            <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onclick={goBackFromEdit}
+                                    class="group"
+                            >
+                                <Gamepad2 class="h-4 w-4" />
+                                <span class="hidden">返回游戏</span>
+                            </Button>
+                        {:else}
+                            <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onclick={gotoEdit}
+                                    class="group"
+                            >
+                                <Edit2 class="h-4 w-4"/>
+                                <span class="hidden">去编辑</span>
+                            </Button>
+                        {/if}
                     </StepCounter>
                     <div class="flex flex-col justify-between sm:flex-row gap-4">
                         <ColorPicker
@@ -195,6 +217,19 @@
                             <Button class="group mr-1.5" onclick={handleShare} variant="secondary">
                                 <Share class="h-4 w-4"/>
                                 <span class="hidden">分享当前</span>
+                            </Button>
+                            <Button variant="default"
+                                    onclick={openSolution}
+                                    class="group mr-1.5">
+                                <div class="h-4 w-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </div>
+                                <span class="hidden md:group-hover:inline">看看答案</span>
                             </Button>
                             <Button
                                     class="group"
