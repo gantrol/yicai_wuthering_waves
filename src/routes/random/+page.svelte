@@ -1,6 +1,10 @@
-<script>
-    import Solver from '$lib/components/Solver.svelte';
+<script lang="ts">
+    import {GameMode} from "$lib/types";
+    import Game from "$lib/components/game/Game.svelte";
+
+
 </script>
 
-<Solver
-/>
+<Game
+        mode={GameMode.PLAY_RANDOM}
+></Game>

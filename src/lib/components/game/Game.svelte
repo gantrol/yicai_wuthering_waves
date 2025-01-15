@@ -5,6 +5,7 @@
     import DemoCore from "$lib/components/game/DemoCore.svelte";
     import SolutionCore from "$lib/components/game/SolutionCore.svelte";
     import Editor from "$lib/components/game/Editor.svelte";
+    import PlayRandom from "$lib/components/game/PlayRandom.svelte";
 
     type Props = {
         data: PuzzleDataType;
@@ -34,7 +35,7 @@
             data={data}
     ></PlayCore>
 {:else if mode === GameMode.PLAY_RANDOM}
-
+    <PlayRandom />
 {:else if mode === GameMode.EDIT}
     <Editor
             data={data}
