@@ -126,7 +126,6 @@
         });
     }
 
-    let gridWidth: number;
     // ==============================
     //  4. Worker 相关
     // ==============================
@@ -260,7 +259,6 @@
                             {closeSolution}
                     />
                     <Grid
-                            bind:gridWidth={gridWidth}
                             colors={getColors()}
                             cols={cols}
                             grid={grid}
