@@ -447,7 +447,6 @@
         }
     }
 
-    let gridWidth: number;
 </script>
 
 <!-- 隐藏的文件选择器，用于导入题目 JSON -->
@@ -486,7 +485,6 @@
                     </div>
                     <div
                             class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                            style="max-width: {gridWidth}px"
                     >
                         <div class="space-y-2 w-full sm:w-auto">
                             <Label>要把色块全部染成</Label>
@@ -535,12 +533,11 @@
             <CardContent>
                 {#if !editMode}
                     <StepCounter
-                            gridWidth={gridWidth}
                             moveHistory={moveHistory}
                             maxSteps={maxSteps}
                     />
                 {/if}
-                <div class="flex flex-col justify-between sm:flex-row gap-4" style="max-width: {gridWidth}px">
+                <div class="flex flex-col justify-between sm:flex-row gap-4">
                     <ColorPicker
                         label="染色刷"
                         colors={getColorsForPicker()}
@@ -596,7 +593,6 @@
                     grid={grid}
                     mousedown={(e) => handleMouseDown(e.row, e.col)}
                     mouseenter={(e) => handleMouseEnter(e.row, e.col)}
-                    bind:gridWidth={gridWidth}
                     rows={rows}
                 />
             </CardContent>

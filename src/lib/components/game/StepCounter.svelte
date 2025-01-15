@@ -3,16 +3,15 @@
     import type { Move } from '$lib/types';
     import Footprints from 'lucide-svelte/icons/footprints';
 
-    let { gridWidth, moveHistory, maxSteps, children } = $props();
+    let { moveHistory, maxSteps, children } = $props();
 
     interface StepCounterProps {
-        gridWidth: number;
         moveHistory: Move[];
         maxSteps: number;
     }
 </script>
 
-<div class="mb-6" style="max-width: {gridWidth}px">
+<div class="mb-6">
     <div class="p-4 bg-secondary/50">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">

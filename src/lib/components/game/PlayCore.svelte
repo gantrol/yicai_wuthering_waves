@@ -1,4 +1,4 @@
-<!-- src/lib/components/game/PlayRandomCore.svelte -->
+<!-- src/lib/components/game/PlayCore.svelte -->
 <script lang="ts">
     import {Button} from '$lib/components/ui/button';
     import {Card, CardContent,} from '$lib/components/ui/card';
@@ -137,8 +137,6 @@
         });
     }
 
-    let gridWidth: number;
-
 
     let showSolution = $state(false);
 
@@ -169,7 +167,6 @@
             <Card>
                 <CardContent>
                     <StepCounter
-                            gridWidth={gridWidth}
                             maxSteps={maxSteps}
                             moveHistory={moveHistory}
                     >
@@ -179,7 +176,7 @@
                             显示答案
                         </button>
                     </StepCounter>
-                    <div class="flex flex-col justify-between sm:flex-row gap-4" style="max-width: {gridWidth}px">
+                    <div class="flex flex-col justify-between sm:flex-row gap-4">
                         <ColorPicker
                                 colors={getColorsForPicker()}
                                 label="染色刷"
@@ -214,7 +211,6 @@
                             cols={cols}
                             grid={grid}
                             mousedown={(e) => handleMouseDown(e.row, e.col)}
-                            bind:gridWidth={gridWidth}
                             rows={rows}
                     />
                 </CardContent>

@@ -190,10 +190,6 @@
             }, layerIndex * 80);
         });
     }
-
-
-    let gridWidth: number;
-
 </script>
 
 
@@ -206,11 +202,10 @@
         <Card>
             <CardContent>
                 <StepCounter
-                        gridWidth={gridWidth}
                         maxSteps={maxSteps}
                         moveHistory={moveHistory}
                 />
-                <div class="flex flex-col justify-between sm:flex-row gap-4" style="max-width: {gridWidth}px">
+                <div class="flex flex-col justify-between sm:flex-row gap-4">
                     <ColorPicker
                             colors={getColorsForPicker()}
                             label="染色刷"
@@ -229,7 +224,6 @@
                         cols={cols}
                         grid={grid}
                         readonly={isAutoPlay}
-                        bind:gridWidth={gridWidth}
                         rows={rows}
                 />
             </CardContent>

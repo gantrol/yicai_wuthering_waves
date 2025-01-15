@@ -7,7 +7,6 @@
         rows,
         cols,
         readonly = false,
-        gridWidth = $bindable(),
         mousedown,
         mouseenter,
     } = $props();
@@ -31,9 +30,6 @@
     let numberFontSize = $derived(Math.max(MIN_NUMBER_SIZE, cellSize * 0.2));
 
     let labelWidth = $derived(cellSize / GOLDEN_RATIO);
-    $effect(() => {
-        gridWidth = labelWidth + 10 * cellSize;
-    })
 
     // Event handler functions that invoke callback props
     function handleStart(row: number, col: number, event: MouseEvent | TouchEvent) {
