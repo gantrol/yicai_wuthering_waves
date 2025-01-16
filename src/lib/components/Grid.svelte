@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { cn } from '$lib/utils';
+    import {cn} from '$lib/utils';
+    import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
 
     let {
         grid,
@@ -35,86 +36,89 @@
     function handleStart(row: number, col: number, event: MouseEvent | TouchEvent) {
         event.preventDefault();
         if (!readonly && mousedown) {
-            mousedown({ row, col });
+            mousedown({row, col});
         }
     }
 
     function handleMove(row: number, col: number, event: MouseEvent | TouchEvent) {
         event.preventDefault();
         if (!readonly && mouseenter) {
-            mouseenter({ row, col });
+            mouseenter({row, col});
         }
     }
 </script>
 
-<div class="overflow-x-auto">
-    <div
-            class="min-w-fit"
-            class:pointer-events-none={readonly}
-            bind:clientWidth={containerWidth}
-    >
-    <!-- Header -->
-    <div class="flex" style="margin-left: {labelWidth}px">
-        {#each Array(cols).fill(0).map((_, i) => i + 1) as colLabel}
-            <div
-                    class={cn(
+{#if !grid}
+    <LoadingSpinner text="尽力加载..."/>
+{:else }
+    <div class="overflow-x-auto">
+        <div
+                class="min-w-fit"
+                class:pointer-events-none={readonly}
+                bind:clientWidth={containerWidth}
+        >
+            <!-- Header -->
+            <div class="flex" style="margin-left: {labelWidth}px">
+                {#each Array(cols).fill(0).map((_, i) => i + 1) as colLabel}
+                    <div
+                            class={cn(
                         "text-center font-semibold",
                         "dark:text-gray-300"
                     )}
-                    style="
+                            style="
                         width: {cellSize}px;
                         height: {labelWidth}px;
                         line-height: {labelWidth}px;
                         font-size: {labelFontSize}px;
                     "
-            >
-                {colLabel}
+                    >
+                        {colLabel}
+                    </div>
+                {/each}
             </div>
-        {/each}
-    </div>
 
-    <!-- Grid -->
-    <div class="flex flex-col touch-none">
-        {#each grid as row, rowIndex}
-            <div class="flex items-center">
-                <!-- Row Label -->
-                <div
-                        class={cn(
+            <!-- Grid -->
+            <div class="flex flex-col touch-none">
+                {#each grid as row, rowIndex}
+                    <div class="flex items-center">
+                        <!-- Row Label -->
+                        <div
+                                class={cn(
                             "flex items-center justify-center font-semibold",
                             "dark:text-gray-300"
                         )}
-                        style="
+                                style="
                             width: {labelWidth}px;
                             height: {cellSize}px;
                             line-height: {cellSize}px;
                             font-size: {labelFontSize}px;
                         "
-                >
-                    {rowIndex + 1}
-                </div>
+                        >
+                            {rowIndex + 1}
+                        </div>
 
-                <!-- Cells -->
-                {#each row as cell, colIndex}
-                    <div
-                            class={cn(
+                        <!-- Cells -->
+                        {#each row as cell, colIndex}
+                            <div
+                                    class={cn(
                                 "relative border rounded",
                                 "transition-colors duration-300 ease-in-out",
                                 !readonly && "cursor-pointer hover:opacity-90",
                                 "border-gray-200 dark:border-gray-700"
                             )}
-                            aria-label={`Grid cell: ${rowIndex}, ${colIndex}`}
-                            role={readonly ? "cell" : "button"}
-                            tabindex={readonly ? "-1" : "0"}
-                            style="
+                                    aria-label={`Grid cell: ${rowIndex}, ${colIndex}`}
+                                    role={readonly ? "cell" : "button"}
+                                    tabindex={readonly ? "-1" : "0"}
+                                    style="
                                 width: {cellSize}px;
                                 height: {cellSize}px;
                                 background-color: {colors[cell]};
                             "
-                            onmousedown={!readonly ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
-                            ontouchstart={!readonly ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
-                            onmousemove={!readonly ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
-                            ontouchmove={!readonly ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
-                    >
+                                    onmousedown={!readonly ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
+                                    ontouchstart={!readonly ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
+                                    onmousemove={!readonly ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
+                                    ontouchmove={!readonly ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
+                            >
                             <span
                                     class={cn(
                                     "absolute bottom-0.5 right-0.5",
@@ -124,29 +128,30 @@
                             >
                                 {cell}
                             </span>
+                            </div>
+                        {/each}
                     </div>
                 {/each}
             </div>
-        {/each}
-    </div>
 
-    <div class="flex" style="margin-left: {labelWidth}px">
-        {#each Array(cols).fill(0).map((_, i) => i + 1) as colLabel}
-            <div
-                    class={cn(
+            <div class="flex" style="margin-left: {labelWidth}px">
+                {#each Array(cols).fill(0).map((_, i) => i + 1) as colLabel}
+                    <div
+                            class={cn(
                         "text-center font-semibold",
                         "dark:text-gray-300"
                     )}
-                    style="
+                            style="
                         width: {cellSize}px;
                         height: {labelWidth}px;
                         line-height: {labelWidth}px;
                         font-size: {labelFontSize}px;
                     "
-            >
-                {colLabel}
+                    >
+                        {colLabel}
+                    </div>
+                {/each}
             </div>
-        {/each}
+        </div>
     </div>
-</div>
-</div>
+{/if}
