@@ -15,7 +15,11 @@
     import {onMount} from "svelte";
 
 
-    let data = $state({grid:[[]]})
+    let data = $state({
+        grid:[[]],
+        targetColor: 1,
+        maxSteps: 4,
+    });
     let grid: number[][] = $state(data.grid);
     let originalGrid: number[][] = $derived(data.grid);
     let targetColor = $derived(data.targetColor);
@@ -29,7 +33,6 @@
     })
 
     let selectedColor = $state(1);
-    let currentStep = $state(0);
     let moveHistory: Move[] = $state([]);
     let puzzleList: PuzzleItem[] = $state([]);
 
@@ -39,7 +42,6 @@
     function resetMoves() {
         moveHistory = [];
         grid = cloneMatrix(originalGrid);
-        currentStep = 0;
     }
 
     // ----------------------------
