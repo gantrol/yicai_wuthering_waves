@@ -39,7 +39,7 @@
     // 要把所有格子最终变成的目标颜色
     let targetColor = $derived(data.targetColor);
     // 最大步数
-    let maxSteps = $derived(data.maxSteps);
+    let maxSteps = $derived(+data.maxSteps);
 
 
     // 当前选的刷子颜色（1表示蓝色，对应 colorsValue[1]）
@@ -102,38 +102,41 @@
         }
     }
 
-    export function animateWaveFill(row: number, col: number, newColor: number) {
-        if (moveHistory.length >= maxSteps) return;
+    let isAnimating = $state(false);
+
+    const animateWaveFill = async (row: number, col: number, newColor: number) => {
+        if (moveHistory.length >= maxSteps || isAnimating) return;
         const oldColor = grid[row][col];
         if (oldColor === newColor) return;
+        isAnimating = true;
 
-        // 记录到 moveHistory
-        moveHistory.push({
-            position: [row, col],
-            color: newColor,
-            oldColor
-        });
-        moveHistory = moveHistory;
+        moveHistory = [...moveHistory,
+            {
+                position: [row, col],
+                color: newColor,
+                oldColor
+            }];
 
         const tempGrid = cloneMatrix(grid);
         const waveLayers = floodFillWave(tempGrid, row, col, oldColor);
 
-        waveLayers.forEach((layer, layerIndex) => {
-            setTimeout(() => {
+        for (let i = 0; i < waveLayers.length; i++) {
+            const layer = waveLayers[i];
+            await new Promise(resolve => setTimeout(() => {
+                const newGrid = cloneMatrix(grid);
                 for (const [r, c] of layer) {
-                    grid[r][c] = newColor;
+                    newGrid[r][c] = newColor;
                 }
-                // 触发 svelte 更新
-                grid = cloneMatrix(grid);
-
-                // 最后一圈染完后检查
-                if (layerIndex === waveLayers.length - 1) {
+                grid = newGrid;
+                if (i === waveLayers.length - 1) {
                     checkWinCondition();
+                    isAnimating = false;
                 }
-            }, layerIndex * 80);
-        });
+                resolve();
+                // TODO: 后续棋盘大小有变化的话，改间隔
+            }, 30 * Math.log(i + 1)));
+        }
     }
-
 
     let showSolution = $state(false);
 
