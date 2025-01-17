@@ -99,7 +99,6 @@
                 const puzzle = JSON.parse(content);
                 if (puzzle.grid) {
                     grid = puzzle.grid;
-                    originalGrid = cloneMatrix(grid);
                 }
                 if (puzzle.targetColor) targetColor = puzzle.targetColor;
                 if (puzzle.maxSteps) maxSteps = puzzle.maxSteps;
