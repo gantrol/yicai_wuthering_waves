@@ -48,8 +48,6 @@
     // BFS 的每一步 (避免 undefined by defaulting to [])
     let solvingSteps: Step[] = [];
     // BFS 每一步对应的 grid（只在无动画的 next/prevStep 用到）
-    let stepGrids: number[][][] = [];
-    let isAutoSolved = false;
 
     // 当前选的刷子颜色（1表示蓝色，对应 colorsValue[1]）
     let selectedColor = 1;
@@ -79,71 +77,27 @@
         if (data.solutionSteps && data.solutionSteps.length > 0) {
             solution = {type: 'success', steps: data.solutionSteps};
             solvingSteps = data.solutionSteps;
-            stepGrids = [cloneMatrix(grid)];
-            let tempGrid = cloneMatrix(grid);
-            for (let step of data.solutionSteps) {
-                const {A, position} = step;
-                tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
-                stepGrids.push(cloneMatrix(tempGrid));
-            }
             currentStep = 0;
-            isAutoSolved = true;
         } else {
             solution = undefined;
             solvingSteps = [];
-            stepGrids = [];
             currentStep = 0;
-            isAutoSolved = false;
         }
 
         // 每次切换 puzzle 时，也要清空 moveHistory
         moveHistory = [];
         selectedColor = 1;
     }
-
-    $: externalCurrentStep = currentStep;
-
-    $: if (externalCurrentStep === 0) {
-        resetDemo();
-    }
-
-
     // 新增: 重置演示状态的方法
     export function resetDemo() {
         grid = cloneMatrix(originalGrid);
         currentStep = 0;
         moveHistory = [];
-
-        // 如果有解法步骤,重置相关状态
-        if (solution?.steps) {
-            stepGrids = [cloneMatrix(grid)];
-            let tempGrid = cloneMatrix(grid);
-            for (let step of solution.steps) {
-                const {A, position} = step;
-                tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
-                stepGrids.push(cloneMatrix(tempGrid));
-            }
-        }
     }
 
     // ----------------------------
     //   2. 拖拽、颜色变更相关
     // ----------------------------
-
-    function tryMove(row: number, col: number) {
-        if (editMode) {
-            changeColor(row, col);
-        } else {
-            animateWaveFill(row, col, selectedColor);
-        }
-    }
-
-    function changeColor(row: number, col: number) {
-        grid[row][col] = selectedColor;
-        // 手动触发 svelte 更新
-        grid = cloneMatrix(grid);
-    }
-
     function checkWinCondition() {
         if (isGoalState(grid, targetColor)) {
             setTimeout(() => {
