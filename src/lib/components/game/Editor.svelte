@@ -34,50 +34,86 @@
         targetColor,
         maxSteps
     });
+    // Undo/Redo state
+    let undoStack = $state<number[][][]>([]);
+    let redoStack = $state<number[][][]>([]);
+
     // ----------------------------
     //   拖拽、颜色变更相关
     // ----------------------------
     let isDragging = $state(false);
+    function updateGrid(newGrid: number[][]) {
+        if (JSON.stringify(grid) !== JSON.stringify(newGrid)) {
+            undoStack = [...undoStack, cloneMatrix(grid)];
+            redoStack = []; // Clear redo stack on new action
+            grid = newGrid;
+        }
+    }
+
+    function handleCellClick({ row, col }) {
+        const oldGrid = cloneMatrix(grid);
+        oldGrid[row][col] = selectedColor;
+        updateGrid(oldGrid);
+    }
+
+    function clearGrid() {
+        const emptyGrid = Array(rows).fill(null).map(() => Array(cols).fill(0));
+        updateGrid(emptyGrid);
+        toast('画板已清空', 'success');
+    }
+
+    function fillEmpty() {
+        const filledGrid = grid.map(row => row.map(cell => cell === 0 ? selectedColor : cell));
+        updateGrid(filledGrid);
+        toast('空白已填充', 'success');
+    }
+
+    function exportPuzzle() {
+        // Implement export logic here, potentially using shareUtils
+        toast('导出功能待实现', 'warning');
+    }
+
+    function importPuzzle() {
+        // Implement import logic here
+        toast('导入功能待实现', 'warning');
+    }
+
+    function undo() {
+        if (undoStack.length > 0) {
+            redoStack = [...redoStack, cloneMatrix(grid)];
+            grid = undoStack.pop();
+        } else {
+            toast('没有可以撤销的操作', 'info');
+        }
+    }
+
+    function redo() {
+        if (redoStack.length > 0) {
+            undoStack = [...undoStack, cloneMatrix(grid)];
+            grid = redoStack.pop();
+        } else {
+            toast('没有可以重做的操作', 'info');
+        }
+    }
+
+    function selectColor(colorIndex: number) {
+        selectedColor = colorIndex;
+    }
+
 
     function handleMouseDown(row: number, col: number) {
         isDragging = true;
-        tryMove(row, col);
+        handleCellClick({ row, col });
     }
 
     function handleMouseEnter(row: number, col: number) {
         if (isDragging) {
-            changeColor(row, col);
+            handleCellClick({ row, col });
         }
     }
 
     function handleMouseUp() {
         isDragging = false;
-    }
-
-    function changeColor(row: number, col: number) {
-        grid[row][col] = selectedColor;
-        // 手动触发 svelte 更新
-        grid = cloneMatrix(grid);
-    }
-
-    function tryMove(row: number, col: number) {
-        changeColor(row, col);
-    }
-
-    function clearGrid() {
-        grid = Array.from({length: rows}, () =>
-            Array.from({length: cols}, () => 0)
-        );
-        // moveHistory = [];
-        // solution = undefined;
-        // solvingSteps = [];
-        // stepGrids = [];
-        // currentStep = 0;
-        // isAutoSolved = false;
-    }
-
-    function fillEmpty() {
-        grid = grid.map(row => row.map(cell => cell === 0 ? selectedColor : cell));
     }
 
     // ----------------------------
@@ -211,6 +247,7 @@
                                 fillEmpty={fillEmpty}
                                 importPuzzle={handleImportPuzzle}
                         />
+
                         <div class="flex flex-col justify-between sm:flex-row gap-4">
                             <ColorPicker
                                     colors={getColorsForPicker()}
@@ -218,6 +255,10 @@
                                     select={(i) => (selectedColor = i)}
                                     selectedColor={selectedColor}
                             />
+                            <div class="flex gap-2">
+                                <button onclick={undo} disabled={undoStack.length === 0} class="px-4 py-2 bg-gray-100 rounded disabled:opacity-50">撤销</button>
+                                <button onclick={redo} disabled={redoStack.length === 0} class="px-4 py-2 bg-gray-100 rounded disabled:opacity-50">重做</button>
+                            </div>
                         </div>
                         <Grid
                                 colors={getColors()}
