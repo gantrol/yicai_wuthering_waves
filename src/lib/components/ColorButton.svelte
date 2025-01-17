@@ -4,7 +4,7 @@
 
     interface Props {
         isSelected: boolean;
-        colors: string[];
+        color: string;
         index: number;
         select: (i: number) => number;
     }
@@ -12,7 +12,7 @@
     let {
         isSelected = false,
         color,
-        select = () => {},
+        select,
         index
     } : Props = $props();
 </script>

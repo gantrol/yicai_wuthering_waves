@@ -23,19 +23,19 @@
     let data = $derived(props.data);
     let selectedColor = $state(1);
 
-    // $effect(() => {
-    //     grid = data.grid;
-    //     targetColor = data.targetColor;
-    //     maxSteps = data.maxSteps;
-    //     rows = grid.length;
-    //     cols = grid[0].length;
-    // })
+    let grid = $state([[1]]);
+    let targetColor = $state(0);
+    let maxSteps = $state(0);
+    let rows = $state(0);
+    let cols = $state(0);
 
-    let grid: number[][] = $state(data.grid);
-    let targetColor = $state(data.targetColor);
-    let maxSteps = $state(data.maxSteps);
-    let rows = $state(grid.length);
-    let cols = $state(grid[0].length);
+    $effect(() => {
+        grid = data.grid;
+        targetColor = data.targetColor;
+        maxSteps = +data.maxSteps;
+        rows = grid.length;
+        cols = grid[0].length;
+    });
 
     let editedData = $derived({
         grid,
@@ -164,15 +164,15 @@
 <input
         accept="application/json"
         bind:this={fileInput}
-        on:change={handleFileChange}
+        onchange={handleFileChange}
         style="display: none;"
         type="file"
 />
 
 <div
         class="flex flex-col md:flex-row gap-4"
-        on:mouseleave={handleMouseUp}
-        on:mouseup={handleMouseUp}
+        onmouseleave={handleMouseUp}
+        onmouseup={handleMouseUp}
         role="none"
 >
     <div class="flex-1 flex flex-col gap-4 max-w-3xl mx-auto w-full mt-5">

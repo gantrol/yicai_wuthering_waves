@@ -68,7 +68,7 @@
 
     async function handleShare() {
         // puzzleData 里可能还有 solutionSteps，但不需要了
-        const code = encodePuzzle(targetColor, maxSteps, grid);
+        const code = encodePuzzle(targetColor, maxSteps, originalGrid);
         const shareUrl = `${baseUrl}/share/${code}`;
         try {
             await navigator.clipboard.writeText(shareUrl);
