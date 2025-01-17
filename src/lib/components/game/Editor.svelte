@@ -10,9 +10,10 @@
     import {Card, CardContent} from "$lib/components/ui/card";
     import Controls from "$lib/components/Controls.svelte";
     import {toast} from "$lib/stores/toast";
-    import {buttonVariants} from "$lib/components/ui/button";
+    import {Button, buttonVariants} from "$lib/components/ui/button";
     import * as Collapsible from '$lib/components/ui/collapsible/index.js';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
+    import {RedoIcon, UndoIcon} from "lucide-svelte";
 
     type Props = {
         data: PuzzleDataType;
@@ -256,8 +257,14 @@
                                     selectedColor={selectedColor}
                             />
                             <div class="flex gap-2">
-                                <button onclick={undo} disabled={undoStack.length === 0} class="px-4 py-2 bg-gray-100 rounded disabled:opacity-50">撤销</button>
-                                <button onclick={redo} disabled={redoStack.length === 0} class="px-4 py-2 bg-gray-100 rounded disabled:opacity-50">重做</button>
+                                <Button variant="outline" size="icon" onclick={undo} disabled={undoStack.length === 0}>
+                                    <UndoIcon class="h-4 w-4"/>
+                                    <span class="sr-only">撤销</span>
+                                </Button>
+                                <Button variant="outline" size="icon" onclick={redo} disabled={redoStack.length === 0}>
+                                    <RedoIcon class="h-4 w-4"/>
+                                    <span class="sr-only">重做</span>
+                                </Button>
                             </div>
                         </div>
                         <Grid
