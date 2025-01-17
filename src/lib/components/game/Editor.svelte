@@ -43,6 +43,8 @@
     //   拖拽、颜色变更相关
     // ----------------------------
     let isDragging = $state(false);
+    let dragStartGrid: number[][] | null = $state(null); // Store the grid state when dragging starts
+
     function updateGrid(newGrid: number[][]) {
         if (JSON.stringify(grid) !== JSON.stringify(newGrid)) {
             undoStack = [...undoStack, cloneMatrix(grid)];
@@ -52,9 +54,15 @@
     }
 
     function handleCellClick({ row, col }) {
-        const oldGrid = cloneMatrix(grid);
-        oldGrid[row][col] = selectedColor;
-        updateGrid(oldGrid);
+        if (!isDragging) { // Only push to undo stack for single clicks
+            const oldGrid = cloneMatrix(grid);
+            oldGrid[row][col] = selectedColor;
+            updateGrid(oldGrid);
+        } else {
+            // Directly modify the grid during drag
+            grid[row][col] = selectedColor;
+            grid = [...grid]; // Trigger reactivity
+        }
     }
 
     function clearGrid() {
@@ -101,9 +109,9 @@
         selectedColor = colorIndex;
     }
 
-
     function handleMouseDown(row: number, col: number) {
         isDragging = true;
+        dragStartGrid = cloneMatrix(grid); // Capture the grid state when dragging starts
         handleCellClick({ row, col });
     }
 
@@ -114,6 +122,14 @@
     }
 
     function handleMouseUp() {
+        if (isDragging && dragStartGrid) {
+            // Push the grid state at the start of the drag to the undo stack
+            if (JSON.stringify(grid) !== JSON.stringify(dragStartGrid)) {
+                undoStack = [...undoStack, dragStartGrid];
+                redoStack = [];
+            }
+            dragStartGrid = null;
+        }
         isDragging = false;
     }
 
