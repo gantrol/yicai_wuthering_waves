@@ -43,7 +43,7 @@
                     </h2>
                 </div>
 
-                <div class="bg-gray-50 rounded-lg p-6">
+                <div>
                     <ol class="space-y-3 list-decimal list-inside mb-2">
                         {#each solution.steps as step, index}
                             <li class="text-base text-gray-600 hover:text-gray-800 transition-colors">
@@ -52,7 +52,7 @@
                         {/each}
                     </ol>
                     <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
-                        <p class="text-sm flex items-center gap-2">
+                        <p class="text-sm text-gray-500 flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                             </svg>
@@ -70,24 +70,24 @@
                             ></div>
                         </div>
                     </div>
-                    <div class="flex justify-center items-center gap-6">
+                    <div class="flex justify-center items-center gap-2 md:gap-6">
                         <Button
                                 variant="outline"
                                 onclick={prevStep}
                                 disabled={currentStep <= 0}
-                                class="flex items-center gap-2 px-6 py-3 text-lg font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 hover:bg-primary/10"
+                                class="flex items-center gap-2 px-4 md:px-6 py-3 font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 hover:bg-primary/10"
                                 aria-label="Previous step"
                         >
                             <ChevronLeft class="h-5 w-5"/>
                         </Button>
-                        <span class="text-lg font-semibold text-gray-700 px-4 py-2 bg-gray-100 rounded-lg">
+                        <span class="font-semibold md:text-lg text-gray-700 px-3 md:px-4 py-2 bg-gray-100 rounded-lg">
                             {currentStep} / {steps.length}
                         </span>
                         <Button
                                 variant="outline"
                                 onclick={nextStep}
                                 disabled={currentStep >= steps.length}
-                                class="flex items-center gap-2 px-6 py-3 text-lg font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 hover:bg-primary/10"
+                                class="flex items-center gap-2 px-4 md:px-6 py-3 font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 hover:bg-primary/10"
                                 aria-label="Next step"
                         >
                             <ChevronRight class="h-5 w-5"/>
