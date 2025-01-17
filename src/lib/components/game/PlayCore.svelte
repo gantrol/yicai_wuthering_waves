@@ -28,6 +28,7 @@
 
     $effect(() => {
         grid = data.grid;
+        resetMoves();
         closeSolution();
     })
     // 实际操作用的网格数据

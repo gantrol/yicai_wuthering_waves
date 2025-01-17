@@ -24,6 +24,7 @@
     let cols = $derived(grid[0].length);
     $effect(() => {
         grid = data.grid;
+        resetMoves();
         closeSolution();
     })
 
@@ -127,7 +128,7 @@
         }
     }
 
-    // 随机选一个 puzzleItem，然后拉取对应的 {id}.json
+    // TODO: loading
     async function loadRandomPuzzle() {
         try {
             if (puzzleList.length === 0) {
