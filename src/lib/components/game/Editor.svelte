@@ -23,22 +23,14 @@
     let data = $derived(props.data);
     let selectedColor = $state(1);
 
-    let grid = $state([[1]]);
-    let targetColor = $state(0);
-    let maxSteps = $state(0);
-    let rows = $state(0);
-    let cols = $state(0);
-
-    $effect(() => {
-        grid = data.grid;
-        targetColor = data.targetColor;
-        maxSteps = +data.maxSteps;
-        rows = grid.length;
-        cols = grid[0].length;
-    });
+    let grid: number[][] = $state(data.grid);
+    let targetColor = $state(data.targetColor);
+    let maxSteps = $state(data.maxSteps);
+    let rows = $state(grid.length);
+    let cols = $state(grid[0].length);
 
     let editedData = $derived({
-        grid,
+        grid:cloneMatrix(grid),
         targetColor,
         maxSteps
     });
