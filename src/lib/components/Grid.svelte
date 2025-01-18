@@ -48,8 +48,8 @@
     }
 </script>
 
-{#if !grid}
-    <LoadingSpinner text="尽力加载..."/>
+{#if !grid || grid.length <= 1}
+    <LoadingSpinner text="正在抽签决定谁上..."/>
 {:else }
     <div class="overflow-x-auto">
         <div
