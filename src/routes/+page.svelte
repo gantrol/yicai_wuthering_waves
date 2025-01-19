@@ -10,6 +10,8 @@
         const demoSection = document.querySelector('#more');
         demoSection?.scrollIntoView({behavior: 'smooth'});
     }
+
+    let titleList = $derived($t('home.title').split(' '));
 </script>
 
 <div class="min-h-screen from-background to-secondary/20">
@@ -21,11 +23,11 @@
         </div>
 
         <div class="relative z-10 max-w-4xl mx-auto">
-            <h1 class="text-5xl md:text-7xl font-bold mb-16 tracking-tight flex justify-center items-center gap-2 md:gap-4">
-                {#each '溢彩画' as char, i}
+            <h1 class="text-4xl md:text-7xl font-bold mb-16 tracking-tight flex justify-center items-center gap-2 md:gap-4">
+                {#each titleList as word, i}
                     <span class="color-animate font-serif"
-                          style="animation-delay: {i * 0.4}s; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-                        {char}
+                          style="animation-delay: {i * 0.3}s; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
+                        {word}
                     </span>
                 {/each}
             </h1>
