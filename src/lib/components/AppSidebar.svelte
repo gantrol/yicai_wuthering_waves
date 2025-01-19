@@ -11,6 +11,7 @@
     import YiCai from "$lib/components/YiCai.svelte";
     import TargetColorButton from "$lib/components/TargetColorButton.svelte";
     import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+    import { t } from '$lib/translations';
 
     interface PuzzleItem {
         id: number;
@@ -24,7 +25,7 @@
         loadingSidebar = true;
         try {
             const response = await fetch('/puzzles_json/list.json');
-            if (!response.ok) throw new Error('无法加载题目列表');
+            if (!response.ok) throw new Error($t('common.load_fail', {error: '无法加载题目列表'}));
             puzzles = await response.json();
             const detailedPuzzles = await Promise.all(
                 puzzles.map(async (puzzle) => {
@@ -68,7 +69,7 @@
         <div class="flex items-center gap-2 mt-6">
             <a class="flex items-center space-x-2" href="/">
                 <YiCai height="5" width="5"/>
-                <span class="font-semibold text-xl sm:inline-block">溢彩画高手|鸣潮</span>
+                <span class="font-semibold text-xl sm:inline-block">{$t('common.title')}</span>
             </a>
         </div>
         <Sidebar.Menu>
@@ -92,14 +93,14 @@
     </Sidebar.Header>
     <Separator class="my-4"/>
     <Sidebar.GroupLabel class="px-3 text-sm font-semibold">
-        题目列表
+        {$t('common.puzzle_list')}
     </Sidebar.GroupLabel>
     <Sidebar.Content class="p-1">
         <Sidebar.Group>
             <Sidebar.GroupContent>
                 <Sidebar.Menu>
                     {#if loadingSidebar}
-                        <LoadingSpinner text="尽力拉取题目列表..."/>
+                        <LoadingSpinner text={$t('common.load_list')}/>
                     {:else}
                         {#each puzzles as puzzle (puzzle.id)}
                             <Sidebar.MenuItem>
@@ -135,7 +136,7 @@
                 variant="outline"
         >
             <Github class="h-4 w-4"/>
-            <span>报问题？点这里</span>
+            <span>{$t('common.issue_report')}</span>
         </Button>
     </Sidebar.Footer>
 </Sidebar.Root>

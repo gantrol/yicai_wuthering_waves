@@ -1,6 +1,7 @@
 <script lang="ts">
     import {cn} from '$lib/utils';
     import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
+    import { t } from '$lib/translations';
 
     let {
         grid,
@@ -49,7 +50,7 @@
 </script>
 
 {#if !grid || grid.length <= 1}
-    <LoadingSpinner text="正在抽签决定谁上..."/>
+    <LoadingSpinner text={$t('common.loading')}/>
 {:else }
     <div class="overflow-x-auto">
         <div
