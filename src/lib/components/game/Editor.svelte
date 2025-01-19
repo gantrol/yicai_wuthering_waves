@@ -14,6 +14,7 @@
     import * as Collapsible from '$lib/components/ui/collapsible/index.js';
     import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
     import {RedoIcon, UndoIcon} from "lucide-svelte";
+    import {t} from "$lib/translations";
 
     type Props = {
         data: PuzzleDataType;
@@ -237,7 +238,7 @@
                                 class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                         >
                             <div class="space-y-2 w-full sm:w-auto">
-                                <Label>要把色块全部染成</Label>
+                                <Label>{$t('common.target_color')}</Label>
                                 <ColorPicker
                                         colors={getColorsForPicker()}
                                         select={(i) => (targetColor = i)}
@@ -246,7 +247,7 @@
                             </div>
                             <div class="flex items-center space-x-8">
                                 <div class="space-y-2">
-                                    <Label for="steps">最大步数</Label>
+                                    <Label for="steps">{$t('common.max_steps')}</Label>
                                     <Input
                                             bind:value={maxSteps}
                                             class="w-24"
@@ -268,7 +269,7 @@
                         <div class="flex flex-col justify-between sm:flex-row gap-4">
                             <ColorPicker
                                     colors={getColorsForPicker()}
-                                    label="染色刷"
+                                    label={$t('common.select_color')}
                                     select={(i) => (selectedColor = i)}
                                     selectedColor={selectedColor}
                             />
