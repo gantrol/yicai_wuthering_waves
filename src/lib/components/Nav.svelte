@@ -1,19 +1,50 @@
-<!-- src/lib/components/Nav.svelte -->
 <script lang="ts">
+    import { page } from "$app/state";
     import { Button } from "$lib/components/ui/button";
-    import { Separator } from './ui/separator';
-    import Github from 'lucide-svelte/icons/github';
-    import HelpCircle from 'lucide-svelte/icons/help-circle';
-    import Settings from 'lucide-svelte/icons/settings';
-    import * as Sheet from '$lib/components/ui/sheet';
-    import { Tooltip } from './ui/tooltip';
-    import {commonItems} from "$lib/utils/bar";
+    import { Separator } from "./ui/separator";
+    import Github from "lucide-svelte/icons/github";
+    import HelpCircle from "lucide-svelte/icons/help-circle";
+    import Settings from "lucide-svelte/icons/settings";
+    import * as Sheet from "$lib/components/ui/sheet";
+    import { Tooltip } from "./ui/tooltip";
+    import { commonItems } from "$lib/utils/bar";
     import YiCai from "$lib/components/YiCai.svelte";
+    import { t, locales, locale, setLocale } from "$lib/translations";
+    import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+    import Languages from "lucide-svelte/icons/languages";
     interface Props {
-        children?: import('svelte').Snippet;
+        children?: import("svelte").Snippet;
     }
 
     let { children }: Props = $props();
+    let currentLocale = $state($locale);
+
+    const languageNames = {
+        en: "English",
+        "zh-CN": "简体中文",
+        "zh-TW": "繁體中文",
+        ja: "日本語",
+        ko: "한국어",
+        fr: "Français",
+        de: "Deutsch",
+        es: "Español",
+    };
+
+    // Generate the language list from the languageNames object
+    let languageList = Object.keys(languageNames).map((code) => ({
+        code,
+        name: languageNames[code],
+    }));
+
+    function handleLocaleChange(newLocale: string) {
+        currentLocale = newLocale;
+
+        // Set the new locale in the cookie for server-side language detection
+        document.cookie = `lang=${newLocale}; path=/; SameSite=Lax`;
+
+        // Set the locale for the current session
+        setLocale(newLocale);
+    }
 </script>
 
 <nav class="border-b bg-white dark:bg-slate-900 sticky top-0 z-50">
@@ -25,14 +56,17 @@
             <a href="/" class="flex items-center space-x-2">
                 <YiCai width="4" height="4" />
                 <span class="hidden font-bold sm:inline-block">
-                    溢彩画
+                    {$t("common.navTitle")}
                 </span>
             </a>
             <Separator orientation="vertical" class="h-6" />
             <div class="flex gap-6">
-                {#each commonItems as item(item.title)}
-                    <a href={item.url} class="flex items-center text-sm font-medium">
-                        {item.title}
+                {#each commonItems as item (item.title)}
+                    <a
+                        href={item.url}
+                        class="flex items-center text-sm font-medium"
+                    >
+                        {$t(item.title)}
                     </a>
                 {/each}
             </div>
@@ -40,69 +74,48 @@
 
         <!-- Right side buttons -->
         <div class="ml-auto flex items-center gap-2">
-<!--            <Tooltip>-->
-<!--                <Button variant="ghost" size="icon" class="hidden md:flex">-->
-<!--                    <HelpCircle class="h-5 w-5" />-->
-<!--                    <span class="sr-only">Help</span>-->
-<!--                </Button>-->
-<!--                <svelte:fragment slot="content">-->
-<!--                    帮助文档-->
-<!--                </svelte:fragment>-->
-<!--            </Tooltip>-->
-
-<!--            <Tooltip>-->
-<!--                <Button variant="ghost" size="icon" class="hidden md:flex">-->
-<!--                    <Settings class="h-5 w-5" />-->
-<!--                    <span class="sr-only">Settings</span>-->
-<!--                </Button>-->
-<!--                <svelte:fragment slot="content">-->
-<!--                    设置-->
-<!--                </svelte:fragment>-->
-<!--            </Tooltip>-->
-
-            <Tooltip>
-                <Button variant="ghost" size="icon" href="https://github.com/gantrol/yicai_wuthering_waves" target="_blank">
-                    <Github class="h-5 w-5" />
-                    <span class="sr-only">GitHub</span>
-                </Button>
-                {#snippet content()}
-                        GitHub 仓库
-                {/snippet}
-            </Tooltip>
-
-            <!-- Mobile menu trigger -->
-            <Sheet.Root>
-                <Sheet.Trigger class="md:hidden">
-                    <Button variant="ghost" size="icon">
-                        <Settings class="h-5 w-5" />
-                        <span class="sr-only">Toggle menu</span>
+            <div class="ml-auto flex items-center gap-2">
+                <DropdownMenu.Root>
+                    <DropdownMenu.Trigger>
+                        <Button variant="ghost" size="icon">
+                            <Languages class="h-5 w-5" />
+                            <span class="sr-only">Language</span>
+                        </Button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content
+                        align="end"
+                        class="w-40 p-1 bg-white dark:bg-slate-800 shadow-lg rounded-md"
+                    >
+                        {#each languageList as lang (lang.code)}
+                            <DropdownMenu.Item
+                                onclick={() => handleLocaleChange(lang.code)}
+                                class="flex items-center justify-between p-2 text-sm hover:bg-gray-100 dark:hover:bg-slate-700 rounded-md cursor-pointer transition-all"
+                            >
+                                <span
+                                    class:font-medium={currentLocale ===
+                                        lang.code}
+                                >
+                                    {lang.name}
+                                </span>
+                                {#if currentLocale === lang.code}
+                                    <span class="text-primary">✓</span>
+                                {/if}
+                            </DropdownMenu.Item>
+                        {/each}
+                    </DropdownMenu.Content>
+                </DropdownMenu.Root>
+                <Tooltip>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        href="https://github.com/gantrol/yicai_wuthering_waves"
+                        target="_blank"
+                    >
+                        <Github class="h-5 w-5" />
+                        <span class="sr-only">GitHub</span>
                     </Button>
-                </Sheet.Trigger>
-                <Sheet.Content side="right" class="w-[300px]">
-                    <Sheet.Header>
-                        <Sheet.Title>菜单</Sheet.Title>
-<!--                        <Sheet.Description>在这里快速访问常用功能。</Sheet.Description>-->
-                    </Sheet.Header>
-                    <div class="flex flex-col gap-4 py-4">
-<!--                        <a href="/help" class="flex items-center gap-2 px-4 py-2 text-sm">-->
-<!--                            <HelpCircle class="h-5 w-5" />-->
-<!--                            帮助文档-->
-<!--                        </a>-->
-<!--                        <a href="/settings" class="flex items-center gap-2 px-4 py-2 text-sm">-->
-<!--                            <Settings class="h-5 w-5" />-->
-<!--                            设置-->
-<!--                        </a>-->
-                        <a
-                                href="https://github.com/gantrol/yicai_wuthering_waves"
-                                target="_blank"
-                                class="flex items-center gap-2 px-4 py-2 text-sm"
-                        >
-                            <Github class="h-5 w-5" />
-                            GitHub 仓库
-                        </a>
-                    </div>
-                </Sheet.Content>
-            </Sheet.Root>
+                </Tooltip>
+            </div>
         </div>
     </div>
 </nav>

@@ -4,11 +4,14 @@
     import {ArrowDown, ArrowRight, BookOpen, Gamepad2, Palette} from 'lucide-svelte';
     import {goto} from '$app/navigation';
     import Demo from "$lib/components/game/Demo.svelte";
+    import { t } from "$lib/translations";
 
     function scrollTomore() {
         const demoSection = document.querySelector('#more');
         demoSection?.scrollIntoView({behavior: 'smooth'});
     }
+
+    // let titleList = $derived($t('home.title').split(' '));
 </script>
 
 <div class="min-h-screen from-background to-secondary/20">
@@ -21,10 +24,10 @@
 
         <div class="relative z-10 max-w-4xl mx-auto">
             <h1 class="text-5xl md:text-7xl font-bold mb-16 tracking-tight flex justify-center items-center gap-2 md:gap-4">
-                {#each '溢彩画' as char, i}
+                {#each '溢彩画' as word, i}
                     <span class="color-animate font-serif"
-                          style="animation-delay: {i * 0.4}s; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-                        {char}
+                          style="animation-delay: {i * 0.3}s; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
+                        {word}
                     </span>
                 {/each}
             </h1>
@@ -36,7 +39,7 @@
                         size="lg"
                         variant="default"
                 >
-                    开始游戏
+                    {$t('common.start_game')}
                     <ArrowRight class="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300"/>
                 </Button>
                 <Button
@@ -45,7 +48,7 @@
                         size="lg"
                         variant="outline"
                 >
-                    查看更多
+                    {$t('common.see_more')}
                     <ArrowDown class="ml-2 h-5 w-5 group-hover:translate-y-1 transition-transform duration-300"/>
                 </Button>
             </div>
@@ -60,9 +63,9 @@
     <section class="py-16 px-4 text-center relative overflow-hidden" id="more">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {#each [
-                {icon: Gamepad2, title: '策略性', desc: '运用智慧解决每一个谜题', path: '/random'},
-                {icon: Palette, title: '自定义', desc: '创造属于你的独特谜题', path: '/edit'},
-                {icon: BookOpen, title: '题库', desc: '丰富的题库与自动解答', path: '/puzzles'}
+                {icon: Gamepad2, title: $t('common.strategy'), desc: $t('common.strategy_desc'), path: '/random'},
+                {icon: Palette, title: $t('common.customize'), desc: $t('common.customize_desc'), path: '/edit'},
+                {icon: BookOpen, title: $t('common.library'), desc: $t('common.library_desc'), path: '/puzzles'}
             ] as {icon, title, desc, path}}
                 <div
                         class="bg-background/50 backdrop-blur-sm p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border border-border/50"

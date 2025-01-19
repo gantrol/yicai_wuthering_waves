@@ -5,7 +5,7 @@
         label: string;
         colors: string[];
         selectedColor: number;
-        select: (i: number) => number;
+        select: (i: number) => void;
     }
 
     let {
@@ -18,12 +18,10 @@
     <span class="text-sm font-medium leading-none">{label}</span>
     {#each colors as color, i}
         <ColorButton
-            isSelected={selectedColor === (i + 1)}
-            {color}
-            select={() => select(i + 1)}
-            index={i + 1}
-        >
-
-        </ColorButton>
+                isSelected={selectedColor === (i + 1)}
+                {color}
+                select={() => select(i + 1)}
+                index={i + 1}
+        />
     {/each}
 </div>

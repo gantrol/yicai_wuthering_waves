@@ -1,6 +1,6 @@
-<!-- /src/lib/components/Controls.svelte -->
 <script lang="ts">
     import { Button } from "$lib/components/ui/button";
+    import { t } from '$lib/translations';
 
     let { clearGrid, fillEmpty, exportPuzzle, importPuzzle } = $props();
 </script>
@@ -14,11 +14,9 @@
     }
 </style>
 
-
 <div class="Button-group">
-    <Button variant="outline" onclick={() => clearGrid()}>清空画板</Button>
-<!--    <Button variant="secondary" onclick={() => handleClick('generatePuzzle')}>新建题目</Button>-->
-    <Button variant="outline" onclick={() => fillEmpty()}>填充空白</Button>
-    <Button variant="secondary" onclick={() => exportPuzzle()}>导出题目</Button>
-    <Button variant="secondary" onclick={() => importPuzzle()}>导入题目</Button>
+    <Button variant="outline" onclick={() => clearGrid()}>{$t('common.clear_board')}</Button>
+    <Button variant="outline" onclick={() => fillEmpty()}>{$t('common.fill_empty')}</Button>
+    <Button variant="secondary" onclick={() => exportPuzzle()}>{$t('common.export_puzzle')}</Button>
+    <Button variant="secondary" onclick={() => importPuzzle()}>{$t('common.import_puzzle')}</Button>
 </div>

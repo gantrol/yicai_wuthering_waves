@@ -13,6 +13,7 @@
     import SolutionCore from "$lib/components/game/SolutionCore.svelte";
     import {Shuffle} from "lucide-svelte";
     import {onMount} from "svelte";
+    import {t} from "$lib/translations";
 
 
     let data = $state({
@@ -194,13 +195,13 @@
                     <div class="flex flex-col justify-between sm:flex-row gap-4">
                         <ColorPicker
                                 colors={getColorsForPicker()}
-                                label="染色刷"
+                                label={$t('common.select_color')}
                                 select={(i) => (selectedColor = i)}
                                 selectedColor={selectedColor}
                         />
                         <div class="flex">
                             <div class="flex items-center gap-4 mr-5">
-                                <span class="text-sm font-medium leading-none">全染成</span>
+                                <span class="text-sm font-medium leading-none">{$t('common.target_color')}</span>
                                 <TargetColorButton
                                         index={targetColor}
                                 ></TargetColorButton>
@@ -217,7 +218,7 @@
                                         <circle cx="12" cy="12" r="3"/>
                                     </svg>
                                 </div>
-                                <span class="hidden md:group-hover:inline">看看答案</span>
+                                <span class="hidden">{$t('common.solve_hint')}</span>
                             </Button>
                             <Button
                                     class="group"
