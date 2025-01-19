@@ -2,6 +2,7 @@
 <script lang="ts">
     import type { Move } from '$lib/types';
     import Footprints from 'lucide-svelte/icons/footprints';
+    import {t} from "$lib/translations";
 
     let { moveHistory, maxSteps, children } = $props();
 
@@ -16,7 +17,7 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <Footprints class="h-5 w-5 text-primary" />
-                <span class="text-base font-medium">步数</span>
+                <span class="text-base font-medium">{$t('common.current_step')}</span>
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-xl font-bold text-primary">{moveHistory.length}</span>

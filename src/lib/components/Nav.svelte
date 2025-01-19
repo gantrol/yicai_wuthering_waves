@@ -66,7 +66,7 @@
                         href={item.url}
                         class="flex items-center text-sm font-medium"
                     >
-                        {item.title}
+                        {$t(item.title)}
                     </a>
                 {/each}
             </div>

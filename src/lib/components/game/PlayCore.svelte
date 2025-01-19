@@ -16,6 +16,7 @@
     import TargetColorButton from "$lib/components/TargetColorButton.svelte";
     import SolutionCore from "$lib/components/game/SolutionCore.svelte";
     import {Edit2, Gamepad2} from "lucide-svelte";
+    import {t} from "$lib/translations";
 
     type Props = {
         data: PuzzleDataType;
@@ -205,13 +206,13 @@
                     <div class="flex flex-col justify-between sm:flex-row gap-4">
                         <ColorPicker
                                 colors={getColorsForPicker()}
-                                label="染色刷"
+                                label={$t('common.select_color')}
                                 select={(i) => (selectedColor = i)}
                                 selectedColor={selectedColor}
                         />
                         <div class="flex">
                             <div class="flex items-center gap-4 mr-5">
-                                <span class="text-sm font-medium leading-none">全染成</span>
+                                <span class="text-sm font-medium leading-none">{$t('common.target_color')}</span>
                                 <TargetColorButton
                                         index={targetColor}
                                 ></TargetColorButton>
@@ -229,12 +230,12 @@
                                         <circle cx="12" cy="12" r="3"/>
                                     </svg>
                                 </div>
-                                <span class="hidden md:group-hover:inline">看看答案</span>
+                                <span class="hidden">{$t('common.solve_hint')}</span>
                             </Button>
 
                             <Button class="group mr-1.5" onclick={handleShare} variant="secondary">
                                 <Share class="h-4 w-4"/>
-                                <span class="hidden">分享当前</span>
+                                <span class="hidden">{$t('common.share_puzzle')}</span>
                             </Button>
                             <Button
                                     class="group"

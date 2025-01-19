@@ -25,6 +25,8 @@
   "loading": "Loading...",
   "select_color": "Select color",
   "target_color": "Target color",
+  "current_step": "Current Step",
+  "solve_hint": "Solution",
   "max_steps": "Max steps",
   "game_over": "Game Over",
   "game_win": "You Win!",

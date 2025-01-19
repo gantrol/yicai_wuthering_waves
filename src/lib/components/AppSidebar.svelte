@@ -83,7 +83,7 @@
                                 on:click={handleClick}
                         >
                             <item.icon class="h-4 w-4"/>
-                            <span>{item.title}</span>
+                            <span>{$t(item.title)}</span>
                         </a>
                         {/snippet}
                     </Sidebar.MenuButton>
