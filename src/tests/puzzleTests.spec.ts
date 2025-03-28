@@ -33,8 +33,8 @@ describe('Test all puzzles in static/puzzles_json (exclude list.json)', () => {
 
             // 如果想要断言它一定成功，就检查
             expect(result.type).toBe('success');
+            // TODO：按操作步骤检查，并check 最后的矩阵
             // 如果失败，则会抛错
-            // 你也可以把 expect 改成逻辑判断 + console.log 来查看结果
         });
     });
 });

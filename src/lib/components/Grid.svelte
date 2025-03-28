@@ -1,3 +1,4 @@
+<!--/* File: src/lib/components/Grid.svelte */-->
 <script lang="ts">
     import {cn} from '$lib/utils';
     import LoadingSpinner from "$lib/components/LoadingSpinner.svelte";
@@ -16,8 +17,8 @@
 
     const displayColors = getColors();
 
-    function isInteractive(cellValue: number): boolean {
-        return !readonly && cellValue !== LOCKED_CELL_VALUE;
+    function isInteractive(): boolean {
+        return !readonly;
     }
 
     const MAX_CELL_LENGTH = 64;
@@ -36,16 +37,16 @@
     let numberFontSize = $derived(Math.max(MIN_NUMBER_SIZE, cellSize * 0.2));
     let labelWidth = $derived(cellSize / GOLDEN_RATIO);
 
-    function handleStart(row: number, col: number, cellValue: number, event: MouseEvent | TouchEvent) {
+    function handleStart(row: number, col: number, event: MouseEvent | TouchEvent) {
         event.preventDefault();
-        if (isInteractive(cellValue) && mousedown) {
+        if (isInteractive() && mousedown) {
             mousedown({row, col});
         }
     }
 
-    function handleMove(row: number, col: number, cellValue: number, event: MouseEvent | TouchEvent) {
+    function handleMove(row: number, col: number, event: MouseEvent | TouchEvent) {
         event.preventDefault();
-        if (isInteractive(cellValue) && mouseenter) {
+        if (isInteractive() && mouseenter) {
             mouseenter({row, col});
         }
     }
@@ -82,7 +83,7 @@
                         </div>
 
                         {#each row as cell, colIndex}
-                            {@const interactive = isInteractive(cell)}
+                            {@const interactive = isInteractive()}
                             {@const bgColor = cell === LOCKED_CELL_VALUE ? displayColors[5] : displayColors[cell]}
                             <div
                                     class={cn(
@@ -97,10 +98,10 @@
                                     role={interactive ? "button" : "cell"}
                                     tabindex={interactive ? "0" : "-1"}
                                     style="width: {cellSize}px; height: {cellSize}px; background-color: {bgColor};"
-                                    onmousedown={interactive ? (e) => handleStart(rowIndex, colIndex, cell, e) : undefined}
-                                    ontouchstart={interactive ? (e) => handleStart(rowIndex, colIndex, cell, e) : undefined}
-                                    onmousemove={interactive ? (e) => handleMove(rowIndex, colIndex, cell, e) : undefined}
-                                    ontouchmove={interactive ? (e) => handleMove(rowIndex, colIndex, cell, e) : undefined}
+                                    onmousedown={interactive ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
+                                    ontouchstart={interactive ? (e) => handleStart(rowIndex, colIndex, e) : undefined}
+                                    onmousemove={interactive ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
+                                    ontouchmove={interactive ? (e) => handleMove(rowIndex, colIndex, e) : undefined}
                             >
                                 {#if cell === LOCKED_CELL_VALUE}
                                     <LockIcon size="60%" color="#CCCCCC"/>

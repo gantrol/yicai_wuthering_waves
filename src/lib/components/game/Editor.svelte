@@ -49,12 +49,6 @@
     }
 
     function handleCellInteraction({ row, col }) {
-        const currentCellValue = grid[row][col];
-
-        if (currentCellValue === LOCKED_CELL_VALUE && selectedColor !== LOCKED_CELL_VALUE) {
-            return;
-        }
-
         const oldGrid = cloneMatrix(grid);
         oldGrid[row][col] = selectedColor;
         updateGrid(oldGrid);
@@ -249,7 +243,6 @@
                             </div>
                         </div>
                         <Grid
-                                colors={getColors()}
                                 cols={cols}
                                 grid={grid}
                                 mousedown={(e) => handleMouseDown(e.row, e.col)}

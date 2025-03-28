@@ -33,5 +33,6 @@
   { "id": "贝奥海域-贝奥海沟-左上", "title": "贝奥海沟4左上" , "source": "Wuthering" },
   { "id": "NGA", "title": "把NGA染成黄色", "source": "Gantrol" },
   { "id": "NGA2", "title": "把NGA背景也变成绿色", "source": "Gantrol" },
-  { "id": 1, "title": "示例题目 1", "source": "Gantrol" }
+  { "id": 1, "title": "示例题目 1", "source": "Gantrol" },
+  { "id": "lock2", "title": "加锁示例题目", "source": "Gantrol" }
 ]

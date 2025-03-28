@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { decodePuzzleV2 } from "$lib/utils/shareUtilsV2"; // Use V2 decoder
+    import { decodePuzzleV2 } from "$lib/utils/shareUtilsV2";
     import { GameMode } from "$lib/types";
     import Game from "$lib/components/game/Game.svelte";
     import { t } from '$lib/translations';
@@ -25,7 +25,7 @@
     <Game
             data={puzzleData}
             mode={GameMode.EDIT}
-            puzzleId={`edit-shared-v2-${data.code.substring(0, 6)}`} // Optional: Create a temporary ID
+            puzzleId={`edit-shared-v2-${data.code.substring(0, 6)}`}
     ></Game>
 {:else}
     <div class="p-4 my-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
