@@ -98,5 +98,63 @@
     ]
   ],
   "targetColor": 2,
-  "maxSteps": 7
+  "maxSteps": 7,
+  "solutionSteps": [
+    {
+      "A": 3,
+      "B": 1,
+      "position": [
+        2,
+        5
+      ]
+    },
+    {
+      "A": 4,
+      "B": 3,
+      "position": [
+        2,
+        3
+      ]
+    },
+    {
+      "A": 2,
+      "B": 4,
+      "position": [
+        2,
+        3
+      ]
+    },
+    {
+      "A": 1,
+      "B": 2,
+      "position": [
+        0,
+        6
+      ]
+    },
+    {
+      "A": 3,
+      "B": 1,
+      "position": [
+        0,
+        1
+      ]
+    },
+    {
+      "A": 4,
+      "B": 3,
+      "position": [
+        0,
+        1
+      ]
+    },
+    {
+      "A": 2,
+      "B": 4,
+      "position": [
+        0,
+        1
+      ]
+    }
+  ]
 }
