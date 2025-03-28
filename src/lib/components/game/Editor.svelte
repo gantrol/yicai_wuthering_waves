@@ -1,6 +1,6 @@
-<!-- src/lib/components/game/Editor.svelte -->
+<!--/* File: src/lib/components/game/Editor.svelte */-->
 <script lang="ts">
-    import {cloneMatrix, floodFill, getColors, getColorsForPicker} from "$lib/utils/gridUtils.js";
+    import {cloneMatrix, floodFill, getColors, getColorsForPicker, LOCKED_CELL_VALUE} from "$lib/utils/gridUtils.js";
     import ColorPicker from "$lib/components/ColorPicker.svelte";
     import {Input} from "$lib/components/ui/input";
     import Grid from "$lib/components/Grid.svelte";
@@ -36,62 +36,58 @@
         targetColor,
         maxSteps
     });
-    // Undo/Redo state
     let undoStack = $state<number[][][]>([]);
     let redoStack = $state<number[][][]>([]);
 
-    // ----------------------------
-    //   拖拽、颜色变更相关
-    // ----------------------------
     let isDragging = $state(false);
-    let dragStartGrid: number[][] | null = $state(null); // Store the grid state when dragging starts
-
     function updateGrid(newGrid: number[][]) {
         if (JSON.stringify(grid) !== JSON.stringify(newGrid)) {
             undoStack = [...undoStack, cloneMatrix(grid)];
-            redoStack = []; // Clear redo stack on new action
+            redoStack = [];
             grid = newGrid;
         }
     }
 
-    function handleCellClick({ row, col }) {
-        if (!isDragging) { // Only push to undo stack for single clicks
-            const oldGrid = cloneMatrix(grid);
-            oldGrid[row][col] = selectedColor;
-            updateGrid(oldGrid);
-        } else {
-            // Directly modify the grid during drag
-            grid[row][col] = selectedColor;
-            grid = [...grid]; // Trigger reactivity
+    function handleCellInteraction({ row, col }) {
+        const currentCellValue = grid[row][col];
+
+        if (currentCellValue === LOCKED_CELL_VALUE && selectedColor !== LOCKED_CELL_VALUE) {
+            return;
         }
+
+        const oldGrid = cloneMatrix(grid);
+        oldGrid[row][col] = selectedColor;
+        updateGrid(oldGrid);
     }
 
     function clearGrid() {
         const emptyGrid = Array(rows).fill(null).map(() => Array(cols).fill(0));
         updateGrid(emptyGrid);
-        toast('画板已清空', 'success');
+        toast($t('common.clear_board') + ' ' + $t('common.success'), 'success');
     }
 
     function fillEmpty() {
-        const filledGrid = grid.map(row => row.map(cell => cell === 0 ? selectedColor : cell));
+        const filledGrid = grid.map(row =>
+            row.map(cell => cell === 0 ? selectedColor : cell)
+        );
         updateGrid(filledGrid);
-        toast('空白已填充', 'success');
+        toast($t('common.fill_empty') + ' ' + $t('common.success'), 'success');
     }
 
     function exportPuzzle() {
-        // Implement export logic here, potentially using shareUtils
-        toast('导出功能待实现', 'warning');
+        handleExportPuzzle();
     }
 
     function importPuzzle() {
-        // Implement import logic here
-        toast('导入功能待实现', 'warning');
+        handleImportPuzzle();
     }
 
     function undo() {
         if (undoStack.length > 0) {
             redoStack = [...redoStack, cloneMatrix(grid)];
-            grid = undoStack.pop();
+            grid = undoStack.pop()!;
+            undoStack = undoStack;
+            redoStack = redoStack;
         } else {
             toast('没有可以撤销的操作', 'info');
         }
@@ -100,7 +96,9 @@
     function redo() {
         if (redoStack.length > 0) {
             undoStack = [...undoStack, cloneMatrix(grid)];
-            grid = redoStack.pop();
+            grid = redoStack.pop()!;
+            undoStack = undoStack;
+            redoStack = redoStack;
         } else {
             toast('没有可以重做的操作', 'info');
         }
@@ -110,33 +108,22 @@
         selectedColor = colorIndex;
     }
 
+
     function handleMouseDown(row: number, col: number) {
         isDragging = true;
-        dragStartGrid = cloneMatrix(grid); // Capture the grid state when dragging starts
-        handleCellClick({ row, col });
+        handleCellInteraction({ row, col });
     }
 
     function handleMouseEnter(row: number, col: number) {
         if (isDragging) {
-            handleCellClick({ row, col });
+            handleCellInteraction({ row, col });
         }
     }
 
     function handleMouseUp() {
-        if (isDragging && dragStartGrid) {
-            // Push the grid state at the start of the drag to the undo stack
-            if (JSON.stringify(grid) !== JSON.stringify(dragStartGrid)) {
-                undoStack = [...undoStack, dragStartGrid];
-                redoStack = [];
-            }
-            dragStartGrid = null;
-        }
         isDragging = false;
     }
 
-    // ----------------------------
-    //   文件导出导入
-    // ----------------------------
     let fileInput: HTMLInputElement;
 
     function handleImportPuzzle() {
@@ -156,29 +143,6 @@
                 }
                 if (puzzle.targetColor) targetColor = puzzle.targetColor;
                 if (puzzle.maxSteps) maxSteps = puzzle.maxSteps;
-                // if (puzzle.solutionSteps && puzzle.solutionSteps.length > 0) {
-                //     solution = {
-                //         type: 'success',
-                //         steps: puzzle.solutionSteps
-                //     };
-                //     solvingSteps = puzzle.solutionSteps;
-                //     stepGrids = [cloneMatrix(grid)];
-                //     let tempGrid = cloneMatrix(grid);
-                //     for (let step of puzzle.solutionSteps) {
-                //         const {A, position} = step;
-                //         tempGrid = floodFill(cloneMatrix(tempGrid), A, position[0], position[1]);
-                //         stepGrids.push(cloneMatrix(tempGrid));
-                //     }
-                //     currentStep = 0;
-                //     isAutoSolved = true;
-                // } else {
-                //     solution = undefined;
-                //     solvingSteps = [];
-                //     stepGrids = [];
-                //     currentStep = 0;
-                //     isAutoSolved = false;
-                // }
-                // moveHistory = [];
                 toast('题目已成功导入！', "success");
             } catch (error) {
                 console.error('导入的 JSON 文件格式不正确:', error);
@@ -186,6 +150,7 @@
             }
         };
         reader.readAsText(file);
+        (e.target as HTMLInputElement).value = '';
     }
 
     function handleExportPuzzle() {
@@ -193,7 +158,6 @@
             grid,
             targetColor,
             maxSteps,
-            // solutionSteps: solution?.steps ?? [],
         };
         const jsonStr = JSON.stringify(puzzleData, null, 2);
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
@@ -201,11 +165,11 @@
         dlAnchorElem.setAttribute("href", dataStr);
         dlAnchorElem.setAttribute("download", "溢彩画示例.json");
         dlAnchorElem.click();
+        dlAnchorElem.remove();
     }
 
     let editorIsOpen = $state(true);
 </script>
-<!-- 隐藏的文件选择器，用于导入题目 JSON -->
 <input
         accept="application/json"
         bind:this={fileInput}
@@ -225,7 +189,7 @@
             <CardContent class="space-y-4 p-6">
                 <Collapsible.Root class="space-y-4" bind:open={editorIsOpen}>
                     <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold tracking-tight">编辑区</h2>
+                        <h2 class="text-lg font-semibold tracking-tight">{$t('common.edit_puzzle')}</h2>
                         <Collapsible.Trigger
                                 class={buttonVariants({ variant: "outline", size: "sm", class: "w-9 p-0" })}
                         >
@@ -243,6 +207,7 @@
                                         colors={getColorsForPicker()}
                                         select={(i) => (targetColor = i)}
                                         selectedColor={targetColor}
+                                        label=""
                                 />
                             </div>
                             <div class="flex items-center space-x-8">
@@ -270,17 +235,16 @@
                             <ColorPicker
                                     colors={getColorsForPicker()}
                                     label={$t('common.select_color')}
-                                    select={(i) => (selectedColor = i)}
+                                    select={selectColor}
                                     selectedColor={selectedColor}
+                                    showLockButton={true}
                             />
                             <div class="flex gap-2">
-                                <Button variant="outline" size="icon" onclick={undo} disabled={undoStack.length === 0}>
+                                <Button variant="outline" size="icon" onclick={undo} disabled={undoStack.length === 0} class="disabled:opacity-50">
                                     <UndoIcon class="h-4 w-4"/>
-                                    <span class="sr-only">撤销</span>
                                 </Button>
-                                <Button variant="outline" size="icon" onclick={redo} disabled={redoStack.length === 0}>
+                                <Button variant="outline" size="icon" onclick={redo} disabled={redoStack.length === 0} class="disabled:opacity-50">
                                     <RedoIcon class="h-4 w-4"/>
-                                    <span class="sr-only">重做</span>
                                 </Button>
                             </div>
                         </div>
@@ -291,6 +255,7 @@
                                 mousedown={(e) => handleMouseDown(e.row, e.col)}
                                 mouseenter={(e) => handleMouseEnter(e.row, e.col)}
                                 rows={rows}
+                                readonly={false}
                         />
                     </Collapsible.Content>
                 </Collapsible.Root>

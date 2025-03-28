@@ -1,3 +1,4 @@
+<!--/* File: src/lib/components/game/Game.svelte */-->
 <script lang="ts">
     import {GameMode, } from "$lib/types";
     import type {PuzzleDataType, } from "$lib/types";
@@ -23,13 +24,6 @@
     <PlayCore
             data={data}
     ></PlayCore>
-    <!--{:else if mode === GameMode.DEMO}-->
-    <!--    <DemoCore-->
-    <!--            bind:this={solverRef}-->
-    <!--            puzzleData={demoData}-->
-    <!--            isAutoPlay={true}-->
-    <!--            currentStep={currentStep}-->
-    <!--    />-->
 {:else if mode === GameMode.PLAY_SIMPLE}
     <PlayCore
             data={data}
@@ -39,14 +33,12 @@
 {:else if mode === GameMode.EDIT}
     <Editor
             data={data}
-            >
+    >
     </Editor>
-{:else if mode === GameMode.CREATE}
 
 {:else if mode === GameMode.SOLUTION}
     <SolutionCore
             data={data}
     ></SolutionCore>
 {:else}
-    <!--    TODO: 404?-->
 {/if}

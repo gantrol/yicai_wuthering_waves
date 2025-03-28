@@ -1,4 +1,4 @@
 @REM `npm install -g repomix` https://repomix.com/#quick-start
 @REM OUTPUT: repomix-output.md
-repomix --include "docs/Svelte 5 migration guide.md,src/lib/components/*.svelte,src/lib/hooks/*.ts,src/lib/stores/*.ts,src/lib/utils/*.ts,src/lib/*.ts,src/routes/**/*.svelte,src/tests/puzzleTests.spec.ts"
+repomix --include "readme.md,src/,static/puzzles_json/1.json,static/puzzles_json/list.json"
 @REM repomix --remote gantrol/yicai_wuthering_waves

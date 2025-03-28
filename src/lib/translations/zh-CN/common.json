@@ -40,5 +40,10 @@
   "solution_step": "第{step}步: 选择{colorName}色({colorIndex}号)，点击{targetColorName}方格({positionRow}, {positionCol})",
   "share_puzzle": "分享题目",
   "import_puzzle_desc": "将题目代码粘贴在此处导入",
+  "color_name_locked": "锁定",
+  "share_link_copied": "分享链接已复制到剪贴板！",
+  "export_failed": "导出失败：{error}",
+  "decode_error": "解码错误",
+  "solution_step_simple": "第{step}步: 选择{colorName}色({colorIndex}号)，点击{targetColorName}方格({positionRow}, {positionCol})",
   "puzzle_id_not_found":"题目ID不存在"
 }

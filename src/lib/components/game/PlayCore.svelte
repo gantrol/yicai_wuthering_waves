@@ -1,4 +1,4 @@
-<!-- src/lib/components/game/PlayCore.svelte -->
+<!--/* File: src/lib/components/game/PlayCore.svelte */-->
 <script lang="ts">
     import {goto} from "$app/navigation";
     import { page } from '$app/state';
@@ -7,8 +7,8 @@
     import ColorPicker from "$lib/components/ColorPicker.svelte";
     import {toast} from "$lib/stores/toast";
     import type {Move, PuzzleDataType} from '$lib/types';
-    import {cloneMatrix, floodFillWave, getColors, getColorsForPicker, isGoalState} from '$lib/utils/gridUtils';
-    import {encodePuzzle} from "$lib/utils/shareUtils";
+    import {cloneMatrix, floodFillWave, getColors, getColorsForPicker, isGoalState, LOCKED_CELL_VALUE} from '$lib/utils/gridUtils';
+    import {encodePuzzleV2} from "$lib/utils/shareUtilsV2";
     import RotateCcw from 'lucide-svelte/icons/rotate-ccw';
     import Share from 'lucide-svelte/icons/share';
     import StepCounter from "$lib/components/game/StepCounter.svelte";
@@ -17,6 +17,7 @@
     import SolutionCore from "$lib/components/game/SolutionCore.svelte";
     import {Edit2, Gamepad2} from "lucide-svelte";
     import {t} from "$lib/translations";
+    import Eye from "lucide-svelte/icons/eye";
 
     type Props = {
         data: PuzzleDataType;
@@ -32,57 +33,43 @@
         resetMoves();
         closeSolution();
     })
-    // 实际操作用的网格数据
     let grid: number[][] = $state(data.grid);
-    // 原始网格数据（用于“重置”功能）
     let originalGrid: number[][] = $derived(data.grid);
 
-    // 要把所有格子最终变成的目标颜色
     let targetColor = $derived(data.targetColor);
-    // 最大步数
     let maxSteps = $derived(+data.maxSteps);
 
-
-    // 当前选的刷子颜色（1表示蓝色，对应 colorsValue[1]）
     let selectedColor = $state(1);
 
-    // 记录玩家手动移动历史（仅在游戏模式下使用）
     let moveHistory: Move[] = $state([]);
 
-    // 一些控制画板的配置
     let rows = $derived(grid.length);
     let cols = $derived(grid[0].length);
 
-    // ----------------------------
-    //   1. 常用编辑/操作函数
-    // ----------------------------
     function resetMoves() {
         moveHistory = [];
         grid = cloneMatrix(originalGrid);
         currentStep = 0;
     }
 
-    // 分享需要URL
     let baseUrl = "";
     if (typeof window !== "undefined") {
         baseUrl = window.location.origin;
     }
 
     async function handleShare() {
-        // puzzleData 里可能还有 solutionSteps，但不需要了
-        const code = encodePuzzle(targetColor, maxSteps, originalGrid);
-        const shareUrl = `${baseUrl}/share/${code}`;
         try {
+            const code = encodePuzzleV2(targetColor, maxSteps, originalGrid);
+            const shareUrl = `${baseUrl}/edit/share/v2/${code}`;
             await navigator.clipboard.writeText(shareUrl);
-            toast("分享链接已复制到剪贴板！", "success");
+            toast(t('common.share_link_copied'), "success");
         } catch (e) {
-            toast("复制失败，请手动复制链接：" + shareUrl, "error");
+            const message = e instanceof Error ? e.message : String(e);
+            toast(`${t('common.export_failed', {error: ''})}${message}`, "error");
+            console.error("Share failed:", e);
         }
     }
 
-    // ----------------------------
-    //
-    // ----------------------------
     function handleMouseDown(row: number, col: number) {
         tryMove(row, col);
     }
@@ -94,11 +81,11 @@
     function checkWinCondition() {
         if (isGoalState(grid, targetColor)) {
             setTimeout(() => {
-                toast(`恭喜！您用了 ${moveHistory.length} 步完成了游戏！`, "success");
+                toast(t('common.you_win_in', {count: moveHistory.length}), "success");
             }, 100);
         } else if (moveHistory.length >= maxSteps) {
             setTimeout(() => {
-                toast('已达到最大步数限制，请重试！', "error");
+                toast(t('common.game_over'), "error");
             }, 100);
         }
     }
@@ -108,7 +95,7 @@
     const animateWaveFill = async (row: number, col: number, newColor: number) => {
         if (moveHistory.length >= maxSteps || isAnimating) return;
         const oldColor = grid[row][col];
-        if (oldColor === newColor) return;
+        if (oldColor === LOCKED_CELL_VALUE || oldColor === newColor) return;
         isAnimating = true;
 
         moveHistory = [...moveHistory,
@@ -134,7 +121,6 @@
                     isAnimating = false;
                 }
                 resolve();
-                // TODO: 后续棋盘大小有变化的话，改间隔
             }, 30 * Math.log(i + 1)));
         }
     }
@@ -151,11 +137,19 @@
 
     function gotoEdit() {
         const currentPath = page.url.pathname;
-        goto(`/edit${currentPath}`);
+        if (currentPath.startsWith('/edit')) return;
+        if (currentPath.startsWith('/share/v2/')) {
+            goto(`/edit/share/v2/${page.params.code}`);
+        } else if (currentPath.startsWith('/puzzles/')) {
+            goto(`/edit/puzzles/${page.params.id}`);
+        } else {
+            goto(`/edit`);
+        }
     }
 
     function goBackFromEdit() {
         const currentPath = page.url.pathname;
+        if (!currentPath.startsWith('/edit')) return;
         const gamePath = currentPath.replace('/edit', '');
         goto(gamePath);
     }
@@ -187,6 +181,8 @@
                                     size="icon"
                                     onclick={goBackFromEdit}
                                     class="group"
+                                    aria-label="Return to Game"
+                                    title="Return to Game"
                             >
                                 <Gamepad2 class="h-4 w-4" />
                                 <span class="hidden">返回游戏</span>
@@ -197,6 +193,8 @@
                                     size="icon"
                                     onclick={gotoEdit}
                                     class="group"
+                                    aria-label="Edit Puzzle"
+                                    title="Edit Puzzle"
                             >
                                 <Edit2 class="h-4 w-4"/>
                                 <span class="hidden">去编辑</span>
@@ -221,19 +219,18 @@
 
                             <Button variant="default"
                                     onclick={openSolution}
-                                    class="group mr-1.5">
-                                <div class="h-4 w-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg>
-                                </div>
+                                    class="group mr-1.5"
+                                    aria-label={$t('common.solve_hint')}
+                                    title={$t('common.solve_hint')}
+                            >
+                                <Eye class="h-4 w-4" />
                                 <span class="hidden">{$t('common.solve_hint')}</span>
                             </Button>
 
-                            <Button class="group mr-1.5" onclick={handleShare} variant="secondary">
+                            <Button class="group mr-1.5" onclick={handleShare} variant="secondary"
+                                    aria-label={$t('common.share_puzzle')}
+                                    title={$t('common.share_puzzle')}
+                            >
                                 <Share class="h-4 w-4"/>
                                 <span class="hidden">{$t('common.share_puzzle')}</span>
                             </Button>
@@ -241,6 +238,8 @@
                                     class="group"
                                     disabled={moveHistory.length === 0}
                                     onclick={resetMoves}
+                                    aria-label="Restart"
+                                    title="Restart"
                             >
                                 <RotateCcw class="h-4 w-4"/>
                                 <span class="hidden">重新开始</span>
@@ -253,6 +252,7 @@
                             grid={grid}
                             mousedown={(e) => handleMouseDown(e.row, e.col)}
                             rows={rows}
+                            readonly={isAnimating}
                     />
                 </CardContent>
             </Card>

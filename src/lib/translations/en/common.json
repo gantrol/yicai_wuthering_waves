@@ -41,5 +41,10 @@
   "solution_step": "Step {step}: Select {colorName} color({colorIndex}号), click {targetColorName} cell({positionRow}, {positionCol})",
   "share_puzzle": "Share Puzzle",
   "import_puzzle_desc": "Paste the puzzle code here to import",
+  "color_name_locked": "Locked",
+  "share_link_copied": "Share link copied to clipboard!",
+  "export_failed": "Export failed: {error}",
+  "decode_error": "Decode Error",
+  "solution_step_simple": "Step {step}: Select {colorName} color({colorIndex}), click {targetColorName} cell({positionRow}, {positionCol})",
   "puzzle_id_not_found":"Puzzle ID not found."
 }

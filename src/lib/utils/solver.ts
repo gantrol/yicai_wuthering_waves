@@ -1,6 +1,6 @@
 /* File: src/lib/utils/solver.ts */
 
-import { cloneMatrix, matrixToString, isAllTargetColor } from './gridUtils';
+import {cloneMatrix, matrixToString, isAllTargetColor, LOCKED_CELL_VALUE, getCodeOfTrueColors} from './gridUtils';
 import type { Step, BFSResult } from "$lib/types";
 
 /**
@@ -92,7 +92,8 @@ function getAllColorRegions(matrix: number[][]): Map<number, Array<Array<[number
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-            if (!visited[r][c]) {
+            // Skip visited cells and locked cells
+            if (!visited[r][c] && matrix[r][c] !== LOCKED_CELL_VALUE) {
                 const color = matrix[r][c];
                 visited[r][c] = true;
                 const queue = [[r, c]];
@@ -108,6 +109,7 @@ function getAllColorRegions(matrix: number[][]): Map<number, Array<Array<[number
                             nr >= 0 && nr < rows &&
                             nc >= 0 && nc < cols &&
                             !visited[nr][nc] &&
+                            matrix[nr][nc] !== LOCKED_CELL_VALUE && // Ensure neighbor is not locked
                             matrix[nr][nc] === color
                         ) {
                             visited[nr][nc] = true;
@@ -121,11 +123,14 @@ function getAllColorRegions(matrix: number[][]): Map<number, Array<Array<[number
                 }
                 colorRegions.get(color)!.push(regionCoords);
             }
+            // Mark locked cells as visited to avoid processing them
+            else if (matrix[r][c] === LOCKED_CELL_VALUE) {
+                visited[r][c] = true;
+            }
         }
     }
     return colorRegions;
 }
-
 /**
  * 2) 对同一颜色的一个连通分区一次性染成新颜色 A
  */
@@ -238,7 +243,7 @@ export function aStarSolve(
 
         // 生成后继状态
         const colorRegions = getAllColorRegions(matrix);
-        const allColors = Array.from(colorRegions.keys());
+        const allColors = Array.from(colorRegions.keys()).filter(c => c !== LOCKED_CELL_VALUE);
         for (const A of allColors) {
             for (const [B, regions] of colorRegions.entries()) {
                 if (A === B) continue; // 染成一样的颜色无意义
@@ -287,7 +292,7 @@ export function solvePuzzleWithFallback(
     }
 
     // 如果直接染成目标色在 maxSteps 内失败，则尝试中转色
-    for (let intermediate = 1; intermediate <= 4; intermediate++) {
+    for (let intermediate of getCodeOfTrueColors()) {
         if (intermediate === targetColor) continue;
 
         // 先在 maxSteps - 1 步内染成 intermediate 色
