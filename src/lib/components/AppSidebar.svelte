@@ -116,7 +116,7 @@
                                                 width={5}
                                                 height={5}
                                         ></TargetColorButton>
-                                        <span>{puzzle.id}</span>
+                                        <span>{puzzle.title}</span>
                                     </a>
                                     {/snippet}
                                 </Sidebar.MenuButton>
