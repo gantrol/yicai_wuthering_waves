@@ -193,7 +193,6 @@
                             {closeSolution}
                     />
                     <Grid
-                            colors={getColors()}
                             cols={cols}
                             grid={grid}
                             rows={rows}

@@ -83,14 +83,11 @@
     function checkWinCondition() {
         if (isGoalState(grid, targetColor)) {
             setTimeout(() => {
-                toast(
-                    t('common.you_win_in', {count: moveHistory.length}),
-                    "success",
-                );
+                toast(`恭喜！您用了 ${moveHistory.length} 步完成了游戏！`, "success");
             }, 100);
         } else if (moveHistory.length >= maxSteps) {
             setTimeout(() => {
-                toast(t('common.game_over'), "error");
+                toast($t('common.game_over'), "error");
             }, 100);
         }
     }

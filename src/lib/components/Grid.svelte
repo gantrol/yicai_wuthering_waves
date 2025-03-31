@@ -11,8 +11,8 @@
         rows,
         cols,
         readonly = false,
-        mousedown,
-        mouseenter,
+        mousedown = () => {},
+        mouseenter = () => {},
     } = $props();
 
     const displayColors = getColors();

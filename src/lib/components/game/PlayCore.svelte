@@ -58,14 +58,13 @@
     }
 
     async function handleShare() {
+        const code = encodePuzzleV2(targetColor, maxSteps, originalGrid);
+        const shareUrl = `${baseUrl}/edit/share/v2/${code}`;
         try {
-            const code = encodePuzzleV2(targetColor, maxSteps, originalGrid);
-            const shareUrl = `${baseUrl}/edit/share/v2/${code}`;
             await navigator.clipboard.writeText(shareUrl);
-            toast(t('common.share_link_copied'), "success");
+            toast($t('common.share_link_copied'), "success");
         } catch (e) {
-            const message = e instanceof Error ? e.message : String(e);
-            toast(`${t('common.export_failed', {error: ''})}${message}`, "error");
+            toast("复制失败，请手动复制链接：" + shareUrl, "error");
             console.error("Share failed:", e);
         }
     }
@@ -81,11 +80,11 @@
     function checkWinCondition() {
         if (isGoalState(grid, targetColor)) {
             setTimeout(() => {
-                toast(t('common.you_win_in', {count: moveHistory.length}), "success");
+                toast(`恭喜！您用了 ${moveHistory.length} 步完成了游戏！`, "success");
             }, 100);
         } else if (moveHistory.length >= maxSteps) {
             setTimeout(() => {
-                toast(t('common.game_over'), "error");
+                toast($t('common.game_over'), "error");
             }, 100);
         }
     }
@@ -247,7 +246,6 @@
                         </div>
                     </div>
                     <Grid
-                            colors={getColors()}
                             cols={cols}
                             grid={grid}
                             mousedown={(e) => handleMouseDown(e.row, e.col)}
