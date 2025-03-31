@@ -19,29 +19,23 @@
 
     interface PuzzleItem { id: string | number; /* other fields */ }
 
-    let data = $state<PuzzleDataType | null>(null);
-    let grid: number[][] = $state([[]]);
-    let originalGrid: number[][] = $state([[]]);
-    let targetColor = $state(1);
-    let maxSteps = $state(4);
+    let data = $state({
+        grid:[[]],
+        targetColor: 1,
+        maxSteps: 4,
+    });
+    let grid: number[][] = $state(data.grid);
+    let originalGrid: number[][] = $derived(data.grid);
+    let targetColor = $derived(data.targetColor);
+    let maxSteps = $derived(data.maxSteps);
     let rows = $derived(grid.length);
-    let cols = $derived(grid[0]?.length ?? 0);
+    let cols = $derived(grid[0].length);
     let isLoadingPuzzle = $state(true);
 
     $effect(() => {
-        if(data){
-            grid = data.grid;
-            originalGrid = cloneMatrix(data.grid);
-            targetColor = data.targetColor;
-            maxSteps = +data.maxSteps;
-            resetMoves();
-            closeSolution();
-        } else {
-            grid = [[]];
-            originalGrid = [[]];
-            targetColor = 1;
-            maxSteps = 4;
-        }
+        grid = data.grid;
+        resetMoves();
+        closeSolution();
     })
 
     let selectedColor = $state(1);
@@ -66,11 +60,11 @@
     function checkWinCondition() {
         if (isGoalState(grid, targetColor)) {
             setTimeout(() => {
-                toast(t('common.you_win_in', {count: moveHistory.length}), "success");
+                toast($t('common.you_win_in', {count: moveHistory.length}), "success");
             }, 100);
         } else if (moveHistory.length >= maxSteps) {
             setTimeout(() => {
-                toast(t('common.game_over'), "error");
+                toast($t('common.game_over'), "error");
             }, 100);
         }
     }
@@ -141,7 +135,6 @@
 
     async function loadRandomPuzzle() {
         isLoadingPuzzle = true;
-        data = null;
         try {
             if (puzzleList.length === 0) {
                 toast($t('common.no_puzzles'), 'warning');
@@ -235,7 +228,6 @@
                             </div>
                         </div>
                         <Grid
-                                colors={getColors()}
                                 cols={cols}
                                 grid={grid}
                                 mousedown={(e) => handleMouseDown(e.row, e.col)}
