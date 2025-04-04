@@ -32,3 +32,8 @@ export enum GameMode {
     CREATE = 'create',
     SOLUTION = 'solution',
 }
+
+export interface ColorCount {
+    count: number;
+    hasTargetColor: boolean;
+}

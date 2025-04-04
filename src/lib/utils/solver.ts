@@ -1,6 +1,6 @@
 /* File: src/lib/utils/solver.ts */
 
-import {cloneMatrix, matrixToString, isAllTargetColor, LOCKED_CELL_VALUE, getCodeOfTrueColors} from './gridUtils';
+import {cloneMatrix, matrixToString, isAllTargetColor, LOCKED_CELL_VALUE, getCodeOfTrueColors, getColorCount, getFirstClickableCell} from './gridUtils';
 import type { Step, BFSResult } from "$lib/types";
 
 /**
@@ -232,12 +232,31 @@ export function aStarSolve(
         const { matrix, g, h, steps } = current;
 
         // 检查是否已达全目标色
-        if (isAllTargetColor(matrix, targetColor)) {
+        const colorCount = getColorCount(matrix, targetColor);
+        if (colorCount.count === 1 && colorCount.hasTargetColor) {
             return { type: 'success', steps };
+        }
+
+        // 全屏同色且还有步数，则直接返回
+        if (colorCount.count === 1 && g < maxSteps) {
+            const nextStep = getFirstClickableCell(matrix);
+            if (nextStep) {
+                steps.push({
+                    A: targetColor,
+                    B: matrix[nextStep[0]][nextStep[1]],
+                    position: nextStep
+                });
+                return { type: 'success', steps };
+            }
         }
 
         // 若已走到 maxSteps，就不再深入
         if (g >= maxSteps) {
+            continue;
+        }
+
+        // 如果剩余步数不足以合并所有颜色，则剪枝
+        if (g + (colorCount.count - (colorCount.hasTargetColor ? 1 : 0)) > maxSteps) {
             continue;
         }
 
@@ -276,74 +295,4 @@ export function aStarSolve(
     }
 
     return { type: 'failure', message: `在 ${maxSteps} 步内无法将所有数字变成目标颜色。` };
-}
-
-/**
- * 5) 尝试先用直接目标色搜索，若失败，再尝试中转色
- */
-export function solvePuzzleWithFallback(
-    grid: number[][],
-    targetColor: number,
-    maxSteps: number
-): BFSResult {
-    const directResult = aStarSolve(grid, targetColor, maxSteps);
-    if (directResult.type === 'success') {
-        return directResult;
-    }
-
-    // 如果直接染成目标色在 maxSteps 内失败，则尝试中转色
-    for (let intermediate of getCodeOfTrueColors()) {
-        if (intermediate === targetColor) continue;
-
-        // 先在 maxSteps - 1 步内染成 intermediate 色
-        const midResult = aStarSolve(grid, intermediate, maxSteps - 1, true);
-        if (midResult.type === 'success' && midResult.steps) {
-            // 再用 1 步把 intermediate -> targetColor
-            const finalMatrix = cloneMatrix(grid);
-            for (const st of midResult.steps) {
-                const colorRegions = getAllColorRegions(finalMatrix);
-                const region = colorRegions.get(st.B!)?.find(
-                    r => r[0][0] === st.position[0] && r[0][1] === st.position[1]
-                );
-                if (region) {
-                    for (const [rr, cc] of region) {
-                        finalMatrix[rr][cc] = st.A;
-                    }
-                }
-            }
-            // 最后一步：填充成 targetColor
-            let finalStep: Step | undefined;
-            const colorRegionsAfter = getAllColorRegions(finalMatrix);
-            if (colorRegionsAfter.has(intermediate)) {
-                const regionsOfInter = colorRegionsAfter.get(intermediate)!;
-                if (regionsOfInter.length > 0) {
-                    const firstRegion = regionsOfInter[0];
-                    finalStep = {
-                        A: targetColor,
-                        B: intermediate,
-                        position: firstRegion[0]
-                    };
-                    // 执行最后一步
-                    for (const [r, c] of firstRegion) {
-                        finalMatrix[r][c] = targetColor;
-                    }
-                }
-            }
-
-            if (finalStep) {
-                const stepsAll = [...midResult.steps, finalStep];
-                if (stepsAll.length <= maxSteps) {
-                    return {
-                        type: 'success',
-                        steps: stepsAll
-                    };
-                }
-            }
-        }
-    }
-
-    return {
-        type: 'failure',
-        message: `在 ${maxSteps} 步内，无法全部染成 ${targetColor} 色。`
-    };
 }

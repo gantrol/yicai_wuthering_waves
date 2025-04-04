@@ -1,5 +1,5 @@
 /* File: src/lib/utils/solverWorker.ts */
-import { solvePuzzleWithFallback } from './solver';
+import { aStarSolve } from './solver';
 import type { BFSResult } from '$lib/types';
 
 self.addEventListener('message', async (e) => {
@@ -11,7 +11,7 @@ self.addEventListener('message', async (e) => {
 
     let result: BFSResult;
     try {
-        result = solvePuzzleWithFallback(grid, targetColor, maxSteps);
+        result = aStarSolve(grid, targetColor, maxSteps);
     } catch (err) {
         result = {
             type: 'failure',
