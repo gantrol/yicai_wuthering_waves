@@ -174,3 +174,14 @@ export function getDescriptionObjectForSolutionStep(step: Step, index: number) {
         positionCol: step.position[1] + 1,
     }
 }
+
+export function getFirstClickableCell(matrix: number[][]): [number, number] | null {
+    for (let r = 0; r < matrix.length; r++) {
+        for (let c = 0; c < matrix[r].length; c++) {
+            if (matrix[r][c] !== LOCKED_CELL_VALUE) {
+                return [r, c];
+            }
+        }
+    }
+    return null;
+}
