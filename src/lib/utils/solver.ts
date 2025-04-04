@@ -1,6 +1,6 @@
 /* File: src/lib/utils/solver.ts */
 
-import {cloneMatrix, matrixToString, isAllTargetColor, LOCKED_CELL_VALUE, getCodeOfTrueColors} from './gridUtils';
+import {cloneMatrix, matrixToString, isAllTargetColor, LOCKED_CELL_VALUE, getCodeOfTrueColors, getColorCount} from './gridUtils';
 import type { Step, BFSResult } from "$lib/types";
 
 /**
@@ -232,12 +232,18 @@ export function aStarSolve(
         const { matrix, g, h, steps } = current;
 
         // 检查是否已达全目标色
-        if (isAllTargetColor(matrix, targetColor)) {
+        const colorCount = getColorCount(matrix, targetColor);
+        if (colorCount.count === 1 && colorCount.hasTargetColor) {
             return { type: 'success', steps };
         }
 
         // 若已走到 maxSteps，就不再深入
         if (g >= maxSteps) {
+            continue;
+        }
+
+        // 如果剩余步数不足以合并所有颜色，则剪枝
+        if (g + (colorCount.count - (colorCount.hasTargetColor ? 1 : 0)) > maxSteps) {
             continue;
         }
 
