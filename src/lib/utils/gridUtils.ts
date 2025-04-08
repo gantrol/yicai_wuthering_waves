@@ -1,5 +1,5 @@
 /* File: src/lib/utils/gridUtils.ts */
-import type {Step} from "$lib/types";
+import type {ColorCount, Step} from "$lib/types";
 
 export const LOCKED_CELL_VALUE = -1;
 
@@ -21,6 +21,24 @@ export function isGoalState(matrix: number[][], targetColor: number): boolean {
 
 export function isAllTargetColor(matrix: number[][], targetColor: number): boolean {
     return isGoalState(matrix, targetColor);
+}
+
+export function getColorCount(matrix: number[][], targetColor: number): ColorCount {
+    const colorCount: ColorCount = { count: 0, hasTargetColor: false };
+    const colorSet = new Set<number>();
+    for (const row of matrix) {
+        for (const cell of row) {
+            if (cell === LOCKED_CELL_VALUE) {
+                continue;
+            }
+            colorSet.add(cell);
+            if (cell === targetColor) {
+                colorCount.hasTargetColor = true;
+            }
+        }
+    }
+    colorCount.count = colorSet.size;
+    return colorCount;
 }
 
 
@@ -155,4 +173,15 @@ export function getDescriptionObjectForSolutionStep(step: Step, index: number) {
         positionRow: step.position[0] + 1,
         positionCol: step.position[1] + 1,
     }
+}
+
+export function getFirstClickableCell(matrix: number[][]): [number, number] | null {
+    for (let r = 0; r < matrix.length; r++) {
+        for (let c = 0; c < matrix[r].length; c++) {
+            if (matrix[r][c] !== LOCKED_CELL_VALUE) {
+                return [r, c];
+            }
+        }
+    }
+    return null;
 }
