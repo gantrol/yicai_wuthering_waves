@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { aStarSolve } from '$lib/utils/solver';
+import { cloneMatrix, floodFill, LOCKED_CELL_VALUE } from '$lib/utils/gridUtils';
 
 // 递归或手动拼接 static/puzzles_json 路径
 // 注意 __dirname 在 ESM 环境下可能不可用，可改用 import.meta.url 处理
@@ -33,8 +34,30 @@ describe('Test all puzzles in static/puzzles_json (exclude list.json)', () => {
 
             // 如果想要断言它一定成功，就检查
             expect(result.type).toBe('success');
-            // TODO：按操作步骤检查，并check 最后的矩阵
-            // 如果失败，则会抛错
+
+            if (result.type === 'success') {
+                const { steps } = result;
+                let currentGrid = cloneMatrix(grid);
+
+                for (const step of steps) {
+                    // Ensure the step is valid before applying
+                    // The step.B (old color at position) might not be directly used by floodFill
+                    // if floodFill re-checks the color, but it's good for context.
+                    // floodFill(grid, newColor, startRow, startCol)
+                    currentGrid = floodFill(currentGrid, step.A, step.position[0], step.position[1]);
+                }
+
+                // Verify final grid state
+                for (let r = 0; r < currentGrid.length; r++) {
+                    for (let c = 0; c < currentGrid[r].length; c++) {
+                        const cellValue = currentGrid[r][c];
+                        expect(cellValue === targetColor || cellValue === LOCKED_CELL_VALUE).toBe(true, 
+                            `Cell at [${r},${c}] is ${cellValue}, expected ${targetColor} or ${LOCKED_CELL_VALUE}`
+                        );
+                    }
+                }
+            }
+            // If result.type is not 'success', the first expect already failed the test.
         });
     });
 });

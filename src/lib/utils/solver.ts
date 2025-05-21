@@ -296,3 +296,5 @@ export function aStarSolve(
 
     return { type: 'failure', message: `在 ${maxSteps} 步内无法将所有数字变成目标颜色。` };
 }
+
+export { getAllColorRegions, LOCKED_CELL_VALUE, fillRegion, heuristicV1, heuristicV2 };
