@@ -129,47 +129,25 @@ describe('getAllColorRegions', () => {
     ];
     const regions = getAllColorRegions(matrix);
     expect(regions.size).toBe(2);
-    expect(regions.get(1)?.length).toBe(3); // 3 disconnected regions of color 1
-    expect(regions.get(1)![0]).toEqual(expect.arrayContaining([[0,0]]));
-    expect(regions.get(1)![1]).toEqual(expect.arrayContaining([[0,2]]));
-    expect(regions.get(1)![2]).toEqual(expect.arrayContaining([[1,1]]));
-     // Additional check for the third region of color 1 due to previous test error
-    expect(regions.get(1)![2]).toEqual(expect.arrayContaining([[1,1]]));
+    // For color 1, cells are: (0,0), (0,2), (1,1), (2,0), (2,2) - 5 regions
+    // For color 2, cells are: (0,1), (1,0), (1,2), (2,1) - 4 regions
+    expect(regions.size).toBe(2);
+    expect(regions.get(1)?.length).toBe(5); 
+    expect(regions.get(2)?.length).toBe(4);
 
-
-    expect(regions.get(2)?.length).toBe(3); // 3 disconnected regions of color 2
+    // Check if some of the individual regions are found (order in the array might vary)
+    expect(regions.get(1)).toEqual(expect.arrayContaining([[[0,0]], [[0,2]], [[1,1]], [[2,0]], [[2,2]]]));
+    expect(regions.get(2)).toEqual(expect.arrayContaining([[[0,1]], [[1,0]], [[1,2]], [[2,1]]]));
   });
 
-  it('should handle an empty grid by returning an empty map', () => {
-    const matrix: number[][] = [];
-    // Expecting an error or specific behavior for empty matrix based on implementation
-    // For now, let's assume it returns an empty map or check current behavior
-    // If getAllColorRegions is called with an empty matrix, it will try to access matrix[0].length,
-    // which will throw an error. This case should be handled in the function itself.
-    // For now, let's assume it's handled and returns an empty map.
-    // Update: The function as written will throw "TypeError: Cannot read properties of undefined (reading 'length')"
-    // A robust implementation should check for matrix.length === 0.
-    // For the purpose of this test, we'll assume the function is updated or test current behavior.
-    // Given the current implementation, this test would fail.
-    // Let's test for a grid with an empty row, which also might cause issues.
-    // const regionsEmpty = getAllColorRegions(matrix);
-    // expect(regionsEmpty.size).toBe(0);
+  it('should handle an empty grid or grid with empty rows by returning an empty map', () => {
+    const emptyMatrix: number[][] = [];
+    const regionsEmpty = getAllColorRegions(emptyMatrix);
+    expect(regionsEmpty.size).toBe(0);
 
-    const matrixWithEmptyRow = [[]];
-     // This will also throw "TypeError: Cannot read properties of undefined (reading 'fill')"
-     // because of `const cols = matrix[0].length;` and then `Array(cols).fill(false)`
-     // For now, we'll assume the function is robust enough or skip this specific sub-case.
-     // const regionsEmptyRow = getAllColorRegions(matrixWithEmptyRow);
-     // expect(regionsEmptyRow.size).toBe(0);
-
-     // Let's test with a valid but empty-ish grid (e.g. all locked)
-     // This is covered by 'should handle a grid with only locked cells'.
-     // For now, let's assume the function returns an empty map for truly empty or malformed grids.
-     // This part of the test might need adjustment based on actual robust error handling in `getAllColorRegions`.
-     // Given the current implementation, let's test the behavior that would not throw an error for an "empty" scenario.
-     // A grid that is not empty but results in no regions (e.g. all locked cells) is a valid test.
-    const regions = getAllColorRegions([[]]); // This will throw an error
-    expect(regions.size).toBe(0); // This assertion will not be reached if an error is thrown
+    const matrixWithEmptyRow: number[][] = [[]];
+    const regionsEmptyRow = getAllColorRegions(matrixWithEmptyRow);
+    expect(regionsEmptyRow.size).toBe(0);
   });
   
   it('should handle a grid with only locked cells', () => {
@@ -329,8 +307,12 @@ describe('heuristicV1', () => {
       [2, 3, 2],
       [1, 2, 1],
     ];
-    // Non-target regions: 1s (3 regions), 2s (3 regions), 3s (1 region)
-    expect(heuristicV1(matrix, targetColor)).toBe(7);
+    // Non-target regions:
+    // Color 1: (0,0), (0,2), (2,0), (2,2) -> 4 regions
+    // Color 2: (0,1), (1,0), (1,2), (2,1) -> 4 regions
+    // Color 3: (1,1) -> 1 region
+    // Total = 4 + 4 + 1 = 9
+    expect(heuristicV1(matrix, targetColor)).toBe(9);
   });
   
   it('Grid with multiple non-target colors, all connected', () => {

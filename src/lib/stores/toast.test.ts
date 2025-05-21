@@ -4,17 +4,23 @@ import { toastStore, toast, type ToastItem } from '../stores/toast'; // Adjust p
 describe('toastStore and toast utility', () => {
   beforeEach(() => {
     // Reset the store's internal state before each test
-    // This might involve a dedicated reset method on the store if available,
-    // or manually clearing its state if it's directly accessible (not ideal for encapsulation)
-    // For a simple store, we might just rely on creating fresh instances or ensuring
-    // tests don't interfere. Since toastStore is a singleton, we'll clear its toasts.
-    // @ts-expect-error accessing private member for test
-    toastStore.update(toasts => []); 
     vi.useFakeTimers(); // Use fake timers for controlling setTimeout
+    vi.clearAllTimers(); // Clear any timers from previous tests
+
+    // Correctly reset the toast store's state
+    let currentToasts: ToastItem[] = [];
+    const unsub = toastStore.subscribe(value => {
+      currentToasts = value;
+    });
+    currentToasts.forEach(toast => toastStore.removeToast(toast.id));
+    unsub();
+    // Ensure all removal timers (if any from removeToast) are also cleared immediately
+    vi.runOnlyPendingTimers(); 
   });
 
   afterEach(() => {
     vi.clearAllMocks(); // Clear any spies
+    vi.clearAllTimers(); // Ensure all timers are cleared
     vi.useRealTimers(); // Restore real timers
   });
 
@@ -47,7 +53,7 @@ describe('toastStore and toast utility', () => {
       toastStore.addToast({ message: 'Timed Toast', duration: 3000 });
       expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
-      setTimeoutSpy.mockRestore();
+      // No need to restore spy if it's cleared in afterEach
     });
 
     it('should remove the toast from the store after the specified duration', () => {
@@ -67,7 +73,7 @@ describe('toastStore and toast utility', () => {
 
     it('should not call setTimeout if no duration is provided (toast persists)', () => {
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      toastStore.addToast({ message: 'Persistent Toast' });
+      toastStore.addToast({ message: 'Persistent Toast' }); // Duration is undefined
       expect(setTimeoutSpy).not.toHaveBeenCalled();
       
       let currentToasts: ToastItem[] = [];
@@ -77,7 +83,7 @@ describe('toastStore and toast utility', () => {
       vi.advanceTimersByTime(5000); // Advance time well beyond typical durations
       expect(currentToasts.length).toBe(1); // Should still be there
       unsubscribe();
-      setTimeoutSpy.mockRestore();
+      // No need to restore spy
     });
   });
 
@@ -108,17 +114,23 @@ describe('toastStore and toast utility', () => {
       toastStore.addToast({ message: 'Timed Toast to remove manually', duration: 5000 });
       
       let currentToasts: ToastItem[] = [];
-      const unsubscribe = toastStore.subscribe(value => currentToasts = value);
+      // Subscribe to get the toast ID
+      const unsub = toastStore.subscribe(value => { currentToasts = value; });
       const toastId = currentToasts[0].id;
+      unsub(); // Unsubscribe early to avoid issues with async removal during test execution
 
       toastStore.removeToast(toastId);
       expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
       
-      vi.advanceTimersByTime(5000);
-      expect(currentToasts.length).toBe(0); // Already removed, should stay removed
+      // Re-subscribe to check final state if needed, or check timers
+      let finalToasts: ToastItem[] = [];
+      const unsubFinal = toastStore.subscribe(value => { finalToasts = value; });
+
+      vi.advanceTimersByTime(5000); // Advance time to ensure original timeout would have fired
+      expect(finalToasts.length).toBe(0); // Already removed, should stay removed
       
-      clearTimeoutSpy.mockRestore();
-      unsubscribe();
+      unsubFinal();
+      // No need to restore spy
     });
   });
 
@@ -155,76 +167,67 @@ describe('toastStore and toast utility', () => {
 
   describe('toast() utility function', () => {
     it('should call toastStore.addToast with the provided message, type, and duration', () => {
-      const addToastSpy = vi.spyOn(toastStore, 'addToast');
+      // We are testing the `toast` utility function which internally calls `toastStore.addToast`
+      // So, we should spy on `toastStore.addToast` to verify its arguments.
+      const storeAddToastSpy = vi.spyOn(toastStore, 'addToast');
       toast('Test Message', 'error', 5000);
       
-      expect(addToastSpy).toHaveBeenCalledTimes(1);
-      expect(addToastSpy).toHaveBeenCalledWith({
+      expect(storeAddToastSpy).toHaveBeenCalledTimes(1);
+      expect(storeAddToastSpy).toHaveBeenCalledWith({
         message: 'Test Message',
         type: 'error',
         duration: 5000,
       });
-      addToastSpy.mockRestore();
+      // No need to restore spy
     });
 
     it('should use default type "info" if type is not provided', () => {
-      const addToastSpy = vi.spyOn(toastStore, 'addToast');
-      toast('Info Message');
+      const storeAddToastSpy = vi.spyOn(toastStore, 'addToast');
+      toast('Info Message'); // type and duration are default
       
-      expect(addToastSpy).toHaveBeenCalledTimes(1);
-      expect(addToastSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(storeAddToastSpy).toHaveBeenCalledTimes(1);
+      expect(storeAddToastSpy).toHaveBeenCalledWith({ // Check the object passed to the store's method
         message: 'Info Message',
-        type: 'info',
-      }));
-      addToastSpy.mockRestore();
+        type: 'info', // Default type
+        duration: 3000, // Default duration from toast function
+      });
+      // No need to restore spy
     });
 
     it('should use default duration (e.g., 3000ms or as defined in store) if duration is not provided', () => {
-      // This test assumes a default duration is set by addToast or the toast function itself
-      // if not explicitly passed. The implementation of toastStore.addToast will determine this.
-      // Let's assume the default is 3000ms as per typical toast behavior.
-      const addToastSpy = vi.spyOn(toastStore, 'addToast');
-      const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
+      const storeAddToastSpy = vi.spyOn(toastStore, 'addToast');
+      const globalSetTimeoutSpy = vi.spyOn(global, 'setTimeout');
       
-      toast('Default Duration Message');
+      toast('Default Duration Message'); // Uses default duration from `toast` function
       
-      expect(addToastSpy).toHaveBeenCalledTimes(1);
-      const callArg = addToastSpy.mock.calls[0][0];
+      expect(storeAddToastSpy).toHaveBeenCalledTimes(1);
+      const callArg = storeAddToastSpy.mock.calls[0][0];
       expect(callArg.message).toBe('Default Duration Message');
+      expect(callArg.type).toBe('info'); // Default type
+      expect(callArg.duration).toBe(3000); // Default duration from toast function
       
-      // Check if duration was passed to addToast (it might be undefined if default is handled internally)
-      // Or, more robustly, check if setTimeout was called with the expected default duration
-      if (callArg.duration !== undefined) {
-        expect(callArg.duration).toBe(3000); // Assuming default is 3000ms
-        expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
-      } else {
-        // If duration is not in callArg, it means the default is applied inside addToast
-        // We already test addToast's default duration behavior, so this spy call is sufficient.
-        // The important part is that addToast was called correctly.
-        // We can also check that setTimeout was called if a default duration leads to it.
-        expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
-      }
+      // setTimeout should be called by toastStore.addToast with this duration
+      expect(globalSetTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
       
-      addToastSpy.mockRestore();
-      setTimeoutSpy.mockRestore();
+      // No need to restore spies
     });
-     it('should correctly pass undefined duration if explicitly passed as undefined to toast()', () => {
-      const addToastSpy = vi.spyOn(toastStore, 'addToast');
-      const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
+
+    it('should correctly pass undefined duration if explicitly passed as undefined to toast()', () => {
+      const storeAddToastSpy = vi.spyOn(toastStore, 'addToast');
+      const globalSetTimeoutSpy = vi.spyOn(global, 'setTimeout');
 
       toast('Explicit Undefined Duration', 'warning', undefined);
 
-      expect(addToastSpy).toHaveBeenCalledTimes(1);
-      expect(addToastSpy).toHaveBeenCalledWith({
+      expect(storeAddToastSpy).toHaveBeenCalledTimes(1);
+      expect(storeAddToastSpy).toHaveBeenCalledWith({
         message: 'Explicit Undefined Duration',
         type: 'warning',
         duration: undefined, // Explicitly undefined
       });
       // setTimeout should not be called by addToast if duration is undefined
-      expect(setTimeoutSpy).not.toHaveBeenCalled();
-
-      addToastSpy.mockRestore();
-      setTimeoutSpy.mockRestore();
+      expect(globalSetTimeoutSpy).not.toHaveBeenCalled();
+      
+      // No need to restore spies
     });
   });
 });

@@ -37,7 +37,11 @@ class PriorityQueue<T> {
         // 交换首尾，再 pop 最后一个
         this.swap(0, this.heap.length - 1);
         const popped = this.heap.pop();
-        this.bubbleDown(0);
+        
+        // Only call bubbleDown if the heap is not empty
+        if (!this.isEmpty()) {
+            this.bubbleDown(0);
+        }
         return popped?.item;
     }
 
@@ -85,8 +89,14 @@ class PriorityQueue<T> {
  *    返回一个 Map：color -> [若干个分区]，每个分区是坐标数组
  */
 function getAllColorRegions(matrix: number[][]): Map<number, Array<Array<[number, number]>>> {
+    if (matrix.length === 0) {
+        return new Map<number, Array<Array<[number, number]>>>();
+    }
     const rows = matrix.length;
     const cols = matrix[0].length;
+    if (cols === 0) {
+        return new Map<number, Array<Array<[number, number]>>>();
+    }
     const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
     const colorRegions = new Map<number, Array<Array<[number, number]>>>();
 
