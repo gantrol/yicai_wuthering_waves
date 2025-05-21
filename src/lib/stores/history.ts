@@ -69,40 +69,17 @@ export class EditHistory {
 
     // 撤销
     undo(): number[][] | null {
-        if (this.currentIndex >= 0) { // Can undo if pointing to a valid record
-            const gridToReturn = JSON.parse(JSON.stringify(this.records[this.currentIndex].grid));
-            this.currentIndex--; // Move pointer first
-            this.saveToStorage();
-            // If after undo, currentIndex is -1, it means we "undid" the first record.
-            // The state returned is the one at the previous currentIndex.
-            // If currentIndex was 0, it becomes -1. We return records[0].grid.
-            // This seems slightly off. Let's rethink:
-            // If currentIndex is 0 (first record), undo means go to "before first record" state.
-            // So, currentIndex becomes -1. The returned grid is records[0].
-            // If currentIndex is > 0, then it's fine.
-            if (this.currentIndex + 1 >= 0 && this.currentIndex + 1 < this.records.length) {
-                 // This returns the state we were at before undoing.
-                return JSON.parse(JSON.stringify(this.records[this.currentIndex + 1].grid));
-            }
-            // This case needs to be robust. If current index is 0, we want to return current state and then move index to -1.
-            // If currentIndex is already -1 (or becomes -1), we should return null.
-            // The original logic: `if (this.currentIndex > 0)` meant you couldn't undo the first action to reach index 0.
-            // Corrected logic for undo:
-            if (this.records.length > 0 && this.currentIndex >= 0) {
-                // If currentIndex is 0, we return current state (records[0]) and set currentIndex to -1
-                // If currentIndex > 0, we set currentIndex to currentIndex-1 and return records[currentIndex] (new)
-                if (this.currentIndex > 0) {
-                    this.currentIndex--;
-                    this.saveToStorage();
-                    return JSON.parse(JSON.stringify(this.records[this.currentIndex].grid));
-                } else if (this.currentIndex === 0) { // We are at the first record
-                    this.currentIndex--; // Go to -1
-                    this.saveToStorage();
-                    return JSON.parse(JSON.stringify(this.records[0].grid)); // Return the first record's state
-                }
-            }
+        if (this.currentIndex < 0) { // No records or already at the beginning (currentIndex is -1)
+            return null;
         }
-        return null; // No records or already at the beginning
+        
+        // Consistently return the state we are moving away from (the state at the current currentIndex).
+        const gridToReturn = JSON.parse(JSON.stringify(this.records[this.currentIndex].grid));
+        
+        this.currentIndex--; // Move the pointer to the previous state
+        this.saveToStorage();
+        
+        return gridToReturn;
     }
 
     // 重做

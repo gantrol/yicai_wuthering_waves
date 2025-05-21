@@ -135,16 +135,26 @@ describe('toastStore and toast utility', () => {
   });
 
   describe('toastStore.subscribe()', () => {
-    it('should notify subscribers when a toast is added', (done) => {
-      const unsubscribe = toastStore.subscribe(toasts => {
-        if (toasts.length > 0) {
-          expect(toasts.length).toBe(1);
-          expect(toasts[0].message).toBe('Notify on Add');
-          unsubscribe();
-          done();
-        }
+    it('should notify subscribers when a toast is added', () => {
+      return new Promise((resolve) => {
+        const message = 'Notify on Add';
+        let callCount = 0;
+        // The store is initially empty due to beforeEach
+        const unsubscribe = toastStore.subscribe(toasts => {
+          callCount++;
+          if (callCount === 1) { // Initial subscription call with current state (empty array)
+            expect(toasts.length).toBe(0);
+            return;
+          }
+          if (callCount === 2) { // After addToast
+            expect(toasts.length).toBe(1);
+            expect(toasts[0].message).toBe(message);
+            unsubscribe();
+            resolve(undefined); // Resolve the promise
+          }
+        });
+        toastStore.addToast({ type: 'info', message });
       });
-      toastStore.addToast({ message: 'Notify on Add' });
     });
 
     it('should notify subscribers when a toast is removed', (done) => {
@@ -189,12 +199,12 @@ describe('toastStore and toast utility', () => {
       expect(storeAddToastSpy).toHaveBeenCalledWith({ // Check the object passed to the store's method
         message: 'Info Message',
         type: 'info', // Default type
-        duration: 3000, // Default duration from toast function
+        duration: 5000, // Corrected default duration from toast function
       });
       // No need to restore spy
     });
 
-    it('should use default duration (e.g., 3000ms or as defined in store) if duration is not provided', () => {
+    it('should use default duration (e.g., 5000ms as defined in store) if duration is not provided', () => {
       const storeAddToastSpy = vi.spyOn(toastStore, 'addToast');
       const globalSetTimeoutSpy = vi.spyOn(global, 'setTimeout');
       
@@ -204,10 +214,10 @@ describe('toastStore and toast utility', () => {
       const callArg = storeAddToastSpy.mock.calls[0][0];
       expect(callArg.message).toBe('Default Duration Message');
       expect(callArg.type).toBe('info'); // Default type
-      expect(callArg.duration).toBe(3000); // Default duration from toast function
+      expect(callArg.duration).toBe(5000); // Corrected default duration from toast function
       
       // setTimeout should be called by toastStore.addToast with this duration
-      expect(globalSetTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
+      expect(globalSetTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 5000);
       
       // No need to restore spies
     });
